@@ -73,5 +73,71 @@
 			
 			return $tablename;
 		}
+		
+		function hn_ts_addMetadataRecord($measurementType, $minimumvalue, $maximumvalue,
+				$unit, $unitSymbol, $deviceDetails, $otherInformation){
+			global $wpdb;
+			global $blog_id;
+			$nextdevice= $this->getCount('wp_ts_metadata')+1;
+			$tablename =  $wpdb->prefix.'_'.$blog_id.'_'.$measurementType.'_'.$nextdevice;
+			$wpdb->insert(  
+			    'wp_ts_metadata', 
+			    array( 	'tablename' => $tablename,
+			    		'measurement_type' => $measurementType, 
+			    		'min_value' => $minimumvalue, 
+			    		'max_value' => $maximumvalue, 
+			    		'unit' => $unit, 
+			    		'unit_symbol' => $unitSymbol,
+			    		'device_details' => $deviceDetails,			    		
+			    		'other_info' => $otherInformation), 
+			    array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' )  
+			);  
+		}
+		
+		function hn_ts_addContextRecord($context_type, $context_value){
+			$context_type_id= $this->getRecord('wp_ts_context_type', 'context_type_id', 
+					"name='$context_value'");
+			global $wpdb;
+			if(!$context_type_id){
+				$wpdb->insert('wp_ts_context_type', 
+						array( 	'name' => $context_type ), array( '%s' )  );
+				$context_type_id= $this->getRecord('wp_ts_context_type', 'context_type_id',
+						"name='$context_type'");
+			}
+			
+			$wpdb->insert(  
+			    'wp_ts_context', 
+			    array( 	'context_type_id' => $context_type_id,
+			    		'value' => $context_value), 
+			    array( '%s', '%s' )  
+			);  
+		}
+		
+		function getRecord($table, $field, $where){
+			global $wpdb;
+			return $wpdb->get_var( 
+					$wpdb->prepare( "SELECT $field FROM $table WHERE $where;" ) 
+			);
+		}
+		
+		function getCount($table){
+			global $wpdb;
+			$sql="SELECT COUNT(*) FROM $table;";
+			return $wpdb->get_var($sql);
+		}
+		
+		function hn_ts_select($table){
+			global $wpdb;
+			$sql="SELECT * FROM $table;";
+			return $wpdb->get_results($sql);
+		}
+		
+		function hn_ts_select_context(){
+			global $wpdb;
+			$sql="SELECT c.context_id, t.name, c.value 
+				   FROM wp_ts_context c
+				   INNER JOIN wp_ts_context_type t USING(context_type_id)";
+			return $wpdb->get_results($sql);
+		}
 	}
 ?>

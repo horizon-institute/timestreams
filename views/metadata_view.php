@@ -32,23 +32,29 @@
 				</tr>
 			</tfoot>
 			<tbody>
-				<tr>
-				<td>0</td>
-				<td>b</td>
-				<td>c</td>
-				<td>c</td>
-				<td>c</td>
-				<td>c</td>
-				<td>c</td>
-				<td>c</td>
-				<td>c</td>
-				<td>c</td>
-				</tr>
+			<?php 
+			$db = new Hn_TS_Database();
+			$rows = $db->hn_ts_select('wp_ts_metadata');
+			if($rows){
+				foreach ( $rows as $row )
+				echo "<tr>
+				<td>$row->metadata_id</td>
+				<td>$row->tablename</td>
+				<td>$row->measurement_type</td>
+				<td>$row->first_record</td>
+				<td>$row->min_value</td>
+				<td>$row->max_value</td>
+				<td>$row->unit</td>
+				<td>$row->unit_symbol</td>
+				<td>$row->device_details</td>
+				<td>$row->other_info</td>
+				</tr>";
+			}?>
 			</tbody>
 		</table>
 		<div class="tablenav">
 			<div class="tablenav-pages">
-				<span class="displaying-num">Displaying 1 of 1</span>
+				<span class="displaying-num">Displaying <?php echo count($rows);?> of <?php echo count($rows);?></span>
 				<span class="page-numbers current">1</span>
 				<?php //<a href="#" class="page-numbers">2</a> ?>
 				<?php //<a href="#" class="next page-numbers">&raquo;</a> ?>
@@ -56,5 +62,7 @@
 		</div>
 		<hr />
 		<?php
+		
+			
 	}
 ?>

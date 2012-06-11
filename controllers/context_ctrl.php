@@ -24,5 +24,13 @@
 			</form>
 			<hr />
 			<?php
+				if(isset($_POST['context_type']) && $_POST['context_type'] && 
+						isset($_POST['context_value']) && $_POST['context_value']) {
+					$db = new Hn_TS_Database();
+					$db->hn_ts_addContextRecord(
+						$_POST['context_type'], $_POST['context_value']
+					);
+					echo 'Record added.';
+				}	
 	}
 ?>
