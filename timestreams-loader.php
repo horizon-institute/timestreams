@@ -25,18 +25,7 @@
 	    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	*/
 	
-	
-		// Hook into the dashboard action
-	
-	register_activation_hook(__FILE__, 'hn_ts_timestreams_activate');
-	register_deactivation_hook(__FILE__, 'hn_ts_timestreams_deactivate');
-	
-	function hn_ts_timestreams_activate() {
-		// Ensure that ABSPATH was defined
-		if ( !defined( 'ABSPATH' ) ) exit;
-		
-		global $wpdb;
-		
+	function setup(){		
 		// Define the Timestreams version
 		if ( !defined( 'HN_TS_VERSION' ) )
 			define( 'HN_TS_VERSION', '0.1' );
@@ -74,6 +63,16 @@
 		load_plugin_textdomain('timestreams',false,'timestreams/languages');
 		
 		require_once( HN_TS_PLUGIN_DIR . '/utilities/utilitiesloader.php'     );
+		require_once( HN_TS_PLUGIN_DIR . '/admin/admin-loader.php'     );
+		
+		// Hook into the dashboard action
+		register_activation_hook(__FILE__, 'hn_ts_timestreams_activate');
+		register_deactivation_hook(__FILE__, 'hn_ts_timestreams_deactivate');
+	}
+
+	function hn_ts_timestreams_activate() {
+		// Ensure that ABSPATH was defined
+		if ( !defined( 'ABSPATH' ) ) exit;
 		
 		$hn_ts_db = new Hn_TS_Database();
 		$hn_ts_db->hn_ts_createMultisiteTables();
@@ -98,7 +97,6 @@
 		}
 	}
 	
-	//require_once( HN_TS_PLUGIN_DIR . '/utilities/utilitiesloader.php'     );
-	//require_once( HN_TS_PLUGIN_DIR . '/interface/interfaceloader.php'     );	
+	setup();
 
 ?>
