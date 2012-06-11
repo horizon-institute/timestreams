@@ -1,7 +1,7 @@
 <?php
 	function hn_ts_showContextTable(){
 		?>
-		<h3>Metadata Table</h3>
+		<h3>Context Table</h3>
 		<table class="widefat">
 			<thead>
 				<tr>

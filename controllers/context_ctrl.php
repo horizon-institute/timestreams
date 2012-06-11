@@ -1,7 +1,7 @@
 <?php
 	function hn_ts_addContextRecord(){
 		?>			
-			<h3>Add Metadata Record</h3>
+			<h3>Add Context Record</h3>
 			<form method="post" action="">
 				<table class="form-table">
 			        <tr valign="top">
