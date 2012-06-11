@@ -4,7 +4,7 @@
 		Plugin URI: n/a
 		Description: Sensor data I/O for WordPress. Connect information from your community or school with your blog and the rest of the world.
 		Version: 0.1
-		Author: HN_TS
+		Author: Jesse Blum
 		Author URI: n/a
 		License: AGPLv3
 	*/
@@ -73,9 +73,10 @@
 		
 		load_plugin_textdomain('timestreams',false,'timestreams/languages');
 		
-		require_once( HORZ_SP_PLUGIN_DIR . '/utilities/utilitiesloader.php'     );
+		require_once( HN_TS_PLUGIN_DIR . '/utilities/utilitiesloader.php'     );
 		
-		hn_ts_createMultisiteTables();
+		$hn_ts_db = new Hn_TS_Database();
+		$hn_ts_db->hn_ts_createMultisiteTables();
 		 
 		//require_once( ABSPATH.'wp-content/plugins/sample/app/controllers/xml-rpc.php');
 				 
