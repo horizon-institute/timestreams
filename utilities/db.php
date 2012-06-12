@@ -65,7 +65,7 @@
 			'CREATE TABLE IF NOT EXISTS '.$tablename.' (
 				'.$idName.' bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				value '.$dataType.' DEFAULT NULL,
-				timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+				timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				PRIMARY KEY  ('.$idName.')
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
 			dbDelta($sql);
@@ -194,6 +194,10 @@
 		
 		/**
 		 * Inserts a reading into a data table
+		 * Todo: handle write permissions from username and password
+		 * 		Or better yet, implement OAuth
+		 * 		Also, handle the format param for $wpdb->insert.
+		 * 		And also make it more robust!
 		 * @param $args is an array in the expected format of:
 		 * [0]username
 		 * [1]password
@@ -202,6 +206,9 @@
 		 * [4]timestamp 
 		 */
 		function hn_ts_insert_reading($args){
+			global $wpdb;
+			return $wpdb->insert( $args[2],
+					 array('value' => $args[3],'timestamp' => $args[4]) );
 			
 		}
 	}

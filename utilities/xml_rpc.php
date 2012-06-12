@@ -39,7 +39,7 @@
 		 * @return $methods
 		 */
 		function add_new_xmlrpc_methods( $methods ) {
-			$methods['timestreams.insert'] =  array(&$this->tsdb, 'hn_ts_insert_reading');
+			$methods['timestreams.insert_reading'] =  array(&$this->tsdb, 'hn_ts_insert_reading');
 			
 			return $methods;
 		}
