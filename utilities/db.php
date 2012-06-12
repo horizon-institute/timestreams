@@ -65,7 +65,7 @@
 				'.$idName.' bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				value decimal(4,1) DEFAULT NULL,
 				timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-				PRIMARY KEY  ('.$type.'_'.$blogId.'_'.$deviceId.')
+				PRIMARY KEY  ('.$idName.')
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
 			dbDelta($sql);
 						
@@ -73,7 +73,7 @@
 			'CREATE TABLE IF NOT EXISTS '.$tablename.'_has_context (
 			'.$idName.' bigint(20) unsigned NOT NULL,
 			context_id bigint(20) unsigned NOT NULL,
-			PRIMARY KEY  (`temp1_1_id`,`context_id`)
+			PRIMARY KEY  ('.$idName.',context_id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
 			dbDelta($sql);
 			
@@ -94,8 +94,11 @@
 				$unit, $unitSymbol, $deviceDetails, $otherInformation){
 			global $wpdb;
 			global $blog_id;
-			$nextdevice= $this->getCount('wp_ts_metadata')+1;
-			$tablename =  $wpdb->prefix.'_'.$blog_id.'_'.$measurementType.'_'.$nextdevice;
+			//$nextdevice= $this->getCount('wp_ts_metadata')+1;
+			$nextdevice=$this->getRecord(
+					'wp_ts_metadata', 'metadata_id', 
+					'1=1 ORDER BY metadata_id DESC Limit 1')+1;
+			$tablename =  $wpdb->prefix.$blog_id.'_'.$measurementType.'_'.$nextdevice;
 			$wpdb->insert(  
 			    'wp_ts_metadata', 
 			    array( 	'tablename' => $tablename,
@@ -108,6 +111,8 @@
 			    		'other_info' => $otherInformation), 
 			    array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' )  
 			);  
+			
+			$this->hn_ts_createMeasurementTable($blog_id, $measurementType, $nextdevice);
 		}
 		
 		/**
