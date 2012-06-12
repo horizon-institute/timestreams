@@ -1,9 +1,16 @@
 <?php
+/**
+ * Functions to provide admin functionality
+ * Author: Jesse Blum (JMB)
+ * Date: 2012
+ */
+
 	add_action('admin_menu', 'hn_ts_add_admin_menus');
 	
+	/**
+	 * Timestreams Admin menu structure
+	 */
 	function hn_ts_add_admin_menus(){
-	
-		// To do replace administrator with a custom capability
 		add_menu_page('Timestreams', 'Timestreams',
 				'administrator', __FILE__, 'hn_ts_main_admin_page');
 		add_submenu_page(__FILE__, 'Data Sources', 'Data Sources', 'manage_options',
@@ -12,6 +19,9 @@
 				__FILE__.'context','hn_ts_context_admin_page');
 	}
 	
+	/**
+	 * Displays top level timestreams admin page
+	 */
 	function hn_ts_main_admin_page(){
 		?>
 		<div class="wrap">
@@ -22,8 +32,11 @@
 			<hr />
 		</div>
 		<?php
-	}
+	}	
 	
+	/**
+	 * Displays timestreams data sources admin page
+	 */
 	function hn_ts_datasources_admin_page(){
 		?>
 		<div class="wrap">
@@ -38,8 +51,11 @@
 		?>
 		</div>
 		<?php
-	}
+	}	
 	
+	/**
+	 * Displays timestreams context admin page
+	 */
 	function hn_ts_context_admin_page(){
 		?>
 		<div class="wrap">

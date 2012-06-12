@@ -1,4 +1,15 @@
 <?php
+/**
+ * Functions to control the context tables
+ * Author: Jesse Blum (JMB)
+ * Date: 2012
+ * To do: Add edit functionality
+ */
+
+/**
+ * A form to add context records
+ * Todo: Associate the contexts with data
+ */
 	function hn_ts_addContextRecord(){
 		?>			
 			<h3>Add Context Record</h3>

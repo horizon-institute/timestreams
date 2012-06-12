@@ -1,4 +1,9 @@
 <?php
+/**
+ * Loads the controllers
+ * Author: Jesse Blum (JMB)
+ * Date: 2012
+ */
 	// Exit if accessed directly
 	if ( !defined( 'ABSPATH' ) ) exit;
 	

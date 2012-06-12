@@ -1,4 +1,15 @@
 <?php
+/**
+ * Functions to display context table content
+ * Author: Jesse Blum (JMB)
+ * Date: 2012
+ * To do: Add search and edit functionality
+ */
+
+/**
+ * Displays context information in a table.
+ * To do: Complete pagination functionality.
+ */
 	function hn_ts_showContextTable(){
 		?>
 		<h3>Context Table</h3>

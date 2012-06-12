@@ -1,4 +1,10 @@
 <?php
+/**
+ * Class to interact with the wp_ts database tables
+ * Author: Jesse Blum (JMB)
+ * Date: 2012
+ */
+
 	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');	// provides dbDelta
 	
 	/**
@@ -74,6 +80,16 @@
 			return $tablename;
 		}
 		
+		/**
+		 * Adds records to the wp_ts_metadata table
+		 * @param String $measurementType 
+		 * @param String $minimumvalue
+		 * @param String $maximumvalue
+		 * @param String $unit
+		 * @param String $unitSymbol
+		 * @param String $deviceDetails
+		 * @param String $otherInformation
+		 */
 		function hn_ts_addMetadataRecord($measurementType, $minimumvalue, $maximumvalue,
 				$unit, $unitSymbol, $deviceDetails, $otherInformation){
 			global $wpdb;
@@ -94,6 +110,11 @@
 			);  
 		}
 		
+		/**
+		 * Adds records to the wp_ts_context table and wp_ts_context_type if necessary. 
+		 * @param String $context_type
+		 * @param String $context_value
+		 */
 		function hn_ts_addContextRecord($context_type, $context_value){
 			$context_type_id= $this->getRecord('wp_ts_context_type', 'context_type_id', 
 					"name='$context_value'");
@@ -113,6 +134,13 @@
 			);  
 		}
 		
+		/**
+		 * Retrieves records from a given table 
+		 * @param String $table is the table to select from
+		 * @param String $field is the list of columns to select from
+		 * @param String $where is the where clause in the select statement
+		 * @return the result of the select
+		 */
 		function getRecord($table, $field, $where){
 			global $wpdb;
 			return $wpdb->get_var( 
@@ -120,18 +148,30 @@
 			);
 		}
 		
+		/**
+		 * Retrieves a count from a table
+		 * @param $table is the table to count
+		 */
 		function getCount($table){
 			global $wpdb;
 			$sql="SELECT COUNT(*) FROM $table;";
 			return $wpdb->get_var($sql);
 		}
 		
+		/**
+		 * Selects all from a table
+		 * @param  $table is the table to select from
+		 */
 		function hn_ts_select($table){
 			global $wpdb;
 			$sql="SELECT * FROM $table;";
 			return $wpdb->get_results($sql);
 		}
 		
+		/**
+		 * Retrieves context information
+		 * @return the selection
+		 */
 		function hn_ts_select_context(){
 			global $wpdb;
 			$sql="SELECT c.context_id, t.name, c.value 

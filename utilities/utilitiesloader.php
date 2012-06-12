@@ -1,4 +1,10 @@
 <?php
+/**
+ * Loads utility files
+ * Author: Jesse Blum (JMB)
+ * Date: 2012
+ */
+
 	// Exit if accessed directly
 	if ( !defined( 'ABSPATH' ) ) exit;
 	

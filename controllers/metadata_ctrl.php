@@ -1,4 +1,15 @@
 <?php
+/**
+ * Functions to control the metadata table
+ * Author: Jesse Blum (JMB)
+ * Date: 2012
+ * To do: Add edit functionality
+ */
+
+/**
+ * A form to add metadata records
+ * Todo: add validation & make messages stand out more
+ */
 	function hn_ts_addMetadataRecord(){
 		?>			
 			<h3>Add Metadata Record</h3>			

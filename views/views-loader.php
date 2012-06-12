@@ -1,4 +1,10 @@
 <?php
+/**
+ * Loads view files. Views are output representations of data.
+ * Author: Jesse Blum (JMB)
+ * Date: 2012
+ */
+
 	// Exit if accessed directly
 	if ( !defined( 'ABSPATH' ) ) exit;
 	

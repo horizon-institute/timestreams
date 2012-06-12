@@ -25,6 +25,9 @@
 	    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	*/
 	
+	/**
+	 * Sets up common variables and required files
+	 */
 	function setup(){		
 		// Define the Timestreams version
 		if ( !defined( 'HN_TS_VERSION' ) )
@@ -72,6 +75,9 @@
 		register_deactivation_hook(__FILE__, 'hn_ts_timestreams_deactivate');
 	}
 
+	/**
+	 * Plugin activation. This creates the initial multisite tables.
+	 */
 	function hn_ts_timestreams_activate() {
 		// Ensure that ABSPATH was defined
 		if ( !defined( 'ABSPATH' ) ) exit;
@@ -83,6 +89,10 @@
 				 
 	}
 	
+	/**
+	 * Plugin deactivation. Currently this does nothing, 
+	 * but in the future should clean up the plugin database tables and files.
+	 */
 	function hn_ts_timestreams_deactivate() {
 		//To do: remove database tables
 	}

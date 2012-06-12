@@ -1,4 +1,16 @@
 <?php
+
+/**
+ * Functions to display metadata table content
+ * Author: Jesse Blum (JMB)
+ * Date: 2012
+ * To do: Add search and edit functionality
+ */
+
+	/**
+	 * Displays metadata in a table. 
+	 * To do: Complete pagination functionality.
+	 */
 	function hn_ts_showMetadataTable(){
 		?>
 		<h3>Metadata Table</h3>
