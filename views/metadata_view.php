@@ -27,6 +27,7 @@
 				<th>unit symbol</th>
 				<th>device details</th>
 				<th>other info</th>
+				<th>Data Type</th>
 				</tr>
 			</thead>
 			<tfoot>
@@ -41,6 +42,7 @@
 				<th>unit symbol</th>
 				<th>device details</th>
 				<th>other info</th>
+				<th>Data Type</th>
 				</tr>
 			</tfoot>
 			<tbody>
@@ -60,6 +62,7 @@
 				<td>$row->unit_symbol</td>
 				<td>$row->device_details</td>
 				<td>$row->other_info</td>
+				<td>$row->data_type</td>
 				</tr>";
 			}?>
 			</tbody>

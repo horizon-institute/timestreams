@@ -55,15 +55,16 @@
 		 * @param $blogId is the id for the site that the sensor belongs to
 		 * @param $type is the type of measurement taken (such as temperature)
 		 * @param $deviceId is the id for the device that took the readings
+		 * @param $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value. 
 		 */
-		function hn_ts_createMeasurementTable($blogId, $type, $deviceId){
+		function hn_ts_createMeasurementTable($blogId, $type, $deviceId,$dataType){
 			global $wpdb;
 			$tablename = $wpdb->prefix.$blogId.'_ts_'.$type.'_'.$deviceId;
 			$idName = $type.'_'.$blogId.'_'.$deviceId.'_id';
 			$sql =
 			'CREATE TABLE IF NOT EXISTS '.$tablename.' (
 				'.$idName.' bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-				value decimal(4,1) DEFAULT NULL,
+				value '.$dataType.' DEFAULT NULL,
 				timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 				PRIMARY KEY  ('.$idName.')
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
@@ -89,15 +90,20 @@
 		 * @param String $unitSymbol
 		 * @param String $deviceDetails
 		 * @param String $otherInformation
+		 * @param $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
 		 */
 		function hn_ts_addMetadataRecord($measurementType, $minimumvalue, $maximumvalue,
-				$unit, $unitSymbol, $deviceDetails, $otherInformation){
+				$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType){
 			global $wpdb;
 			global $blog_id;
 			//$nextdevice= $this->getCount('wp_ts_metadata')+1;
-			$nextdevice=$this->getRecord(
+			/*$nextdevice=$this->getRecord(
 					'wp_ts_metadata', 'metadata_id', 
-					'1=1 ORDER BY metadata_id DESC Limit 1')+1;
+					'1=1 ORDER BY metadata_id DESC Limit 1')+1;*/
+			$nextdevice=$wpdb->get_row($wpdb->prepare( 
+					"SHOW TABLE STATUS LIKE 'wp_ts_metadata';" )
+			);
+			$nextdevice=$nextdevice->Auto_increment;
 			$tablename =  $wpdb->prefix.$blog_id.'_'.$measurementType.'_'.$nextdevice;
 			$wpdb->insert(  
 			    'wp_ts_metadata', 
@@ -108,11 +114,12 @@
 			    		'unit' => $unit, 
 			    		'unit_symbol' => $unitSymbol,
 			    		'device_details' => $deviceDetails,			    		
-			    		'other_info' => $otherInformation), 
-			    array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' )  
+			    		'other_info' => $otherInformation,			    		
+			    		'data_type' => $dataType), 
+			    array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' , '%s' )  
 			);  
 			
-			$this->hn_ts_createMeasurementTable($blog_id, $measurementType, $nextdevice);
+			$this->hn_ts_createMeasurementTable($blog_id, $measurementType, $nextdevice, $dataType);
 		}
 		
 		/**
@@ -183,6 +190,19 @@
 				   FROM wp_ts_context c
 				   INNER JOIN wp_ts_context_type t USING(context_type_id)";
 			return $wpdb->get_results($sql);
+		}
+		
+		/**
+		 * Inserts a reading into a data table
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]table name
+		 * [3]value
+		 * [4]timestamp 
+		 */
+		function hn_ts_insert_reading($args){
+			
 		}
 	}
 ?>

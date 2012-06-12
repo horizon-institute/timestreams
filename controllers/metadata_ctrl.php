@@ -52,6 +52,12 @@
 			        <th scope="row">Other Information</th>
 			        <td><input type="text" name="other" 			/></td>
 			        </tr>
+			        
+			        <tr valign="top">
+			        <th scope="row">Data Type</th>
+			        <td><input type="text" name="datatype" 			/></td>
+			        </tr>
+			        
 			    </table>
 			    
 			    <p class="submit">
@@ -61,12 +67,14 @@
 			</form>
 			<hr />
 			<?php
-				if(isset($_POST['measurement_type']) && $_POST['measurement_type'] && isset($_POST['unit'])) {
+				if(isset($_POST['measurement_type']) && $_POST['measurement_type'] && 
+					isset($_POST['unit']) && $_POST['unit'] &&
+					isset($_POST['datatype']) && $_POST['datatype']) {
 					$db = new Hn_TS_Database();
 					$db->hn_ts_addMetadataRecord(
 						$_POST['measurement_type'], $_POST['minimum'], 
 						$_POST['maximum'], $_POST['unit'], $_POST['unit_symbol'], 
-						$_POST['device'], $_POST['other']
+						$_POST['device'], $_POST['other'],$_POST['datatype']
 					);
 					echo 'Record added.';
 				}	
