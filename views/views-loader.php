@@ -14,5 +14,6 @@
 	
 	// Require utility files
 	require_once( HN_TS_VIEWS_DIR . '/metadata_view.php'     );
+	require_once( HN_TS_VIEWS_DIR . '/ts_data_view.php'     );
 	require_once( HN_TS_VIEWS_DIR . '/context_view.php'     );
 ?>

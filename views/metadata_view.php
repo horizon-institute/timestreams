@@ -50,10 +50,14 @@
 			$db = new Hn_TS_Database();
 			$rows = $db->hn_ts_select('wp_ts_metadata');
 			if($rows){
+				global $pagenow;
+				$screen = get_current_screen();
 				foreach ( $rows as $row )
 				echo "<tr>
 				<td>$row->metadata_id</td>
-				<td>$row->tablename</td>
+				<td><a href=\"".$pagenow.
+					"?page=timestreams/admin/interface.phpdatasources&table=
+					$row->tablename\">$row->tablename</a></td>
 				<td>$row->measurement_type</td>
 				<td>$row->first_record</td>
 				<td>$row->min_value</td>

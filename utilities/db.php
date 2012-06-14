@@ -60,7 +60,7 @@
 		function hn_ts_createMeasurementTable($blogId, $type, $deviceId,$dataType){
 			global $wpdb;
 			$tablename = $wpdb->prefix.$blogId.'_ts_'.$type.'_'.$deviceId;
-			$idName = $type.'_'.$blogId.'_'.$deviceId.'_id';
+			$idName = 'id';//$type.'_'.$blogId.'_'.$deviceId.'_id';
 			$sql =
 			'CREATE TABLE IF NOT EXISTS '.$tablename.' (
 				'.$idName.' bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -104,7 +104,7 @@
 					"SHOW TABLE STATUS LIKE 'wp_ts_metadata';" )
 			);
 			$nextdevice=$nextdevice->Auto_increment;
-			$tablename =  $wpdb->prefix.$blog_id.'_'.$measurementType.'_'.$nextdevice;
+			$tablename = $wpdb->prefix.$blog_id.'_ts_'.$measurementType.'_'.$nextdevice;
 			$wpdb->insert(  
 			    'wp_ts_metadata', 
 			    array( 	'tablename' => $tablename,
