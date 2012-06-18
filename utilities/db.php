@@ -20,26 +20,17 @@
 		 */
 		function hn_ts_createMultisiteTables(){
 			global $wpdb;
-			$sql = 		
-			'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_context_type (
-				context_type_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-				name varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-				PRIMARY KEY  (context_type_id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';		
-			dbDelta($sql);
-			$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_context (
+			$sql[] = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_context (
 				context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-				context_type_id bigint(20) NOT NULL,
-				value varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+				context_type varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+				value varchar(100) COLLATE utf8_unicode_ci NOT NULL,
 				PRIMARY KEY  (context_id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
-			dbDelta($sql);
 			
-			$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_metadata (
+			$sql[] = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_metadata (
 				metadata_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				tablename varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   				measurement_type varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-			    first_record datetime DEFAULT NULL,
 			    min_value varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 			    max_value varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 			    unit varchar(45) COLLATE utf8_unicode_ci NOT NULL,
@@ -48,6 +39,37 @@
 			    other_info varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
 				PRIMARY KEY  (metadata_id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
+			
+			$sql[] = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_timestreams (
+				  timestream_id bigint(20) unsigned NOT NULL,
+				  name varchar(55) COLLATE utf8_unicode_ci NOT NULL,
+				  head_id bigint(20) NOT NULL,
+				  metadata_id bigint(20) unsigned NOT NULL,
+				  starttime timestamp,
+				  endtime timestamp,
+				  PRIMARY KEY  (timestream_id)
+				) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
+			
+			$sql[] = 'CREATE  TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_timestream_has_context (
+				 wp_ts_timestream_id BIGINT(20) UNSIGNED NOT NULL,
+				 wp_ts_context_id BIGINT(20) UNSIGNED NOT NULL,
+				 PRIMARY KEY  (wp_ts_timestream_id, wp_ts_context_id)
+				) ENGINE = MyISAM DEFAULT CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;';
+			
+			$sql[] = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_timestream_has_context (
+				 timestream_id BIGINT(20) UNSIGNED NOT NULL,
+				 context_id BIGINT(20) UNSIGNED NOT NULL,
+				 PRIMARY KEY  (timestream_id, context_id)
+				) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
+			
+			$sql[] = 'CREATE  TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_head (
+				  head_id BIGINT(20) NOT NULL,
+				  currenttime TIMESTAMP,
+				  lasttime TIMESTAMP,
+				  rate INT(11) NOT NULL,
+				  PRIMARY KEY  (head_id) 
+				) ENGINE = MyISAM DEFAULT CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;';			
+			
 			dbDelta($sql);
 		}
 		/**
@@ -123,24 +145,16 @@
 		}
 		
 		/**
-		 * Adds records to the wp_ts_context table and wp_ts_context_type if necessary. 
+		 * Adds records to the wp_ts_context table. 
 		 * @param String $context_type
 		 * @param String $context_value
 		 */
 		function hn_ts_addContextRecord($context_type, $context_value){
-			$context_type_id= $this->getRecord('wp_ts_context_type', 'context_type_id', 
-					"name='$context_value'");
 			global $wpdb;
-			if(!$context_type_id){
-				$wpdb->insert('wp_ts_context_type', 
-						array( 	'name' => $context_type ), array( '%s' )  );
-				$context_type_id= $this->getRecord('wp_ts_context_type', 'context_type_id',
-						"name='$context_type'");
-			}
 			
 			$wpdb->insert(  
 			    'wp_ts_context', 
-			    array( 	'context_type_id' => $context_type_id,
+			    array( 	'context_type' => $context_type,
 			    		'value' => $context_value), 
 			    array( '%s', '%s' )  
 			);  

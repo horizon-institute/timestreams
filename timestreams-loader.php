@@ -39,7 +39,7 @@
 		
 		// Define the plugin name
 		if ( !defined( 'HN_TS_NAME' ) )
-			define( 'HN_TS_NAME', 'HN_TS Tests' );
+			define( 'HN_TS_NAME', 'Timestreams' );
 		
 		// Define the Timestreams blog id -- idea courtesy of Buddypress
 		if ( !defined( 'HN_TS_ROOT_BLOG' ) ) {
