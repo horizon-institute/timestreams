@@ -20,14 +20,15 @@
 		 */
 		function hn_ts_createMultisiteTables(){
 			global $wpdb;
-			$sql[] = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_context (
+			$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_context (
 				context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				context_type varchar(100) COLLATE utf8_unicode_ci NOT NULL,
 				value varchar(100) COLLATE utf8_unicode_ci NOT NULL,
 				PRIMARY KEY  (context_id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
-			
-			$sql[] = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_metadata (
+			$wpdb->query($sql);
+						
+			$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_metadata (
 				metadata_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				tablename varchar(45) COLLATE utf8_unicode_ci NOT NULL,
   				measurement_type varchar(45) COLLATE utf8_unicode_ci NOT NULL,
@@ -37,10 +38,12 @@
 			    unit_symbol varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
 			    device_details varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
 			    other_info varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+			    data_type varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 				PRIMARY KEY  (metadata_id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
-			
-			$sql[] = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_timestreams (
+			$wpdb->query($sql);
+						
+			$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_timestreams (
 				  timestream_id bigint(20) unsigned NOT NULL,
 				  name varchar(55) COLLATE utf8_unicode_ci NOT NULL,
 				  head_id bigint(20) NOT NULL,
@@ -49,20 +52,16 @@
 				  endtime timestamp,
 				  PRIMARY KEY  (timestream_id)
 				) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
-			
-			$sql[] = 'CREATE  TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_timestream_has_context (
+			$wpdb->query($sql);
+						
+			$sql = 'CREATE  TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_timestream_has_context (
 				 wp_ts_timestream_id BIGINT(20) UNSIGNED NOT NULL,
 				 wp_ts_context_id BIGINT(20) UNSIGNED NOT NULL,
 				 PRIMARY KEY  (wp_ts_timestream_id, wp_ts_context_id)
 				) ENGINE = MyISAM DEFAULT CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;';
-			
-			$sql[] = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_timestream_has_context (
-				 timestream_id BIGINT(20) UNSIGNED NOT NULL,
-				 context_id BIGINT(20) UNSIGNED NOT NULL,
-				 PRIMARY KEY  (timestream_id, context_id)
-				) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
-			
-			$sql[] = 'CREATE  TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_head (
+			$wpdb->query($sql);
+						
+			$sql = 'CREATE  TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_head (
 				  head_id BIGINT(20) NOT NULL,
 				  currenttime TIMESTAMP,
 				  lasttime TIMESTAMP,
@@ -70,14 +69,16 @@
 				  PRIMARY KEY  (head_id) 
 				) ENGINE = MyISAM DEFAULT CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;';			
 			
-			dbDelta($sql);
+			$wpdb->query($sql);
+			//For some reason dbDelta wasn't working for all of the tables :(
 		}
 		/**
 		 * Creates a sensor measurement table for a site.
 		 * @param $blogId is the id for the site that the sensor belongs to
 		 * @param $type is the type of measurement taken (such as temperature)
 		 * @param $deviceId is the id for the device that took the readings
-		 * @param $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value. 
+		 * @param $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
+		 * To do: Sanitise inputs 
 		 */
 		function hn_ts_createMeasurementTable($blogId, $type, $deviceId,$dataType){
 			global $wpdb;
@@ -113,6 +114,7 @@
 		 * @param String $deviceDetails
 		 * @param String $otherInformation
 		 * @param $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
+		 * To do: Sanitise inputs
 		 */
 		function hn_ts_addMetadataRecord($measurementType, $minimumvalue, $maximumvalue,
 				$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType){
@@ -148,6 +150,7 @@
 		 * Adds records to the wp_ts_context table. 
 		 * @param String $context_type
 		 * @param String $context_value
+		 * Todo: Sanitise inputs
 		 */
 		function hn_ts_addContextRecord($context_type, $context_value){
 			global $wpdb;
@@ -161,17 +164,43 @@
 		}
 		
 		/**
-		 * Retrieves records from a given table 
-		 * @param String $table is the table to select from
-		 * @param String $field is the list of columns to select from
-		 * @param String $where is the where clause in the select statement
+		 * Retrieves records from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
+		 * @param integer $blogId is the id of the blog to select from
+		 * @param String $measurementType is the type of measurement such as temperatureto select from
+		 * @param integer $deviceId is the id of the device to select from
+		 * @param timestamp $minimumTime is the lowest timestamp to select from (can be null)
+		 * @param timestamp $maximumTime is the maximum timestamp to select from (can be null)
+		 * @param String $context is a list of context type names separated by ' AND ' or ' OR '
+		 * 		  in the form k,v,AND|OR,k,v ... 
+		 * INCOMPLETE
+		 * To do: Sanitise parameters
 		 * @return the result of the select
 		 */
-		function getRecord($table, $field, $where){
+		function getReadings($blogId, $measurementType, $deviceId,
+				$minimumTime, $maximumTime, $context){
 			global $wpdb;
-			return $wpdb->get_var( 
-					$wpdb->prepare( "SELECT $field FROM $table WHERE $where;" ) 
-			);
+			$table="wp_$blogId_ts_$measurementType_$deviceId";
+			$where="WHERE ";
+			if($minimum){
+				$where=$where."timestamp > $minimumTime ";
+				
+				if($maximumTime){
+					$where=$where."AND timestamp < $maximumTime";
+				}
+			}else if($maximumTime){
+				$where=$where."timestamp < $maximumTime";
+			}
+			return $wpdb->get_var( 	$wpdb->prepare("SELECT * FROM $table $where;" )	);
+		}
+		
+		/**
+		 * Given a String in the form k,v AND|OR k,v 
+		 * returns a corresponding where clause for a SQL select statement 
+		 * @param String $context
+		 * @return String for where clause
+		 */
+		function prepareWhereFromContextList($context){
+			
 		}
 		
 		/**
@@ -181,7 +210,7 @@
 		function getCount($table){
 			global $wpdb;
 			$sql="SELECT COUNT(*) FROM $table;";
-			return $wpdb->get_var($sql);
+			return $wpdb->get_var($wpdb->prepare($sql));
 		}
 		
 		/**
@@ -191,7 +220,7 @@
 		function hn_ts_select($table){
 			global $wpdb;
 			$sql="SELECT * FROM $table;";
-			return $wpdb->get_results($sql);
+			return $wpdb->get_results($wpdb->prepare($sql));
 		}
 		
 		/**
@@ -200,10 +229,9 @@
 		 */
 		function hn_ts_select_context(){
 			global $wpdb;
-			$sql="SELECT c.context_id, t.name, c.value 
-				   FROM wp_ts_context c
-				   INNER JOIN wp_ts_context_type t USING(context_type_id)";
-			return $wpdb->get_results($sql);
+			$sql="SELECT context_id, context_type, value
+				   FROM wp_ts_context";
+			return $wpdb->get_results($wpdb->prepare($sql));
 		}
 		
 		/**

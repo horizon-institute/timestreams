@@ -37,7 +37,7 @@
 				foreach ( $rows as $row )
 				echo "<tr>
 				<td>$row->context_id</td>
-				<td>$row->name 	</td>
+				<td>$row->context_type 	</td>
 				<td>$row->value</td>
 				</tr>";
 			}?>

@@ -20,7 +20,6 @@
 				<th>id</th>
 				<th>table name</th>
 				<th>measurement type</th>
-				<th>first_record</th>
 				<th>min value</th>
 				<th>max value</th>
 				<th>unit</th>
@@ -35,7 +34,6 @@
 				<th>id</th>
 				<th>table name</th>
 				<th>measurement type</th>
-				<th>first_record</th>
 				<th>min value</th>
 				<th>max value</th>
 				<th>unit</th>
@@ -59,7 +57,6 @@
 					"?page=timestreams/admin/interface.phpdatasources&table=
 					$row->tablename\">$row->tablename</a></td>
 				<td>$row->measurement_type</td>
-				<td>$row->first_record</td>
 				<td>$row->min_value</td>
 				<td>$row->max_value</td>
 				<td>$row->unit</td>
