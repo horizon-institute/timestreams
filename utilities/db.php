@@ -92,20 +92,13 @@
 				PRIMARY KEY  ('.$idName.')
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
 			dbDelta($sql);
-						
-			$sql =
-			'CREATE TABLE IF NOT EXISTS '.$tablename.'_has_context (
-			'.$idName.' bigint(20) unsigned NOT NULL,
-			context_id bigint(20) unsigned NOT NULL,
-			PRIMARY KEY  ('.$idName.',context_id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
-			dbDelta($sql);
 			
 			return $tablename;
 		}
 		
 		/**
 		 * Adds records to the wp_ts_metadata table
+		 * @param String $blog_id 
 		 * @param String $measurementType 
 		 * @param String $minimumvalue
 		 * @param String $maximumvalue
@@ -116,10 +109,12 @@
 		 * @param $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
 		 * To do: Sanitise inputs
 		 */
-		function hn_ts_addMetadataRecord($measurementType, $minimumvalue, $maximumvalue,
+		function hn_ts_addMetadataRecord($blog_id='', $measurementType, $minimumvalue, $maximumvalue,
 				$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType){
 			global $wpdb;
-			global $blog_id;
+			if($blog_id==''){
+				global $blog_id;				
+			}
 			//$nextdevice= $this->getCount('wp_ts_metadata')+1;
 			/*$nextdevice=$this->getRecord(
 					'wp_ts_metadata', 'metadata_id', 
@@ -143,7 +138,7 @@
 			    array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' , '%s' )  
 			);  
 			
-			$this->hn_ts_createMeasurementTable($blog_id, $measurementType, $nextdevice, $dataType);
+			return $this->hn_ts_createMeasurementTable($blog_id, $measurementType, $nextdevice, $dataType);
 		}
 		
 		/**
@@ -170,14 +165,11 @@
 		 * @param integer $deviceId is the id of the device to select from
 		 * @param timestamp $minimumTime is the lowest timestamp to select from (can be null)
 		 * @param timestamp $maximumTime is the maximum timestamp to select from (can be null)
-		 * @param String $context is a list of context type names separated by ' AND ' or ' OR '
-		 * 		  in the form k,v,AND|OR,k,v ... 
-		 * INCOMPLETE
 		 * To do: Sanitise parameters
 		 * @return the result of the select
 		 */
 		function getReadings($blogId, $measurementType, $deviceId,
-				$minimumTime, $maximumTime, $context){
+				$minimumTime, $maximumTime){
 			global $wpdb;
 			$table="wp_$blogId_ts_$measurementType_$deviceId";
 			$where="WHERE ";
@@ -191,16 +183,6 @@
 				$where=$where."timestamp < $maximumTime";
 			}
 			return $wpdb->get_var( 	$wpdb->prepare("SELECT * FROM $table $where;" )	);
-		}
-		
-		/**
-		 * Given a String in the form k,v AND|OR k,v 
-		 * returns a corresponding where clause for a SQL select statement 
-		 * @param String $context
-		 * @return String for where clause
-		 */
-		function prepareWhereFromContextList($context){
-			
 		}
 		
 		/**
