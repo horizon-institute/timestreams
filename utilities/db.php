@@ -425,5 +425,33 @@
 			    array( '%s', '%s' )  
 			);  
 		}
+		
+		/**
+		 * Updates wp_ts_context records. 
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]Context type
+		 * [3]Value
+		 * [4]Start time (optional -- use 'NULL' to exclude)
+		 * [5]End time
+		 * Todo: Sanitise inputs
+		 */
+		function hn_ts_updateContextRecord($args){
+			global $wpdb;
+			$where="";
+			if(0!=strcmp(strtoupper($args[4]),"NULL")){
+				$where = array( 	'context_type' => $args[2],
+						'value' => $args[3],
+						'start_time' => $args[4]);
+			}else{
+				$where = array( 	'context_type' => $args[2],
+						'value' => $args[3]);				
+			}
+			
+			return $wpdb->update(  
+			    'wp_ts_context',  array( 'end_time' => $args[5]), $where,'%s','%s'
+			);
+		}
 	}
 ?>

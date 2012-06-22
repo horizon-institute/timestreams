@@ -278,6 +278,23 @@
 			}
 		}
 		
+		/**
+		 * Checks username password then updates the end time of the context records matching the given values.
+		 * @param array $args should have 6 parameters:
+		 * $username, $password, context type, context value, start time (optional -- use NULL if not desired), End time (this is the new end time)
+		 * @return string XML-XPC response with either an error message as a param or number of updated records
+		 */
+		function hn_ts_update_context($args){
+			if(count($args) != 6){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_updateContextRecord($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}
+		
 
 		/**
 		 * Associates XML-RPC method names with functions of this class 
@@ -299,6 +316,7 @@
 			$methods['timestreams.select_context_by_value'] =  array(&$this, 'hn_ts_select_context_by_value');
 			$methods['timestreams.select_context_by_type_and_value'] =  array(&$this, 'hn_ts_select_context_by_type_and_value');
 			$methods['timestreams.select_context_within_time_range'] =  array(&$this, 'hn_ts_select_context_within_time_range');
+			$methods['timestreams.hn_ts_update_context'] =  array(&$this, 'hn_ts_update_context');
 			return $methods;
 		}
 	}
