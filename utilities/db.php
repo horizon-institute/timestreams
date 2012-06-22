@@ -235,5 +235,32 @@
 					 array('value' => $args[3],'timestamp' => $args[4]) );
 			
 		}
+		
+		/**
+		 * Inserts multiple readings into a data table
+		 * Todo: handle write permissions from username and password
+		 * 		Or better yet, implement OAuth
+		 * 		Also, handle the format param for $wpdb->insert.
+		 * 		And also make it more robust!
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]table name
+		 * [odd]value
+		 * [even]timestamp 
+		 */
+		function hn_ts_insert_readings($args){
+			global $wpdb;
+			$retval = 0;
+			$cnt = count($args);
+			for($i=3; $i+1 < $cnt; $i+=2){
+				if($wpdb->insert( $args[2],
+						array('value' => $args[$i],'timestamp' => $args[$i+1]) )){
+					$retval++;
+				}
+			}
+			return "Number of insertions: $retval";
+			
+		}
 	}
 ?>

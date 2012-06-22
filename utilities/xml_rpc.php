@@ -47,8 +47,11 @@
 		
 		/**
 		 * Checks username password then creates a new measurement container.
-		 * @param array $args
-		 * @return string
+		 * @param array $args should have 11 parameters:
+		 * $username, $password, $blog_id, $measurementType, $minimumvalue, $maximumvalue,
+			$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType
+		 * @return string XML-XPC response with either an error message as a param or the
+		 * name of the measurement container
 		 */
 		function hn_ts_create_measurements($args){
 			/*$retString="";
@@ -68,6 +71,42 @@
 				return 'Incorrect username or password.';
 			}
 		}
+		
+		/**
+		 * Checks username password then adds a measurement to a measurement container.
+		 * @param array $args should have 5 parameters:
+		 * $username, $password, measurement container name, measurement value, timestamp
+		 * @return string XML-XPC response with either an error message as a param or the
+		 * value and timestamp of the added measure
+		 */
+		function hn_ts_add_measurement($args){
+			if(count($args) < 5){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_insert_reading($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}
+		
+		/**
+		 * Checks username password then adds measurements to a measurement container.
+		 * @param array $args should have at least 5 parameters:
+		 * $username, $password, measurement container name, array containing [measurement value, timestamp]
+		 * @return string XML-XPC response with either an error message as a param or the
+		 * value and timestamp of the added measure
+		 */
+		function hn_ts_add_measurements($args){
+			if(count($args) < 5){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_insert_readings($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}
 
 		/**
 		 * Associates XML-RPC method names with functions of this class 
@@ -77,6 +116,8 @@
 		function add_new_xmlrpc_methods( $methods ) {
 			//$methods['timestreams.insert_reading'] =  array(&$this, 'hn_ts_insert_reading');
 			$methods['timestreams.create_measurements'] =  array(&$this, 'hn_ts_create_measurements');
+			$methods['timestreams.add_measurement'] =  array(&$this, 'hn_ts_add_measurement');
+			$methods['timestreams.add_measurements'] =  array(&$this, 'hn_ts_add_measurements');
 			
 			return $methods;
 		}
