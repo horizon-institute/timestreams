@@ -24,8 +24,8 @@
 				context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				context_type varchar(100) COLLATE utf8_unicode_ci NOT NULL,
 				value varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-			    start_time timestamp DEFAULT NULL,
-			    end_time timestamp DEFAULT NULL,
+			    start_time TIMESTAMP NULL DEFAULT 0,
+			    end_time TIMESTAMP NULL DEFAULT 0,
 				PRIMARY KEY  (context_id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
 			$wpdb->query($sql);

@@ -19,6 +19,8 @@
 					<th>id</th>
 					<th>Context Type</th>
 					<th>Value</th>
+					<th>Start Time</th>
+					<th>End Time</th>
 				</tr>
 			</thead>
 			<tfoot>
@@ -26,6 +28,8 @@
 					<th>id</th>
 					<th>Context Type</th>
 					<th>Value</th>
+					<th>Start Time</th>
+					<th>End Time</th>
 				</tr>
 			</tfoot>
 			<tbody>
@@ -39,6 +43,8 @@
 				<td>$row->context_id</td>
 				<td>$row->context_type 	</td>
 				<td>$row->value</td>
+				<td>$row->start_time</td>
+				<td>$row->end_time </td>
 				</tr>";
 			}?>
 			</tbody>
