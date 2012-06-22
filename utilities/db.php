@@ -298,8 +298,7 @@
 		 */
 		function hn_ts_select_context(){
 			global $wpdb;
-			$sql="SELECT context_id, context_type, value
-				   FROM wp_ts_context";
+			$sql="SELECT * FROM wp_ts_context";
 			return $wpdb->get_results($wpdb->prepare($sql));
 		}
 		
