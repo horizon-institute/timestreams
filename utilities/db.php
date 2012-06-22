@@ -24,6 +24,8 @@
 				context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				context_type varchar(100) COLLATE utf8_unicode_ci NOT NULL,
 				value varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+			    start_time timestamp DEFAULT NULL,
+			    end_time timestamp DEFAULT NULL,
 				PRIMARY KEY  (context_id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
 			$wpdb->query($sql);
@@ -142,23 +144,6 @@
 		}
 		
 		/**
-		 * Adds records to the wp_ts_context table. 
-		 * @param String $context_type
-		 * @param String $context_value
-		 * Todo: Sanitise inputs
-		 */
-		function hn_ts_addContextRecord($context_type, $context_value){
-			global $wpdb;
-			
-			$wpdb->insert(  
-			    'wp_ts_context', 
-			    array( 	'context_type' => $context_type,
-			    		'value' => $context_value), 
-			    array( '%s', '%s' )  
-			);  
-		}
-		
-		/**
 		 * Retrieves records from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
 		 * @param integer $blogId is the id of the blog to select from
 		 * @param String $measurementType is the type of measurement such as temperatureto select from
@@ -181,6 +166,9 @@
 				}
 			}else if($maximumTime){
 				$where=$where."timestamp < $maximumTime";
+			}
+			if(0==strcmp($where,"WHERE ")){
+				$where="";
 			}
 			return $wpdb->get_var( 	$wpdb->prepare("SELECT * FROM $table $where;" )	);
 		}
@@ -211,7 +199,77 @@
 			}else if($maximumTime){
 				$where=$where."timestamp < '$maximumTime'";
 			}
+			
+			if(0==strcmp($where,"WHERE ")){
+				$where="";
+			}
 			return $wpdb->get_results( 	$wpdb->prepare("SELECT * FROM $table $where;" )	);
+		}
+		
+		/**
+		 * Retrieves the first record from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]table name
+		 * To do: Sanitise parameters
+		 * @return the result of the select
+		 */
+		function hn_ts_get_first_reading($args){
+			global $wpdb;
+			$table=$args[2];
+			
+			return $wpdb->get_row( 	$wpdb->prepare("SELECT * FROM $table LIMIT 1" )	);
+		}
+		
+		/**
+		 * Retrieves the first record from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]table name
+		 * To do: Sanitise parameters
+		 * @return the result of the select
+		 */
+		function hn_ts_get_metadata_by_name($args){
+			global $wpdb;
+			$table=$args[2];
+			
+			return $wpdb->get_results( 	$wpdb->prepare(
+					"SELECT * FROM wp_ts_metadata WHERE tablename='$table'" )	);			
+		}
+		
+		/**
+		 * Retrieves the latest record from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]table name
+		 * To do: Sanitise parameters
+		 * @return the result of the select
+		 */
+		function hn_ts_get_latest_reading($args){
+			global $wpdb;
+			$table=$args[2];
+			
+			return $wpdb->get_row( 	$wpdb->prepare("SELECT * FROM 
+					$table WHERE id = ( SELECT MAX( id ) FROM $table ) " )	);
+		}
+		
+		/**
+		 * Retrieves the count from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]table name
+		 * To do: Sanitise parameters
+		 * @return the result of the select
+		 */
+		function hn_ts_count_readings($args){
+			global $wpdb;
+			$table=$args[2];
+			
+			return $this->getCount($table);
 		}
 		
 		/**
@@ -244,6 +302,65 @@
 				   FROM wp_ts_context";
 			return $wpdb->get_results($wpdb->prepare($sql));
 		}
+		
+		/**
+		 * Retrieves context information
+		 * @return the selection
+		 */
+		function hn_ts_get_context_by_type($args){
+			global $wpdb;
+			$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]'";
+			return $wpdb->get_results($wpdb->prepare($sql));
+		}
+		
+		/**
+		 * Retrieves context information
+		 * @return the selection
+		 */
+		function hn_ts_get_context_by_value($args){
+			global $wpdb;
+			$sql="SELECT *  FROM wp_ts_context WHERE value='$args[2]'";
+			return $wpdb->get_results($wpdb->prepare($sql));
+		}
+		
+		/**
+		 * Retrieves context information
+		 * @return the selection
+		 */
+		function hn_ts_get_context_by_type_and_value($args){
+			global $wpdb;
+			$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]' AND value='$args[3]'";
+			return $wpdb->get_results($wpdb->prepare($sql));
+		}
+		
+		/**
+		 * Retrieves context information
+		 * @return the selection
+		 */
+		function hn_ts_get_context_within_time_range($args){
+			global $wpdb;
+			//$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]' AND value='$args[3]'";
+			//return $wpdb->get_results($wpdb->prepare($sql));			
+			
+			$startTime=$args[2];
+			$endTime=$args[3];
+			$where="WHERE ";
+			if(0!=strcmp(strtoupper($startTime),"NULL")){
+				$where=$where."start_time >= '$startTime' ";
+			
+				if(0!=strcmp(strtoupper($endTime),"NULL")){
+					$where=$where."AND 	end_time < '$endTime'";
+				}
+			}else if(0!=strcmp(strtoupper($endTime),"NULL")){
+				$where=$where."	end_time < '$endTime'";
+			}
+			if(0==strcmp($where,"WHERE ")){
+				$where="";
+			}
+			return $wpdb->get_results( 	$wpdb->prepare("SELECT * FROM wp_ts_context $where;" )	);
+		}
+		
+		
 		
 		/**
 		 * Inserts a reading into a data table
@@ -290,6 +407,23 @@
 			}
 			return "Number of insertions: $retval";
 			
+		}
+		
+		/**
+		 * Adds records to the wp_ts_context table. 
+		 * @param String $context_type
+		 * @param String $context_value
+		 * Todo: Sanitise inputs
+		 */
+		function hn_ts_addContextRecord($context_type, $context_value){
+			global $wpdb;
+			
+			return $wpdb->insert(  
+			    'wp_ts_context', 
+			    array( 	'context_type' => $context_type,
+			    		'value' => $context_value), 
+			    array( '%s', '%s' )  
+			);  
 		}
 	}
 ?>

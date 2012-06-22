@@ -76,8 +76,7 @@
 		 * Checks username password then adds a measurement to a measurement container.
 		 * @param array $args should have 5 parameters:
 		 * $username, $password, measurement container name, measurement value, timestamp
-		 * @return string XML-XPC response with either an error message as a param or the
-		 * value and timestamp of the added measure
+		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
 		 */
 		function hn_ts_add_measurement($args){
 			if(count($args) < 5){
@@ -95,7 +94,7 @@
 		 * @param array $args should have at least 5 parameters:
 		 * $username, $password, measurement container name, array containing [measurement value, timestamp]
 		 * @return string XML-XPC response with either an error message as a param or the
-		 * value and timestamp of the added measure
+		 * number of insertions
 		 */
 		function hn_ts_add_measurements($args){
 			if(count($args) < 5){
@@ -110,10 +109,9 @@
 		
 		/**
 		 * Checks username password then selects measurements from a measurement container.
-		 * @param array $args should have at least 5 parameters:
+		 * @param array $args should have 5 parameters:
 		 * $username, $password, measurement container name, minimum time, maximum time
-		 * @return string XML-XPC response with either an error message as a param or the
-		 * value and timestamp of the added measure
+		 * @return string XML-XPC response with either an error message as a param or measurement data
 		 */
 		function hn_ts_select_measurements($args){
 			if(count($args) < 5){
@@ -125,6 +123,161 @@
 				return 'Incorrect username or password.';
 			}
 		}
+		
+		/**
+		 * Checks username password then selects the first measurement from a measurement container.
+		 * @param array $args should have 3 parameters:
+		 * $username, $password, measurement container name
+		 * @return string XML-XPC response with either an error message as a param or measurement data
+		 */
+		function hn_ts_select_first_measurement($args){
+			if(count($args) != 3){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_get_first_reading($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}
+		
+		/**
+		 * Checks username password then selects the latest measurement from a measurement container.
+		 * @param array $args should have 3 parameters:
+		 * $username, $password, measurement container name
+		 * @return string XML-XPC response with either an error message as a param or measurement data
+		 */
+		function hn_ts_select_latest_measurement($args){
+			if(count($args) != 3){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_get_latest_reading($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}
+		
+		/**
+		 * Checks username password then selects the latest measurement from a measurement container.
+		 * @param array $args should have 3 parameters:
+		 * $username, $password, measurement container name
+		 * @return string XML-XPC response with either an error message as a param or count value
+		 */
+		function hn_ts_count_measurements($args){
+			if(count($args) != 3){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_count_readings($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}		
+		
+		/**
+		 * Checks username password then selects the metadata corresponding to the given measurement container.
+		 * @param array $args should have 3 parameters:
+		 * $username, $password, measurement container name
+		 * @return string XML-XPC response with either an error message as a param or the
+		 * metadata
+		 */
+		function hn_ts_select_metadata_by_name($args){
+			if(count($args) != 3){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_get_metadata_by_name($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}	
+		
+		/**
+		 * Checks username password then adds a context record to the context container.
+		 * @param array $args should have 4 parameters:
+		 * $username, $password, context_type, context_value
+		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
+		 */
+		function hn_ts_add_context($args){
+			if(count($args) != 4){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_addContextRecord($args[2], $args[3]);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}	
+		
+		/**
+		 * Checks username password then selects context records matching the given type.
+		 * @param array $args should have 3 parameters:
+		 * $username, $password, context type
+		 * @return string XML-XPC response with either an error message as a param or context records
+		 */
+		function hn_ts_select_context_by_type($args){
+			if(count($args) != 3){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_get_context_by_type($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}
+		
+		/**
+		 * Checks username password then selects context records matching the given value.
+		 * @param array $args should have 3 parameters:
+		 * $username, $password, context value
+		 * @return string XML-XPC response with either an error message as a param or context records
+		 */
+		function hn_ts_select_context_by_value($args){
+			if(count($args) != 3){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_get_context_by_value($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}
+		
+		/**
+		 * Checks username password then selects context records matching the given value.
+		 * @param array $args should have 4 parameters:
+		 * $username, $password, context type, context value
+		 * @return string XML-XPC response with either an error message as a param or context records
+		 */
+		function hn_ts_select_context_by_type_and_value($args){
+			if(count($args) != 4){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_get_context_by_type_and_value($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}
+		
+		/**
+		 * Checks username password then selects context records matching the given time values.
+		 * @param array $args should have 4 parameters:
+		 * $username, $password, context type, start time (optional -- use NULL if not desired), End time (optional -- use NULL if not desired)
+		 * @return string XML-XPC response with either an error message as a param or context records
+		 */
+		function hn_ts_select_context_within_time_range($args){
+			if(count($args) != 4){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_get_context_within_time_range($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}
+		
 
 		/**
 		 * Associates XML-RPC method names with functions of this class 
@@ -137,7 +290,15 @@
 			$methods['timestreams.add_measurement'] =  array(&$this, 'hn_ts_add_measurement');
 			$methods['timestreams.add_measurements'] =  array(&$this, 'hn_ts_add_measurements');
 			$methods['timestreams.select_measurements'] =  array(&$this, 'hn_ts_select_measurements');
-			
+			$methods['timestreams.select_first_measurement'] =  array(&$this, 'hn_ts_select_first_measurement');
+			$methods['timestreams.select_latest_measurement'] =  array(&$this, 'hn_ts_select_latest_measurement');
+			$methods['timestreams.count_measurements'] =  array(&$this, 'hn_ts_count_measurements');
+			$methods['timestreams.select_metadata_by_name'] =  array(&$this, 'hn_ts_select_metadata_by_name');
+			$methods['timestreams.add_context'] =  array(&$this, 'hn_ts_add_context');
+			$methods['timestreams.select_context_by_type'] =  array(&$this, 'hn_ts_select_context_by_type');
+			$methods['timestreams.select_context_by_value'] =  array(&$this, 'hn_ts_select_context_by_value');
+			$methods['timestreams.select_context_by_type_and_value'] =  array(&$this, 'hn_ts_select_context_by_type_and_value');
+			$methods['timestreams.select_context_within_time_range'] =  array(&$this, 'hn_ts_select_context_within_time_range');
 			return $methods;
 		}
 	}
