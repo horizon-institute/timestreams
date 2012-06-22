@@ -168,7 +168,7 @@
 		 * To do: Sanitise parameters
 		 * @return the result of the select
 		 */
-		function getReadings($blogId, $measurementType, $deviceId,
+		function hn_ts_get_readings($blogId, $measurementType, $deviceId,
 				$minimumTime, $maximumTime){
 			global $wpdb;
 			$table="wp_$blogId_ts_$measurementType_$deviceId";
@@ -183,6 +183,35 @@
 				$where=$where."timestamp < $maximumTime";
 			}
 			return $wpdb->get_var( 	$wpdb->prepare("SELECT * FROM $table $where;" )	);
+		}
+		
+		/**
+		 * Retrieves records from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]table name
+		 * [3]minimum timestamp
+		 * [4]maximum timestamp
+		 * To do: Sanitise parameters
+		 * @return the result of the select
+		 */
+		function hn_ts_get_readings_from_name($args){
+			global $wpdb;
+			$table=$args[2];
+			$minimumTime=$args[3];
+			$maximumTime=$args[4];
+			$where="WHERE ";
+			if($minimumTime){
+				$where=$where."timestamp >= '$minimumTime' ";
+				
+				if($maximumTime){
+					$where=$where."AND timestamp < '$maximumTime'";
+				}
+			}else if($maximumTime){
+				$where=$where."timestamp < '$maximumTime'";
+			}
+			return $wpdb->get_results( 	$wpdb->prepare("SELECT * FROM $table $where;" )	);
 		}
 		
 		/**

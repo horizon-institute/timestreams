@@ -107,6 +107,24 @@
 				return 'Incorrect username or password.';
 			}
 		}
+		
+		/**
+		 * Checks username password then selects measurements from a measurement container.
+		 * @param array $args should have at least 5 parameters:
+		 * $username, $password, measurement container name, minimum time, maximum time
+		 * @return string XML-XPC response with either an error message as a param or the
+		 * value and timestamp of the added measure
+		 */
+		function hn_ts_select_measurements($args){
+			if(count($args) < 5){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_get_readings_from_name($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}
 
 		/**
 		 * Associates XML-RPC method names with functions of this class 
@@ -118,6 +136,7 @@
 			$methods['timestreams.create_measurements'] =  array(&$this, 'hn_ts_create_measurements');
 			$methods['timestreams.add_measurement'] =  array(&$this, 'hn_ts_add_measurement');
 			$methods['timestreams.add_measurements'] =  array(&$this, 'hn_ts_add_measurements');
+			$methods['timestreams.select_measurements'] =  array(&$this, 'hn_ts_select_measurements');
 			
 			return $methods;
 		}
