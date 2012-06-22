@@ -295,6 +295,23 @@
 			}
 		}
 		
+		/**
+		 * Checks username password then uploads and stores details about a file.
+		 * @param array $args should have 5 parameters:
+		 * $username, $password, measurement container name, struct with file details (name, type, bits), timestamp
+		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
+		 */
+		function hn_ts_add_measurement_file($args){
+			if(count($args) < 5){
+				return 'Incorrect number of parameters.';
+			}
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_upload_reading_file($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}
+		
 
 		/**
 		 * Associates XML-RPC method names with functions of this class 
@@ -317,6 +334,8 @@
 			$methods['timestreams.select_context_by_type_and_value'] =  array(&$this, 'hn_ts_select_context_by_type_and_value');
 			$methods['timestreams.select_context_within_time_range'] =  array(&$this, 'hn_ts_select_context_within_time_range');
 			$methods['timestreams.hn_ts_update_context'] =  array(&$this, 'hn_ts_update_context');
+			$methods['timestreams.add_measurement_file'] =  array(&$this, 'hn_ts_add_measurement_file');
+			
 			return $methods;
 		}
 	}

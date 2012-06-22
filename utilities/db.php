@@ -6,6 +6,8 @@
  */
 
 	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');	// provides dbDelta
+	require_once(ABSPATH . WPINC . '/class-IXR.php');
+	require_once(ABSPATH . WPINC . '/class-wp-xmlrpc-server.php');
 	
 	/**
 	 * Controls calls to the database for timestreams
@@ -451,6 +453,28 @@
 			return $wpdb->update(  
 			    'wp_ts_context',  array( 'end_time' => $args[5]), $where,'%s','%s'
 			);
+		}
+		/**
+		 * Records that a file was uploaded. The timestamp is the time the file was last modified prior to upload
+		 * Todo: handle write permissions from username and password
+		 * 		Or better yet, implement OAuth
+		 * 		Also, handle the format param for $wpdb->insert.
+		 * 		And also make it more robust!
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]table name
+		 * [3]File details: [0] Name, [1] Type [3] Bits
+		 * [4]timestamp 
+		 */
+		function hn_ts_upload_reading_file($args){
+			global $wpdb, $blog_id;
+			$wpserver = new wp_xmlrpc_server();
+			$fileArgs = array($blog_id, $args[0],$args[1],$args[3]);			
+			$uploadedFile = $wpserver->mw_newMediaObject($fileArgs);
+			return $wpdb->insert( $args[2],
+					 array('value' => $uploadedFile['url'],'timestamp' => $args[4]) );
+			
 		}
 	}
 ?>
