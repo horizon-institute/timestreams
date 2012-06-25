@@ -302,7 +302,7 @@
 		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
 		 */
 		function hn_ts_add_measurement_file($args){
-			if(count($args) < 5){
+			if(count($args) < 4){
 				return 'Incorrect number of parameters.';
 			}
 			if($this->hn_ts_check_user_pass($args)){
@@ -333,7 +333,7 @@
 			$methods['timestreams.select_context_by_value'] =  array(&$this, 'hn_ts_select_context_by_value');
 			$methods['timestreams.select_context_by_type_and_value'] =  array(&$this, 'hn_ts_select_context_by_type_and_value');
 			$methods['timestreams.select_context_within_time_range'] =  array(&$this, 'hn_ts_select_context_within_time_range');
-			$methods['timestreams.hn_ts_update_context'] =  array(&$this, 'hn_ts_update_context');
+			$methods['timestreams.update_context'] =  array(&$this, 'hn_ts_update_context');
 			$methods['timestreams.add_measurement_file'] =  array(&$this, 'hn_ts_add_measurement_file');
 			
 			return $methods;

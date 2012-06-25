@@ -470,10 +470,17 @@
 		function hn_ts_upload_reading_file($args){
 			global $wpdb, $blog_id;
 			$wpserver = new wp_xmlrpc_server();
+			$args[3]['name']=$args[2].'_'.$args[3]['name'];
 			$fileArgs = array($blog_id, $args[0],$args[1],$args[3]);			
 			$uploadedFile = $wpserver->mw_newMediaObject($fileArgs);
-			return $wpdb->insert( $args[2],
+			if(count($args)>4){
+				$wpdb->insert( $args[2],
 					 array('value' => $uploadedFile['url'],'timestamp' => $args[4]) );
+			}else{
+				$wpdb->insert( $args[2],
+					array('value' => $uploadedFile['url']) );
+			}
+			return $uploadedFile['url'];
 			
 		}
 	}
