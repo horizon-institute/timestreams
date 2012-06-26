@@ -110,7 +110,7 @@
 				return $this->loginErrorCode;
 			}
 			else{
-				$this->tsdb->hn_ts_insert_readings($args);
+				return $this->tsdb->hn_ts_insert_readings($args);
 			}
 		}
 		
