@@ -71,7 +71,7 @@
 					isset($_POST['unit']) && $_POST['unit'] &&
 					isset($_POST['datatype']) && $_POST['datatype']) {
 					$db = new Hn_TS_Database();
-					$db->hn_ts_addMetadataRecord(
+					$db->hn_ts_addMetadataRecord("",
 						$_POST['measurement_type'], $_POST['minimum'], 
 						$_POST['maximum'], $_POST['unit'], $_POST['unit_symbol'], 
 						$_POST['device'], $_POST['other'],$_POST['datatype']

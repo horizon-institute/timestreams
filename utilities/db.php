@@ -15,8 +15,15 @@
 	 *
 	 */
 	class Hn_TS_Database {
-		protected $missingcontainername="Missing container name parameter.";
-		protected $missingParameters="Incorrect number of parameters.";
+		private $wpserver;
+		protected $missingcontainername;
+		protected $missingParameters;
+		
+		function Hn_TS_Database(){
+			$this->wpserver = new wp_xmlrpc_server();
+			$this->missingcontainername = new IXR_Error(403, __('Missing container name parameter.'));//"Missing container name parameter.";
+			$this->missingParameters= new IXR_Error(403, __('Incorrect number of parameters.'));
+		}
 		
 		/**
 		 * Creates the initial timestreams db tables. This is expected only to 
@@ -191,7 +198,7 @@
 		function hn_ts_get_readings_from_name($args){
 			global $wpdb;
 			if(count($args) < 3){
-				return $missingcontainername;
+				return $this->missingcontainername;
 			}
 			$table=$args[2];
 			$minimumTime=$args[3];
@@ -225,7 +232,7 @@
 		function hn_ts_get_first_reading($args){
 			global $wpdb;
 			if(count($args) != 3){
-				return $missingcontainername;
+				return $this->missingcontainername;
 			}
 				
 			$table=$args[2];
@@ -245,7 +252,7 @@
 		function hn_ts_get_metadata_by_name($args){
 			global $wpdb;
 			if(count($args) != 3){
-				return $missingcontainername;
+				return $this->missingcontainername;
 			}
 			
 			$table=$args[2];
@@ -266,7 +273,7 @@
 		function hn_ts_get_latest_reading($args){
 			global $wpdb;
 			if(count($args) != 3){
-				return $missingcontainername;
+				return $this->missingcontainername;
 			}
 			$table=$args[2];
 			
@@ -285,7 +292,7 @@
 		 */
 		function hn_ts_count_readings($args){
 			global $wpdb;if(count($args) != 3){
-				return $missingcontainername;
+				return $this->missingcontainername;
 			}
 			
 			$table=$args[2];
@@ -330,7 +337,7 @@
 		function hn_ts_get_context_by_type($args){
 			global $wpdb;
 			if(count($args) < 3){
-				return $missingParameters;
+				return $this->missingParameters;
 			}
 			$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]'";
 			return $wpdb->get_results($wpdb->prepare($sql));
@@ -344,7 +351,7 @@
 			global $wpdb;
 			
 			if(count($args) < 3){
-				return $missingParameters;
+				return $this->missingParameters;
 			}
 			$sql="SELECT *  FROM wp_ts_context WHERE value='$args[2]'";
 			return $wpdb->get_results($wpdb->prepare($sql));
@@ -358,7 +365,7 @@
 			global $wpdb;
 			
 			if(count($args) < 4){
-				return $missingParameters;
+				return $this->missingParameters;
 			}
 			
 			$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]' AND value='$args[3]'";
@@ -375,7 +382,7 @@
 			//return $wpdb->get_results($wpdb->prepare($sql));	
 			
 			if(count($args) < 4){
-				return $missingParameters;
+				return $this->missingParameters;
 			}		
 			
 			$startTime=$args[2];
@@ -417,7 +424,7 @@
 			}else if(count($args) == 4){
 				return $wpdb->insert( $args[2], array('value' => $args[3]));
 			}else{
-				return "Missing value parameter.";
+				return $this->missingParameters;
 			}			
 		}
 		
@@ -463,7 +470,7 @@
 		function hn_ts_addContextRecordTimestamped($args){
 			global $wpdb;			
 			if(count($args) != 6){
-				return $missingParameters;
+				return $this->missingParameters;
 			}
 			$baseVals = array( 	'context_type' => $args[2], 'value' => $args[3]);
 			$baseTypes=array( '%s', '%s');  
@@ -512,7 +519,7 @@
 		function hn_ts_updateContextRecord($args){
 			global $wpdb;	
 			if(count($args) != 6){
-				return $missingParameters;
+				return $this->missingParameters;
 			}
 			$where="";
 			if(0!=strcmp(strtoupper($args[4]),"NULL")){
@@ -545,9 +552,8 @@
 			global $wpdb, $blog_id;
 			
 			if(count($args) < 4){
-				return $missingParameters;
+				return $this->missingParameters;
 			}
-			$wpserver = new wp_xmlrpc_server();
 			$args[3]['name']=$args[2].'_'.$args[3]['name'];
 			$fileArgs = array($blog_id, $args[0],$args[1],$args[3]);			
 			$uploadedFile = $wpserver->mw_newMediaObject($fileArgs);
@@ -581,10 +587,9 @@
 			global $wpdb, $blog_id;
 			
 			if(count($args) < 4){
-				return $missingParameters;
+				return $this->missingParameters;
 			}
 			
-			$wpserver = new wp_xmlrpc_server();
 			$fileCount = 0;
 			foreach($args[3] as $aFile){
 				$aFile['name']=$args[2].'_'.$aFile['name'];

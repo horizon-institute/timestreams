@@ -20,6 +20,9 @@
 	if ( !defined( 'HN_TS_UTILITES_DIR' ) ) exit;
 	
 	require_once( HN_TS_UTILITES_DIR . '/db.php'     );
+	require_once(ABSPATH . 'wp-admin/includes/admin.php');
+	require_once(ABSPATH . WPINC . '/class-IXR.php');
+	require_once(ABSPATH . WPINC . '/class-wp-xmlrpc-server.php');
 	
 	/**
 	 * Uses the shortcode method to output weather data from the DB to a WP page  
@@ -28,9 +31,15 @@
 	 */
 	class HN_TS_SensorDB_XML_RPC{
 		private $tsdb;
+		private $wpserver;
+		private $loginError;
+		private $loginErrorCode;
 		
 		function hn_ts_SensorDB_XML_RPC(){
 			$this->tsdb = new Hn_TS_Database();
+			$this->wpserver = new wp_xmlrpc_server();
+			$this->loginError=NULL;
+			$this->loginErrorCode = new IXR_Error(401, __('Incorrect username or password.'));
 		}
 		
 		/**
@@ -38,37 +47,36 @@
 		 * system user
 		 * @param array args should have the first and second params as user name and password
 		 * The rest are ignored
-		 * @return boolean true if valid or false otherwise
-		 * INCOMPLETE
+		 * @return mixed WP_User object if authentication passed, false otherwise
 		 */
 		function hn_ts_check_user_pass($args){
-			return true;
+			if(!$this->wpserver->login($args[0], $args[1])){
+				$this->loginError = $this->loginErrorCode;
+			}
 		}
 		
 		/**
 		 * Checks username password then creates a new measurement container.
-		 * @param array $args should have 11 parameters:
-		 * $username, $password, $blog_id, $measurementType, $minimumvalue, $maximumvalue,
+		 * @param array $args should have 10 parameters:
+		 * $username, $password, $measurementType, $minimumvalue, $maximumvalue,
 			$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType
 		 * @return string XML-XPC response with either an error message as a param or the
 		 * name of the measurement container
 		 */
 		function hn_ts_create_measurements($args){
-			/*$retString="";
-			foreach ($args as $value){
-				$retString=$retString.$value;
-			}
-			return $retString;*/
-			if(count($args) < 11){
-				return 'Incorrect number of parameters.';
+			if(count($args) < 10){
+				return new IXR_Error(403, __('Incorrect number of parameters.'));
 			}
 			/*(blog_id='', $$measurementType, $minimumvalue, $maximumvalue,
 			$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType)*/
-			if($this->hn_ts_check_user_pass($args)){
-				return $this->tsdb->hn_ts_addMetadataRecord($args[2],$args[3],$args[4],$args[5],
-					$args[6],$args[7],$args[8],$args[9],$args[10]);
-			}else{
-				return 'Incorrect username or password.';
+			$this->hn_ts_check_user_pass($args);
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
+				return $this->tsdb->hn_ts_addMetadataRecord("",$args[2],$args[3],$args[4],
+						$args[5],$args[6],$args[7],$args[8],$args[9]);
 			}
 		}
 		
@@ -79,10 +87,13 @@
 		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
 		 */
 		function hn_ts_add_measurement($args){
-			if($this->hn_ts_check_user_pass($args)){
+			$this->hn_ts_check_user_pass($args);
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_insert_reading($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}
 		
@@ -93,11 +104,13 @@
 		 * @return string XML-XPC response with either an error message as a param or the
 		 * number of insertions
 		 */
-		function hn_ts_add_measurements($args){
-			if($this->hn_ts_check_user_pass($args)){
-				return $this->tsdb->hn_ts_insert_readings($args);
-			}else{
-				return 'Incorrect username or password.';
+		function hn_ts_add_measurements($args){$this->hn_ts_check_user_pass($args);
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
+				$this->tsdb->hn_ts_insert_readings($args);
 			}
 		}
 		
@@ -108,10 +121,12 @@
 		 * @return string XML-XPC response with either an error message as a param or measurement data
 		 */
 		function hn_ts_select_measurements($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_get_readings_from_name($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}
 		
@@ -122,10 +137,12 @@
 		 * @return string XML-XPC response with either an error message as a param or measurement data
 		 */
 		function hn_ts_select_first_measurement($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_get_first_reading($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}
 		
@@ -136,10 +153,12 @@
 		 * @return string XML-XPC response with either an error message as a param or measurement data
 		 */
 		function hn_ts_select_latest_measurement($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_get_latest_reading($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}
 		
@@ -150,10 +169,12 @@
 		 * @return string XML-XPC response with either an error message as a param or count value
 		 */
 		function hn_ts_count_measurements($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_count_readings($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}		
 		
@@ -165,10 +186,12 @@
 		 * metadata
 		 */
 		function hn_ts_select_metadata_by_name($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_get_metadata_by_name($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}	
 		
@@ -179,10 +202,12 @@
 		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
 		 */
 		function hn_ts_add_context($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_addContextRecord($args[2], $args[3]);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}	
 		
@@ -193,10 +218,12 @@
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_by_type($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_get_context_by_type($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}
 		
@@ -207,10 +234,12 @@
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_by_value($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_get_context_by_value($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}
 		
@@ -221,10 +250,12 @@
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_by_type_and_value($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_get_context_by_type_and_value($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}
 		
@@ -235,10 +266,12 @@
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_within_time_range($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_get_context_within_time_range($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}
 		
@@ -249,10 +282,12 @@
 		 * @return string XML-XPC response with either an error message as a param or number of updated records
 		 */
 		function hn_ts_update_context($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_updateContextRecord($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}
 		
@@ -263,10 +298,12 @@
 		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
 		 */
 		function hn_ts_add_measurement_file($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_upload_reading_file($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}
 		
@@ -277,10 +314,12 @@
 		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
 		 */
 		function hn_ts_add_measurement_files($args){
-			if($this->hn_ts_check_user_pass($args)){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
 				return $this->tsdb->hn_ts_upload_reading_files($args);
-			}else{
-				return 'Incorrect username or password.';
 			}
 		}		
 
