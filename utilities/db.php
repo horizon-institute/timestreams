@@ -556,7 +556,7 @@
 			}
 			$args[3]['name']=$args[2].'_'.$args[3]['name'];
 			$fileArgs = array($blog_id, $args[0],$args[1],$args[3]);			
-			$uploadedFile = $wpserver->mw_newMediaObject($fileArgs);
+			$uploadedFile = $this->wpserver->mw_newMediaObject($fileArgs);
 			if(is_array($uploadedFile)){
 				if(count($args)>4){
 					$wpdb->insert( $args[2],
@@ -594,7 +594,7 @@
 			foreach($args[3] as $aFile){
 				$aFile['name']=$args[2].'_'.$aFile['name'];
 				$fileArgs = array($blog_id, $args[0],$args[1],$aFile);			
-				$uploadedFile = $wpserver->mw_newMediaObject($fileArgs);
+				$uploadedFile = $this->wpserver->mw_newMediaObject($fileArgs);
 				if(is_array($uploadedFile)){
 					$wpdb->insert( $args[2],
 						 array('value' => $uploadedFile['url'],'timestamp' => $aFile['timestamp']) );
