@@ -74,14 +74,11 @@
 		
 		/**
 		 * Checks username password then adds a measurement to a measurement container.
-		 * @param array $args should have 5 parameters:
+		 * @param array $args should have 4 or 5 parameters:
 		 * $username, $password, measurement container name, measurement value, timestamp
 		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
 		 */
 		function hn_ts_add_measurement($args){
-			if(count($args) < 5){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_insert_reading($args);
 			}else{
@@ -97,9 +94,6 @@
 		 * number of insertions
 		 */
 		function hn_ts_add_measurements($args){
-			if(count($args) < 5){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_insert_readings($args);
 			}else{
@@ -114,9 +108,6 @@
 		 * @return string XML-XPC response with either an error message as a param or measurement data
 		 */
 		function hn_ts_select_measurements($args){
-			if(count($args) < 5){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_get_readings_from_name($args);
 			}else{
@@ -131,9 +122,6 @@
 		 * @return string XML-XPC response with either an error message as a param or measurement data
 		 */
 		function hn_ts_select_first_measurement($args){
-			if(count($args) != 3){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_get_first_reading($args);
 			}else{
@@ -148,9 +136,6 @@
 		 * @return string XML-XPC response with either an error message as a param or measurement data
 		 */
 		function hn_ts_select_latest_measurement($args){
-			if(count($args) != 3){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_get_latest_reading($args);
 			}else{
@@ -165,9 +150,6 @@
 		 * @return string XML-XPC response with either an error message as a param or count value
 		 */
 		function hn_ts_count_measurements($args){
-			if(count($args) != 3){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_count_readings($args);
 			}else{
@@ -183,9 +165,6 @@
 		 * metadata
 		 */
 		function hn_ts_select_metadata_by_name($args){
-			if(count($args) != 3){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_get_metadata_by_name($args);
 			}else{
@@ -195,14 +174,11 @@
 		
 		/**
 		 * Checks username password then adds a context record to the context container.
-		 * @param array $args should have 4 parameters:
-		 * $username, $password, context_type, context_value
+		 * @param array $args should have 6 parameters:
+		 * $username, $password, context_type, context_value, start time (optional), end time(optional)
 		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
 		 */
 		function hn_ts_add_context($args){
-			if(count($args) != 4){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_addContextRecord($args[2], $args[3]);
 			}else{
@@ -217,9 +193,6 @@
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_by_type($args){
-			if(count($args) != 3){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_get_context_by_type($args);
 			}else{
@@ -234,9 +207,6 @@
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_by_value($args){
-			if(count($args) != 3){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_get_context_by_value($args);
 			}else{
@@ -251,9 +221,6 @@
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_by_type_and_value($args){
-			if(count($args) != 4){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_get_context_by_type_and_value($args);
 			}else{
@@ -268,9 +235,6 @@
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_within_time_range($args){
-			if(count($args) != 4){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_get_context_within_time_range($args);
 			}else{
@@ -285,9 +249,6 @@
 		 * @return string XML-XPC response with either an error message as a param or number of updated records
 		 */
 		function hn_ts_update_context($args){
-			if(count($args) != 6){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_updateContextRecord($args);
 			}else{
@@ -297,14 +258,11 @@
 		
 		/**
 		 * Checks username password then uploads and stores details about a file.
-		 * @param array $args should have 5 parameters:
+		 * @param array $args should have 4 or 5 parameters:
 		 * $username, $password, measurement container name, struct with file details (name, type, bits), timestamp
 		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
 		 */
 		function hn_ts_add_measurement_file($args){
-			if(count($args) < 4){
-				return 'Incorrect number of parameters.';
-			}
 			if($this->hn_ts_check_user_pass($args)){
 				return $this->tsdb->hn_ts_upload_reading_file($args);
 			}else{
@@ -312,6 +270,19 @@
 			}
 		}
 		
+		/**
+		 * Checks username password then uploads and stores details about a file.
+		 * @param array $args should have at least 4 parameters:
+		 * $username, $password, measurement container name, struct with file details (name, type, bits), timestamp
+		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
+		 */
+		function hn_ts_add_measurement_files($args){
+			if($this->hn_ts_check_user_pass($args)){
+				return $this->tsdb->hn_ts_upload_reading_files($args);
+			}else{
+				return 'Incorrect username or password.';
+			}
+		}		
 
 		/**
 		 * Associates XML-RPC method names with functions of this class 
@@ -335,6 +306,7 @@
 			$methods['timestreams.select_context_within_time_range'] =  array(&$this, 'hn_ts_select_context_within_time_range');
 			$methods['timestreams.update_context'] =  array(&$this, 'hn_ts_update_context');
 			$methods['timestreams.add_measurement_file'] =  array(&$this, 'hn_ts_add_measurement_file');
+			$methods['timestreams.add_measurement_files'] =  array(&$this, 'hn_ts_add_measurement_files');
 			
 			return $methods;
 		}

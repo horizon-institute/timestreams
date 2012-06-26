@@ -15,6 +15,8 @@
 	 *
 	 */
 	class Hn_TS_Database {
+		protected $missingcontainername="Missing container name parameter.";
+		protected $missingParameters="Incorrect number of parameters.";
 		
 		/**
 		 * Creates the initial timestreams db tables. This is expected only to 
@@ -188,6 +190,9 @@
 		 */
 		function hn_ts_get_readings_from_name($args){
 			global $wpdb;
+			if(count($args) < 3){
+				return $missingcontainername;
+			}
 			$table=$args[2];
 			$minimumTime=$args[3];
 			$maximumTime=$args[4];
@@ -219,6 +224,10 @@
 		 */
 		function hn_ts_get_first_reading($args){
 			global $wpdb;
+			if(count($args) != 3){
+				return $missingcontainername;
+			}
+				
 			$table=$args[2];
 			
 			return $wpdb->get_row( 	$wpdb->prepare("SELECT * FROM $table LIMIT 1" )	);
@@ -235,6 +244,10 @@
 		 */
 		function hn_ts_get_metadata_by_name($args){
 			global $wpdb;
+			if(count($args) != 3){
+				return $missingcontainername;
+			}
+			
 			$table=$args[2];
 			
 			return $wpdb->get_results( 	$wpdb->prepare(
@@ -252,6 +265,9 @@
 		 */
 		function hn_ts_get_latest_reading($args){
 			global $wpdb;
+			if(count($args) != 3){
+				return $missingcontainername;
+			}
 			$table=$args[2];
 			
 			return $wpdb->get_row( 	$wpdb->prepare("SELECT * FROM 
@@ -268,7 +284,10 @@
 		 * @return the result of the select
 		 */
 		function hn_ts_count_readings($args){
-			global $wpdb;
+			global $wpdb;if(count($args) != 3){
+				return $missingcontainername;
+			}
+			
 			$table=$args[2];
 			
 			return $this->getCount($table);
@@ -310,6 +329,9 @@
 		 */
 		function hn_ts_get_context_by_type($args){
 			global $wpdb;
+			if(count($args) < 3){
+				return $missingParameters;
+			}
 			$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]'";
 			return $wpdb->get_results($wpdb->prepare($sql));
 		}
@@ -320,6 +342,10 @@
 		 */
 		function hn_ts_get_context_by_value($args){
 			global $wpdb;
+			
+			if(count($args) < 3){
+				return $missingParameters;
+			}
 			$sql="SELECT *  FROM wp_ts_context WHERE value='$args[2]'";
 			return $wpdb->get_results($wpdb->prepare($sql));
 		}
@@ -330,6 +356,11 @@
 		 */
 		function hn_ts_get_context_by_type_and_value($args){
 			global $wpdb;
+			
+			if(count($args) < 4){
+				return $missingParameters;
+			}
+			
 			$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]' AND value='$args[3]'";
 			return $wpdb->get_results($wpdb->prepare($sql));
 		}
@@ -341,7 +372,11 @@
 		function hn_ts_get_context_within_time_range($args){
 			global $wpdb;
 			//$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]' AND value='$args[3]'";
-			//return $wpdb->get_results($wpdb->prepare($sql));			
+			//return $wpdb->get_results($wpdb->prepare($sql));	
+			
+			if(count($args) < 4){
+				return $missingParameters;
+			}		
 			
 			$startTime=$args[2];
 			$endTime=$args[3];
@@ -360,9 +395,7 @@
 			}
 			return $wpdb->get_results( 	$wpdb->prepare("SELECT * FROM wp_ts_context $where;" )	);
 		}
-		
-		
-		
+	
 		/**
 		 * Inserts a reading into a data table
 		 * Todo: handle write permissions from username and password
@@ -378,9 +411,14 @@
 		 */
 		function hn_ts_insert_reading($args){
 			global $wpdb;
-			return $wpdb->insert( $args[2],
-					 array('value' => $args[3],'timestamp' => $args[4]) );
-			
+			if(count($args)> 4){
+				return $wpdb->insert( $args[2],
+						 array('value' => $args[3],'timestamp' => $args[4]) );				
+			}else if(count($args) == 4){
+				return $wpdb->insert( $args[2], array('value' => $args[3]));
+			}else{
+				return "Missing value parameter.";
+			}			
 		}
 		
 		/**
@@ -400,14 +438,47 @@
 			global $wpdb;
 			$retval = 0;
 			$cnt = count($args);
+			if(count($args) < 4){
+				return "Number of insertions: $retval";  
+			}
 			for($i=3; $i+1 < $cnt; $i+=2){
-				if($wpdb->insert( $args[2],
-						array('value' => $args[$i],'timestamp' => $args[$i+1]) )){
-					$retval++;
+				if(count($args) > $i+1){
+					if($wpdb->insert( $args[2],
+							array('value' => $args[$i],'timestamp' => $args[$i+1]) )){
+						$retval++;
+					}
 				}
 			}
 			return "Number of insertions: $retval";
 			
+		}
+		
+		/**
+		 * Adds records to the wp_ts_context table. 
+		 * @param $args should have 6 parameters:
+		 * $username, $password, context_type, context_value, start time (optional), end time(optional)
+		 * optional values should be "NULL"
+		 * Todo: Sanitise inputs
+		 */
+		function hn_ts_addContextRecordTimestamped($args){
+			global $wpdb;			
+			if(count($args) != 6){
+				return $missingParameters;
+			}
+			$baseVals = array( 	'context_type' => $args[2], 'value' => $args[3]);
+			$baseTypes=array( '%s', '%s');  
+			
+			if(!(0 == strcmp($args[4], "") || 0 == strcmp($args[4], "NULL"))){
+				array_push($baseVals, $args[4]);
+				array_push($baseTypes, '%s');
+			}
+				
+			if(!(0 == strcmp($args[5], "") || 0 == strcmp($args[5], "NULL"))){
+				array_push($baseVals, $args[5]);
+				array_push($baseTypes, '%s');
+			}
+			
+			return $wpdb->insert( 'wp_ts_context',  $baseVals, $baseTypes  );
 		}
 		
 		/**
@@ -439,7 +510,10 @@
 		 * Todo: Sanitise inputs
 		 */
 		function hn_ts_updateContextRecord($args){
-			global $wpdb;
+			global $wpdb;	
+			if(count($args) != 6){
+				return $missingParameters;
+			}
 			$where="";
 			if(0!=strcmp(strtoupper($args[4]),"NULL")){
 				$where = array( 	'context_type' => $args[2],
@@ -469,6 +543,10 @@
 		 */
 		function hn_ts_upload_reading_file($args){
 			global $wpdb, $blog_id;
+			
+			if(count($args) < 4){
+				return $missingParameters;
+			}
 			$wpserver = new wp_xmlrpc_server();
 			$args[3]['name']=$args[2].'_'.$args[3]['name'];
 			$fileArgs = array($blog_id, $args[0],$args[1],$args[3]);			
@@ -487,5 +565,38 @@
 			}
 			
 		}
-	}
+		/**
+		 * Records that a file was uploaded. The timestamp is the time the file was last modified prior to upload
+		 * Todo: handle write permissions from username and password
+		 * 		Or better yet, implement OAuth
+		 * 		Also, handle the format param for $wpdb->insert.
+		 * 		And also make it more robust!
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]table name
+		 * [3]Array of File details: [0] Name, [1] Type [3] Bits [4]timestamp 
+		 */
+		function hn_ts_upload_reading_files($args){
+			global $wpdb, $blog_id;
+			
+			if(count($args) < 4){
+				return $missingParameters;
+			}
+			
+			$wpserver = new wp_xmlrpc_server();
+			$fileCount = 0;
+			foreach($args[3] as $aFile){
+				$aFile['name']=$args[2].'_'.$aFile['name'];
+				$fileArgs = array($blog_id, $args[0],$args[1],$aFile);			
+				$uploadedFile = $wpserver->mw_newMediaObject($fileArgs);
+				if(is_array($uploadedFile)){
+					$wpdb->insert( $args[2],
+						 array('value' => $uploadedFile['url'],'timestamp' => $aFile['timestamp']) );
+					$fileCount++;
+				}
+			}
+			return $fileCount;			
+		}
+	}	
 ?>
