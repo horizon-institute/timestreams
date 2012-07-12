@@ -334,7 +334,25 @@
 				return $this->tsdb->hn_ts_upload_reading_files($args);
 			}
 		}
-
+		
+		/**
+		 * Imports data from files sitting on the server.
+		 * @param array $args should have at least 2 parameters:
+		 * $username, $password
+		 * @return string XML-XPC response with either an error message or 1
+		 */
+		function hn_ts_import_files($args){
+			require_once( HN_TS_PLUGIN_DIR . '/controllers/weather_station_ctrl.php');
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
+				readWeatherFile();
+				return 1;
+			}
+		}
+		
 		/**
 		 * Associates XML-RPC method names with functions of this class 
 		 * @param $methods is a key/value paired array
@@ -358,6 +376,7 @@
 			$methods['timestreams.update_context'] =  array(&$this, 'hn_ts_update_context');
 			$methods['timestreams.add_measurement_file'] =  array(&$this, 'hn_ts_add_measurement_file');
 			$methods['timestreams.add_measurement_files'] =  array(&$this, 'hn_ts_add_measurement_files');
+			$methods['timestreams.import_data_from_files'] =  array(&$this, 'hn_ts_import_files');
 			
 			
 			return $methods;

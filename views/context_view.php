@@ -36,7 +36,7 @@
 				
 			<?php 
 			$db = new Hn_TS_Database();
-			$rows = $db->hn_ts_select_context();
+			$rows = $db->hn_ts_select_context(array(10000,0));
 			if($rows){
 				foreach ( $rows as $row )
 				echo "<tr>
