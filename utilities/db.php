@@ -131,6 +131,18 @@
 			if($blog_id==''){
 				global $blog_id;				
 			}
+			//Ensure that there aren't empty or null values going into mandatory fields.
+			if((0==strcmp(strtoupper($measurementType),"NULL") || 0==strcmp($measurementType,""))){
+				return new IXR_Error(403, __('Measurement type may not be blank.'));
+			}
+			if((0==strcmp(strtoupper($unit),"NULL") || 0==strcmp($unit,""))){
+				return new IXR_Error(403, __('Unit may not be blank.'));
+			}
+			if((0==strcmp(strtoupper($dataType),"NULL") || 0==strcmp($dataType,""))){
+				return new IXR_Error(403, __('Data type may not be blank.'));
+			}
+			//Ensure that table names don't have spaces.
+			$measurementType = preg_replace('/\s+/', '_', $measurementType);
 			//$nextdevice= $this->getCount('wp_ts_metadata')+1;
 			/*$nextdevice=$this->getRecord(
 					'wp_ts_metadata', 'metadata_id', 
