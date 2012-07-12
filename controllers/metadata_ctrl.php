@@ -58,6 +58,11 @@
 			        <td><input type="text" name="datatype" 			/></td>
 			        </tr>
 			        
+			        <tr valign="top">
+			        <th scope="row">Missing Data Value</th>
+			        <td><input type="text" name="missingDataValue" 			/></td>
+			        </tr>
+			        
 			    </table>
 			    
 			    <p class="submit">
@@ -74,7 +79,8 @@
 					$db->hn_ts_addMetadataRecord("",
 						$_POST['measurement_type'], $_POST['minimum'], 
 						$_POST['maximum'], $_POST['unit'], $_POST['unit_symbol'], 
-						$_POST['device'], $_POST['other'],$_POST['datatype']
+						$_POST['device'], $_POST['other'],$_POST['datatype'],
+						$_POST['missingDataValue']
 					);
 					echo 'Record added.';
 				}	

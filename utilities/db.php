@@ -52,6 +52,7 @@
 			    device_details varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
 			    other_info varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
 			    data_type varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+			    missing_data_value varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
 				PRIMARY KEY  (metadata_id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
 			$wpdb->query($sql);
@@ -120,10 +121,11 @@
 		 * @param String $deviceDetails
 		 * @param String $otherInformation
 		 * @param $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
+		 * @param $missingDataValue is a value of type $dataType which represents rows in the timeseries with unknown values.
 		 * To do: Sanitise inputs
 		 */
 		function hn_ts_addMetadataRecord($blog_id='', $measurementType, $minimumvalue, $maximumvalue,
-				$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType){
+				$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType,$missingDataValue){
 			global $wpdb;
 			if($blog_id==''){
 				global $blog_id;				
@@ -147,11 +149,29 @@
 			    		'unit_symbol' => $unitSymbol,
 			    		'device_details' => $deviceDetails,			    		
 			    		'other_info' => $otherInformation,			    		
-			    		'data_type' => $dataType), 
+			    		'data_type' => $dataType,
+			    		'missing_data_value' => $missingDataValue), 
 			    array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' , '%s' )  
 			);  
 			
 			return $this->hn_ts_createMeasurementTable($blog_id, $measurementType, $nextdevice, $dataType);
+		}
+		
+		/**
+		 * Builds a portion of a SQL select query for the limit and offset
+		 * @param $limitIn is an integer with the number of rows to limit by
+		 * @param $offsetIn is an integer to shift the begining of the returned recordset
+		 * @return string of the form "" if $limitIn=0 or else "Limit # OFFSET #" 
+		 */
+		function hn_ts_getLimitStatement($limitIn,$offsetIn){
+			$limit="";
+			if($limitIn){
+				$limit = "LIMIT $limitIn";
+				if($offsetIn){
+					$limit = $limit." OFFSET $offsetIn";
+				}
+			}
+			return $limit;
 		}
 		
 		/**
@@ -185,13 +205,16 @@
 		}
 		
 		/**
-		 * Retrieves records from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
+		 * Retrieves records from a readings table of the form 
+		 * wp_[blog-id]_ts_[measurement-type]_[device-id]
 		 * @param $args is an array in the expected format of:
 		 * [0]username
 		 * [1]password
 		 * [2]table name
 		 * [3]minimum timestamp
 		 * [4]maximum timestamp
+		 * [5]limit -- optional
+		 * [6]offset -- optional
 		 * To do: Sanitise parameters
 		 * @return the result of the select
 		 */
@@ -204,6 +227,7 @@
 			$minimumTime=$args[3];
 			$maximumTime=$args[4];
 			$where="WHERE ";
+			$limit=$this->hn_ts_getLimitStatement($args[5], $args[6]);
 			if($minimumTime){
 				$where=$where."timestamp >= '$minimumTime' ";
 				
@@ -217,7 +241,8 @@
 			if(0==strcmp($where,"WHERE ")){
 				$where="";
 			}
-			return $wpdb->get_results( 	$wpdb->prepare("SELECT * FROM $table $where;" )	);
+			return $wpdb->get_results( 	$wpdb->prepare(
+					"SELECT * FROM $table $where $limit;" )	);
 		}
 		
 		/**
@@ -246,23 +271,28 @@
 		 * [0]username
 		 * [1]password
 		 * [2]table name
+		 * [3]limit -- optional
+		 * [4]offset -- optional
 		 * To do: Sanitise parameters
 		 * @return the result of the select
 		 */
 		function hn_ts_get_metadata_by_name($args){
 			global $wpdb;
-			if(count($args) != 3){
+			if(count($args) != 5){
 				return $this->missingcontainername;
 			}
 			
-			$table=$args[2];
+			$table=$args[2];						
+			
+			$limit=$this->hn_ts_getLimitStatement($args[3], $args[4]);	
 			
 			return $wpdb->get_results( 	$wpdb->prepare(
-					"SELECT * FROM wp_ts_metadata WHERE tablename='$table'" )	);			
+					"SELECT * FROM wp_ts_metadata WHERE tablename='$table' $limit" )	);			
 		}
 		
 		/**
-		 * Retrieves the latest record from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
+		 * Retrieves the latest record from a readings table
+		 * of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
 		 * @param $args is an array in the expected format of:
 		 * [0]username
 		 * [1]password
@@ -282,7 +312,8 @@
 		}
 		
 		/**
-		 * Retrieves the count from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
+		 * Retrieves the count from a readings table of the form 
+		 * wp_[blog-id]_ts_[measurement-type]_[device-id]
 		 * @param $args is an array in the expected format of:
 		 * [0]username
 		 * [1]password
@@ -322,29 +353,43 @@
 		
 		/**
 		 * Retrieves context information
+		 * [0]limit -- optional
+		 * [1]offset -- optional
 		 * @return the selection
 		 */
-		function hn_ts_select_context(){
-			global $wpdb;
-			$sql="SELECT * FROM wp_ts_context";
+		function hn_ts_select_context($args){
+			global $wpdb;					
+			
+			$limit=$this->hn_ts_getLimitStatement($args[0], $args[1]);
+			
+			$sql="SELECT * FROM wp_ts_context $limit;";
 			return $wpdb->get_results($wpdb->prepare($sql));
 		}
 		
 		/**
 		 * Retrieves context information
+		 * [2]context_type
+		 * [3]limit -- optional
+		 * [4]offset -- optional
 		 * @return the selection
 		 */
 		function hn_ts_get_context_by_type($args){
 			global $wpdb;
 			if(count($args) < 3){
 				return $this->missingParameters;
-			}
-			$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]'";
+			}		
+			
+			$limit=$this->hn_ts_getLimitStatement($args[3], $args[4]);
+			
+			$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]' $limit;";
 			return $wpdb->get_results($wpdb->prepare($sql));
 		}
 		
 		/**
 		 * Retrieves context information
+		 * [2]value
+		 * [3]limit -- optional
+		 * [4]offset -- optional
 		 * @return the selection
 		 */
 		function hn_ts_get_context_by_value($args){
@@ -353,12 +398,17 @@
 			if(count($args) < 3){
 				return $this->missingParameters;
 			}
-			$sql="SELECT *  FROM wp_ts_context WHERE value='$args[2]'";
+			$limit=$this->hn_ts_getLimitStatement($args[3], $args[4]);
+			$sql="SELECT *  FROM wp_ts_context WHERE value='$args[2]' $limit;";
 			return $wpdb->get_results($wpdb->prepare($sql));
 		}
 		
 		/**
 		 * Retrieves context information
+		 * [2]context_type
+		 * [3]value
+		 * [4]limit -- optional
+		 * [5]offset -- optional
 		 * @return the selection
 		 */
 		function hn_ts_get_context_by_type_and_value($args){
@@ -367,13 +417,18 @@
 			if(count($args) < 4){
 				return $this->missingParameters;
 			}
+			$limit=$this->hn_ts_getLimitStatement($args[4], $args[5]);
 			
-			$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]' AND value='$args[3]'";
+			$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]' AND value='$args[3]' $limit;";
 			return $wpdb->get_results($wpdb->prepare($sql));
 		}
 		
 		/**
-		 * Retrieves context information
+		 * Retrieves context information within a time range
+		 * [2]start time
+		 * [3]end time
+		 * [4]limit -- optional
+		 * [5]offset -- optional
 		 * @return the selection
 		 */
 		function hn_ts_get_context_within_time_range($args){
@@ -384,23 +439,28 @@
 			if(count($args) < 4){
 				return $this->missingParameters;
 			}		
+			if(count($args) > 5){
+				$limit=$this->hn_ts_getLimitStatement($args[4], $args[5]);
+			}else{
+				$limit="";
+			}
 			
 			$startTime=$args[2];
 			$endTime=$args[3];
 			$where="WHERE ";
-			if(0!=strcmp(strtoupper($startTime),"NULL")){
+			if(!(0==strcmp(strtoupper($startTime),"NULL") || 0==strcmp($startTime,""))){
 				$where=$where."start_time >= '$startTime' ";
-			
-				if(0!=strcmp(strtoupper($endTime),"NULL")){
+				
+				if(!(0==strcmp(strtoupper($endTime),"NULL") || 0==strcmp($endTime,""))){
 					$where=$where."AND 	end_time < '$endTime'";
 				}
-			}else if(0!=strcmp(strtoupper($endTime),"NULL")){
+			}else if(!(0==strcmp(strtoupper($endTime),"NULL") || 0==strcmp($endTime,""))){
 				$where=$where."	end_time < '$endTime'";
 			}
 			if(0==strcmp($where,"WHERE ")){
 				$where="";
 			}
-			return $wpdb->get_results( 	$wpdb->prepare("SELECT * FROM wp_ts_context $where;" )	);
+			return $wpdb->get_results( 	$wpdb->prepare("SELECT * FROM wp_ts_context $where $limit;" )	);
 		}
 	
 		/**
@@ -476,12 +536,12 @@
 			$baseTypes=array( '%s', '%s');  
 			
 			if(!(0 == strcmp($args[4], "") || 0 == strcmp($args[4], "NULL"))){
-				array_push($baseVals, $args[4]);
+				$baseVals['start_time']= $args[4];
 				array_push($baseTypes, '%s');
 			}
 				
 			if(!(0 == strcmp($args[5], "") || 0 == strcmp($args[5], "NULL"))){
-				array_push($baseVals, $args[5]);
+				$baseVals['end_time']=$args[5];
 				array_push($baseTypes, '%s');
 			}
 			
@@ -565,7 +625,7 @@
 					$wpdb->insert( $args[2],
 						array('value' => $uploadedFile['url']) );
 				}
-				return $uploadedFile['url'];
+				return $uploadedFile;
 			}else{
 				return $uploadedFile;
 			}

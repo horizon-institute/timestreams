@@ -59,16 +59,18 @@
 		 * Checks username password then creates a new measurement container.
 		 * @param array $args should have 10 parameters:
 		 * $username, $password, $measurementType, $minimumvalue, $maximumvalue,
-			$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType
+		 *	$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType, 
+		 *	$missing_data_value
 		 * @return string XML-XPC response with either an error message as a param or the
 		 * name of the measurement container
 		 */
 		function hn_ts_create_measurements($args){
-			if(count($args) < 10){
+			if(count($args) < 11){
 				return new IXR_Error(403, __('Incorrect number of parameters.'));
 			}
 			/*(blog_id='', $$measurementType, $minimumvalue, $maximumvalue,
-			$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType)*/
+			$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType, 
+			$missing_data_value)*/
 			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
@@ -76,7 +78,7 @@
 			}
 			else{
 				return $this->tsdb->hn_ts_addMetadataRecord("",$args[2],$args[3],$args[4],
-						$args[5],$args[6],$args[7],$args[8],$args[9]);
+						$args[5],$args[6],$args[7],$args[8],$args[9],$args[10]);
 			}
 		}
 		
@@ -116,8 +118,9 @@
 		
 		/**
 		 * Checks username password then selects measurements from a measurement container.
-		 * @param array $args should have 5 parameters:
-		 * $username, $password, measurement container name, minimum time, maximum time
+		 * @param array $args should have 5-7 parameters:
+		 * $username, $password, measurement container name, minimum time, maximum time,
+		 * $limit (optional), $offset (optional)
 		 * @return string XML-XPC response with either an error message as a param or measurement data
 		 */
 		function hn_ts_select_measurements($args){
@@ -180,8 +183,9 @@
 		
 		/**
 		 * Checks username password then selects the metadata corresponding to the given measurement container.
-		 * @param array $args should have 3 parameters:
-		 * $username, $password, measurement container name
+		 * @param array $args should have 3-5 parameters:
+		 * $username, $password, measurement container name,
+		 * $limit (optional), $offset (optional)
 		 * @return string XML-XPC response with either an error message as a param or the
 		 * metadata
 		 */
@@ -207,14 +211,15 @@
 				return $this->loginErrorCode;
 			}
 			else{
-				return $this->tsdb->hn_ts_addContextRecord($args[2], $args[3]);
+				return $this->tsdb->hn_ts_addContextRecordTimestamped($args);
 			}
 		}	
 		
 		/**
 		 * Checks username password then selects context records matching the given type.
-		 * @param array $args should have 3 parameters:
-		 * $username, $password, context type
+		 * @param array $args should have 3-5 parameters:
+		 * $username, $password, context type,
+		 * $limit (optional), $offset (optional)
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_by_type($args){
@@ -229,8 +234,9 @@
 		
 		/**
 		 * Checks username password then selects context records matching the given value.
-		 * @param array $args should have 3 parameters:
-		 * $username, $password, context value
+		 * @param array $args should have 3-5 parameters:
+		 * $username, $password, context value,
+		 * $limit (optional), $offset (optional)
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_by_value($args){
@@ -245,8 +251,9 @@
 		
 		/**
 		 * Checks username password then selects context records matching the given value.
-		 * @param array $args should have 4 parameters:
-		 * $username, $password, context type, context value
+		 * @param array $args should have 4-6 parameters:
+		 * $username, $password, context type, context value,
+		 * $limit (optional), $offset (optional)
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_by_type_and_value($args){
@@ -261,8 +268,9 @@
 		
 		/**
 		 * Checks username password then selects context records matching the given time values.
-		 * @param array $args should have 4 parameters:
-		 * $username, $password, context type, start time (optional -- use NULL if not desired), End time (optional -- use NULL if not desired)
+		 * @param array $args should have 4-6 parameters:
+		 * $username, $password, context type, start time (optional -- use NULL if not desired), End time (optional -- use NULL if not desired),
+		 * $limit (optional), $offset (optional)
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_within_time_range($args){
@@ -303,12 +311,16 @@
 				return $this->loginErrorCode;
 			}
 			else{
-				return $this->tsdb->hn_ts_upload_reading_file($args);
+				$afile = $this->tsdb->hn_ts_upload_reading_file($args);
+				//$tok = explode("/", $afile);
+				//$tok = explode(".", $tok[count($tok)-1]);
+				
+				return $afile;
 			}
 		}
 		
 		/**
-		 * Checks username password then uploads and stores details about a file.
+		 * Checks username password then uploads and stores details about files.
 		 * @param array $args should have at least 4 parameters:
 		 * $username, $password, measurement container name, struct with file details (name, type, bits), timestamp
 		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
@@ -321,7 +333,7 @@
 			else{
 				return $this->tsdb->hn_ts_upload_reading_files($args);
 			}
-		}		
+		}
 
 		/**
 		 * Associates XML-RPC method names with functions of this class 
@@ -346,6 +358,7 @@
 			$methods['timestreams.update_context'] =  array(&$this, 'hn_ts_update_context');
 			$methods['timestreams.add_measurement_file'] =  array(&$this, 'hn_ts_add_measurement_file');
 			$methods['timestreams.add_measurement_files'] =  array(&$this, 'hn_ts_add_measurement_files');
+			
 			
 			return $methods;
 		}

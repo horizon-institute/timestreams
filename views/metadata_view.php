@@ -27,6 +27,7 @@
 				<th>device details</th>
 				<th>other info</th>
 				<th>Data Type</th>
+				<th>Missing Data Value</th>
 				</tr>
 			</thead>
 			<tfoot>
@@ -41,6 +42,7 @@
 				<th>device details</th>
 				<th>other info</th>
 				<th>Data Type</th>
+				<th>Missing Data Value</th>
 				</tr>
 			</tfoot>
 			<tbody>
@@ -64,6 +66,7 @@
 				<td>$row->device_details</td>
 				<td>$row->other_info</td>
 				<td>$row->data_type</td>
+				<td>$row->missing_data_value</td>
 				</tr>";
 			}?>
 			</tbody>

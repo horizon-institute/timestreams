@@ -26,6 +26,18 @@
 			        <td><input type="text" name="context_value"
 			        value="<?php echo get_option('context_value'); ?>" /></td>
 			        </tr>
+			         
+			        <tr valign="top">
+			        <th scope="row">Start Time</th>
+			        <td><input type="text" name="start_time"
+			        value="<?php echo get_option('start_time'); ?>" /></td>
+			        </tr>
+			         
+			        <tr valign="top">
+			        <th scope="row">End Time</th>
+			        <td><input type="text" name="end_time"
+			        value='2012-03-02 00:34:00' /></td>
+			        </tr>
 			    </table>
 			    
 			    <p class="submit">
@@ -36,10 +48,13 @@
 			<hr />
 			<?php
 				if(isset($_POST['context_type']) && $_POST['context_type'] && 
-						isset($_POST['context_value']) && $_POST['context_value']) {
+						isset($_POST['context_value']) && $_POST['context_value'] && 
+						isset($_POST['start_time']) && $_POST['start_time'] && 
+						isset($_POST['end_time']) && $_POST['end_time']) {
 					$db = new Hn_TS_Database();
 					$db->hn_ts_addContextRecord(
-						$_POST['context_type'], $_POST['context_value']
+						$_POST['context_type'], $_POST['context_value'],$_POST['start_time'], 
+							$_POST['end_time']
 					);
 					echo 'Record added.';
 				}	
