@@ -102,7 +102,8 @@
 			'CREATE TABLE IF NOT EXISTS '.$tablename.' (
 				'.$idName.' bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				value '.$dataType.' DEFAULT NULL,
-				timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+				valid_time timestamp NULL,
+				transaction_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				PRIMARY KEY  ('.$idName.')
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
 			dbDelta($sql);
@@ -190,13 +191,13 @@
 			$table="wp_$blogId_ts_$measurementType_$deviceId";
 			$where="WHERE ";
 			if($minimum){
-				$where=$where."timestamp > $minimumTime ";
+				$where=$where."valid_time > $minimumTime ";
 				
 				if($maximumTime){
-					$where=$where."AND timestamp < $maximumTime";
+					$where=$where."AND valid_time < $maximumTime";
 				}
 			}else if($maximumTime){
-				$where=$where."timestamp < $maximumTime";
+				$where=$where."valid_time < $maximumTime";
 			}
 			if(0==strcmp($where,"WHERE ")){
 				$where="";
@@ -229,13 +230,13 @@
 			$where="WHERE ";
 			$limit=$this->hn_ts_getLimitStatement($args[5], $args[6]);
 			if($minimumTime){
-				$where=$where."timestamp >= '$minimumTime' ";
+				$where=$where."valid_time >= '$minimumTime' ";
 				
 				if($maximumTime){
-					$where=$where."AND timestamp < '$maximumTime'";
+					$where=$where."AND valid_time < '$maximumTime'";
 				}
 			}else if($maximumTime){
-				$where=$where."timestamp < '$maximumTime'";
+				$where=$where."valid_time < '$maximumTime'";
 			}
 			
 			if(0==strcmp($where,"WHERE ")){
@@ -480,7 +481,7 @@
 			global $wpdb;
 			if(count($args)> 4){
 				return $wpdb->insert( $args[2],
-						 array('value' => $args[3],'timestamp' => $args[4]) );				
+						 array('value' => $args[3],'valid_time' => $args[4]) );				
 			}else if(count($args) == 4){
 				return $wpdb->insert( $args[2], array('value' => $args[3]));
 			}else{
@@ -511,7 +512,7 @@
 			for($i=3; $i+1 < $cnt; $i+=2){
 				if(count($args) > $i+1){
 					if($wpdb->insert( $args[2],
-							array('value' => $args[$i],'timestamp' => $args[$i+1]) )){
+							array('value' => $args[$i],'valid_time' => $args[$i+1]) )){
 						$retval++;
 					}
 				}
@@ -620,7 +621,7 @@
 			if(is_array($uploadedFile)){
 				if(count($args)>4){
 					$wpdb->insert( $args[2],
-						 array('value' => $uploadedFile['url'],'timestamp' => $args[4]) );
+						 array('value' => $uploadedFile['url'],'valid_time' => $args[4]) );
 				}else{
 					$wpdb->insert( $args[2],
 						array('value' => $uploadedFile['url']) );
@@ -657,7 +658,7 @@
 				$uploadedFile = $this->wpserver->mw_newMediaObject($fileArgs);
 				if(is_array($uploadedFile)){
 					$wpdb->insert( $args[2],
-						 array('value' => $uploadedFile['url'],'timestamp' => $aFile['timestamp']) );
+						 array('value' => $uploadedFile['url'],'transaction_time' => $aFile['timestamp']) );
 					$fileCount++;
 				}
 			}

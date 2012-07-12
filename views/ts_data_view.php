@@ -40,7 +40,7 @@
 				echo "<tr>
 					<td>$row->id</td>
 					<td>$row->value</td>
-					<td>$row->timestamp</td>
+					<td>$row->valid_time</td>
 				</tr>";
 			}?>
 			</tbody>
