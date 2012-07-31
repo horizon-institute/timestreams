@@ -259,6 +259,45 @@
 		}
 		
 		/**
+		 * Retrieves count of records from a readings table of the form 
+		 * wp_[blog-id]_ts_[measurement-type]_[device-id]
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]table name
+		 * [3]minimum timestamp
+		 * [4]maximum timestamp
+		 * To do: Sanitise parameters
+		 * @return the result of the select
+		 */
+		function hn_ts_get_count_from_name($args){
+			global $wpdb;
+			if(count($args) < 3){
+				return $this->missingcontainername;
+			}
+			$table=$args[2];
+			$minimumTime=$args[3];
+			$maximumTime=$args[4];
+			$where="WHERE ";
+			if($minimumTime){
+				$where=$where."valid_time >= '$minimumTime' ";
+				
+				if($maximumTime){
+					$where=$where."AND valid_time < '$maximumTime'";
+				}
+			}else if($maximumTime){
+				$where=$where."valid_time < '$maximumTime'";
+			}
+			
+			if(0==strcmp($where,"WHERE ")){
+				$where="";
+			}
+			return $wpdb->get_var( 	
+					$wpdb->prepare("SELECT COUNT(*) FROM $table $where;" )	
+				   );
+		}
+		
+		/**
 		 * Retrieves the first record from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
 		 * @param $args is an array in the expected format of:
 		 * [0]username
@@ -335,7 +374,8 @@
 		 * @return the result of the select
 		 */
 		function hn_ts_count_readings($args){
-			global $wpdb;if(count($args) != 3){
+			global $wpdb;
+			if(count($args) != 3){
 				return $this->missingcontainername;
 			}
 			
