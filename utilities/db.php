@@ -716,5 +716,29 @@
 			}
 			return $fileCount;			
 		}
+		
+		
+		/**
+		 * Records that a file was uploaded. The timestamp is the time the file was last modified prior to upload
+		 * Todo: handle write permissions from username and password
+		 * 		Or better yet, implement OAuth
+		 * 		Also, handle the format param for $wpdb->insert.
+		 * 		Sanitize ipaddress.
+		 * 		And also make it more robust!
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]table name
+		 * [3]ipaddress
+		 */
+		function hn_ts_update_heartbeat($args){
+			global $wpdb, $blog_id;
+			
+			$where = array( 'tablename' => $args[2]);			
+			$date = new DateTime();
+			return $wpdb->update(
+					'wp_ts_metadata',  array( 'last_IP_Addr' => $args[3], 'heartbeat_time' => date("Y-m-d H:i:s")), $where,'%s','%s'
+			);
+		}
 	}	
 ?>

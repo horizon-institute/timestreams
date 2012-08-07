@@ -348,8 +348,23 @@
 				return $this->loginErrorCode;
 			}
 			else{
-				readWeatherFile();
-				return 1;
+				return $this->tsdb->hn_ts_upload_reading_files($args);
+			}
+		}
+		
+		/**
+		 * Checks username password then updates data source hearbeat record
+		 * @param array $args should have 4 parameters:
+		 * $username, $password, tablename, ipaddress
+		 * @return string XML-XPC response with either an error message or 1
+		 */
+		function hn_ts_heartbeat($args){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
+				return $this->tsdb->hn_ts_update_heartbeat($args);
 			}
 		}
 		
@@ -377,7 +392,8 @@
 			$methods['timestreams.add_measurement_file'] =  array(&$this, 'hn_ts_add_measurement_file');
 			$methods['timestreams.add_measurement_files'] =  array(&$this, 'hn_ts_add_measurement_files');
 			$methods['timestreams.import_data_from_files'] =  array(&$this, 'hn_ts_import_files');
-			
+			$methods['timestreams.heartbeat'] =  array(&$this, 'hn_ts_heartbeat');
+				
 			
 			return $methods;
 		}
