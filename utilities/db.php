@@ -53,6 +53,8 @@
 			    other_info varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
 			    data_type varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 			    missing_data_value varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
+  				last_IP_Addr varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  				heartbeat_time timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 				PRIMARY KEY  (metadata_id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
 			$wpdb->query($sql);
