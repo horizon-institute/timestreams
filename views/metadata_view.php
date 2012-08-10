@@ -28,6 +28,8 @@
 				<th>other info</th>
 				<th>Data Type</th>
 				<th>Missing Data Value</th>
+				<th>Device IP Address</th>
+				<th>Heartbeat</th>
 				</tr>
 			</thead>
 			<tfoot>
@@ -43,6 +45,8 @@
 				<th>other info</th>
 				<th>Data Type</th>
 				<th>Missing Data Value</th>
+				<th>Device IP Address</th>
+				<th>Heartbeat</th>
 				</tr>
 			</tfoot>
 			<tbody>
@@ -67,6 +71,8 @@
 				<td>$row->other_info</td>
 				<td>$row->data_type</td>
 				<td>$row->missing_data_value</td>
+				<td>$row->last_IP_Addr</td>
+				<td>$row->heartbeat_time</td>
 				</tr>";
 			}?>
 			</tbody>

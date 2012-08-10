@@ -354,7 +354,7 @@
 		
 		/**
 		 * Checks username password then updates data source hearbeat record
-		 * @param array $args should have 4 parameters:
+		 * @param array $args should have 3 parameters:
 		 * $username, $password, tablename, ipaddress
 		 * @return string XML-XPC response with either an error message or 1
 		 */

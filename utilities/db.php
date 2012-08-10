@@ -83,7 +83,20 @@
 				  lasttime TIMESTAMP,
 				  rate INT(11) NOT NULL,
 				  PRIMARY KEY  (head_id) 
-				) ENGINE = MyISAM DEFAULT CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;';			
+				) ENGINE = MyISAM DEFAULT CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;';
+
+			$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_replication (
+				replication_id bigint(20) unsigned NOT NULL AUTO_INCREMENT COLLATE utf8_unicode_ci,
+				local_user_id bigint(20) unsigned NOT NULL COLLATE utf8_unicode_ci,
+				local_table varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+				remote_user_login varchar(60) NOT NULL COLLATE utf8_unicode_ci,
+				remote_user_pass varchar(64) NOT NULL COLLATE utf8_unicode_ci,
+				remote_url varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+				remote_table varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+				continuous boolean COLLATE utf8_unicode_ci NOT NULL,
+				last_replication TIMESTAMP COLLATE utf8_unicode_ci NULL DEFAULT 0,
+				PRIMARY KEY  (replication_id)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
 			
 			$wpdb->query($sql);
 			//For some reason dbDelta wasn't working for all of the tables :(
@@ -574,6 +587,45 @@
 			return "Number of insertions: $retval";
 			
 		}
+	
+		/**
+		 * Inserts a row into the replication table
+		 * Todo: handle write permissions from username and password
+		 * 		Or better yet, implement OAuth
+		 * 		Also, handle the format param for $wpdb->insert.
+		 * 		Don't store passwords as plain text -- encrypt them!!!
+		 * 		And also make it more robust!
+		 * And of course -- data sanitize!
+		 * @param $args is an array in the expected format of:
+		 * [0]username
+		 * [1]password
+		 * [2]local table name
+		 * [3]remote_user_login
+		 * [4]remote_user_pass
+		 * [5]remote URL
+		 * [6]remote table name
+		 * [7]continuous (boolean)
+		 * [8]last replication (timestamp)
+		 */
+		function hn_ts_insert_replication($args){
+			global $wpdb;
+			if(count($args)>= 9){
+				global $current_user;
+				get_currentuserinfo();
+				return $wpdb->insert( $wpdb->prefix.'ts_replication',
+					 array('local_user_id' => $current_user->user_ID,
+				 		'local_table' => $args[2],
+						'remote_user_login' => $args[3],
+				 		'remote_user_pass' => $args[4],
+				 		'remote_url' => $args[5],
+				 		'remote_table' => $args[6],
+				 		'continuous' => $args[7],
+				 		'last_replication' => $args[8],
+				 	) );	
+			}else{
+				return $this->missingParameters;
+			}			
+		}
 		
 		/**
 		 * Adds records to the wp_ts_context table. 
@@ -718,10 +770,9 @@
 			}
 			return $fileCount;			
 		}
-		
-		
+				
 		/**
-		 * Records that a file was uploaded. The timestamp is the time the file was last modified prior to upload
+		 * Updates the wp_ts_metadata table row's heartbeat columns
 		 * Todo: handle write permissions from username and password
 		 * 		Or better yet, implement OAuth
 		 * 		Also, handle the format param for $wpdb->insert.

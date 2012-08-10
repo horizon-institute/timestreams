@@ -17,6 +17,8 @@
 				__FILE__.'datasources','hn_ts_datasources_admin_page');
 		add_submenu_page(__FILE__, 'Context', 'Context', 'manage_options',
 				__FILE__.'context','hn_ts_context_admin_page');
+		add_submenu_page(__FILE__, 'Replication', 'Replication', 'manage_options',
+				__FILE__.'replication','hn_ts_replication_admin_page');
 	}
 	
 	/**
@@ -74,6 +76,24 @@
 		<?php
 			hn_ts_addContextRecord();
 			hn_ts_showContextTable();
+		?>
+		</div>
+		<?php
+	}
+	
+	/**
+	 * Displays timestreams replication admin page
+	 */
+	function hn_ts_replication_admin_page(){
+		?>
+		<div class="wrap">
+			<div id="icon-edit-pages" class="icon32"></div>
+			<h2>Timestreams - Replication</h2>
+			<h3>Description</h3>
+			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed bibendum elementum sapien, et porttitor enim faucibus at. Sed ut nulla sed turpis dapibus luctus vel non ante. Nunc adipiscing venenatis dui. Morbi vehicula volutpat ornare. Sed non magna id lectus pretium aliquam vitae at velit. Vestibulum posuere pharetra ornare. Pellentesque quis tortor enim, ac molestie urna. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent dignissim augue et urna egestas a sagittis est bibendum. Donec sagittis congue consectetur. Morbi lacinia erat vitae nisl auctor commodo. Donec ut magna id est pretium laoreet. Aenean vitae auctor ligula. Nulla facilisi. Cras ac lorem lacinia justo molestie aliquam varius id ligula. </p>
+			<hr />
+		<?php
+			hn_ts_showReplicationTable();
 		?>
 		</div>
 		<?php

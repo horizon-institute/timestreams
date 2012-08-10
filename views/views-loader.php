@@ -17,4 +17,5 @@
 	require_once( HN_TS_VIEWS_DIR . '/ts_data_view.php'     );
 	require_once( HN_TS_VIEWS_DIR . '/context_view.php'     );
 	require_once( HN_TS_VIEWS_DIR . '/fileView.php'     );
+	require_once( HN_TS_VIEWS_DIR . '/replication_view.php'     );
 ?>
