@@ -550,7 +550,11 @@
 				return $wpdb->insert( $args[2],
 						 array('value' => $args[3],'valid_time' => $args[4]) );				
 			}else if(count($args) == 4){
-				return $wpdb->insert( $args[2], array('value' => $args[3]));
+				$ret = $wpdb->insert( $args[2], array('value' => $args[3]));
+				if($ret){
+					do_action('hn_ts_replicate_reading', $args[2], $args[3], $args[4]);
+				}
+				return $ret;
 			}else{
 				return $this->missingParameters;
 			}			
@@ -576,13 +580,16 @@
 			if(count($args) < 4){
 				return "Number of insertions: $retval";  
 			}
+			$readings = array();
 			for($i=3; $i+1 < $cnt; $i+=2){
 				if(count($args) > $i+1){
-					if($wpdb->insert( $args[2],
-							array('value' => $args[$i],'valid_time' => $args[$i+1]) )){
+					$content = array('value' => $args[$i],'valid_time' => $args[$i+1]);
+					if($wpdb->insert( $args[2],$content )){
 						$retval++;
+						array_push($readings,$content);
 					}
-				}
+				}			
+				do_action('hn_ts_replicate_readings', $args[2], $readings);
 			}
 			return "Number of insertions: $retval";
 			
