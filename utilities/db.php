@@ -243,10 +243,12 @@
 		 * [4]maximum timestamp
 		 * [5]limit -- optional
 		 * [6]offset -- optional
+		 * [7]sort by column -- optional
+		 * [8]descending boolean -- optional
 		 * To do: Sanitise parameters
 		 * @return the result of the select
 		 */
-		function hn_ts_get_readings_from_name($args){
+			function hn_ts_get_readings_from_name($args){
 			global $wpdb;
 			if(count($args) < 3){
 				return $this->missingcontainername;
@@ -256,6 +258,9 @@
 			$maximumTime=$args[4];
 			$where="WHERE ";
 			$limit=$this->hn_ts_getLimitStatement($args[5], $args[6]);
+			$sortcolumn=$args[7];
+			$descending=$args[8];
+			
 			if($minimumTime){
 				$where=$where."valid_time >= '$minimumTime' ";
 				
@@ -269,8 +274,15 @@
 			if(0==strcmp($where,"WHERE ")){
 				$where="";
 			}
+			
+			if($sortcolumn) {
+				$sort = "ORDER BY " . $sortcolumn;
+				if($descending)
+					$sort .= " DESC";
+			}
+			
 			return $wpdb->get_results( 	$wpdb->prepare(
-					"SELECT * FROM $table $where $limit;" )	);
+					"SELECT * FROM $table $where $sort $limit;" )	);
 		}
 		
 		/**
@@ -820,6 +832,352 @@
 			return $wpdb->update(
 					'wp_ts_metadata',  array( 'last_IP_Addr' => $args[3], 'heartbeat_time' => date("Y-m-d H:i:s")), $where,'%s','%s'
 			);
+		}
+		
+			// timestreams interface
+		// FIXME - how much is still used by current version?
+		
+		function hn_ts_addTimestream($timestreamName, $metadataId)
+		{
+			global $wpdb;
+			
+			// create head
+			$wpdb->insert('wp_ts_head',
+				array('rate' => 1),
+				array('%d')
+			);
+			
+			$headId = mysql_insert_id();
+			
+			// create timestream
+			$wpdb->insert('wp_ts_timestreams',
+				array(	'head_id' => $headId,
+						'metadata_id' => $metadataId,
+						'name' => $timestreamName),
+				array('%s', '%s', '%s')
+			);
+			
+			$timestreamId = mysql_insert_id();
+		}
+		
+		function hn_ts_updateTimestream($timestreamId, $metadataId)
+		{
+			global $wpdb;
+			
+			$wpdb->update('wp_ts_timestreams',
+				array(
+					'metadata_id' => $metadataId,
+				),
+				array('timestream_id' => $timestreamId)
+			);		
+		}
+		
+		function hn_ts_deleteTimestream($timestreamId)
+		{
+			global $wpdb;
+			
+			$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId"));
+			
+			if($timestream != null)
+			{
+				$wpdb->query($wpdb->prepare("DELETE FROM wp_ts_head WHERE head_id = $timestream->head_id"));
+				$wpdb->query($wpdb->prepare("DELETE FROM wp_ts_timestreams WHERE timestream_id = $timestreamId"));
+			}
+		}
+		
+		
+		function hn_ts_getTimestreams()
+		{
+			global $wpdb;
+			
+			return $wpdb->get_results($wpdb->prepare("SELECT * FROM wp_ts_timestreams ORDER BY timestream_id DESC"));	
+		}
+		
+		function hn_ts_getReadHead($headId)
+		{
+			global $wpdb;
+			
+			return $wpdb->get_row($wpdb->prepare("SELECT * FROM wp_ts_head WHERE head_id = $headId"));
+		}
+		
+		function hn_ts_getMetadata($metadataId)
+		{
+			global $wpdb;
+			
+			return $wpdb->get_row($wpdb->prepare("SELECT * FROM wp_ts_metadata WHERE metadata_id = $metadataId"));
+		}
+		
+		function hn_ts_get_timestreams($args)
+		{
+			global $wpdb;
+			
+			return $wpdb->get_results( 	$wpdb->prepare(
+					"SELECT * FROM wp_ts_timestreams" )	);	
+		}
+		
+				
+		// internal interface
+		function hn_ts_get_timestreamHead($args)
+		{
+			// username
+			// password
+			$timestreamId = $args[2];
+			
+			return $this->hn_ts_timestream_update($timestreamId);
+		}
+		
+		function hn_ts_get_updateTimestreamHead($args)
+		{
+			// username
+			// password
+			$timestreamId = $args[2];
+			$newHead = $args[3];
+			$newStart = $args[4];
+			$newEnd = $args[5];
+			$newRate = $args[6];
+			
+			global $wpdb;
+			
+			$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId"));
+			
+			if($timestream==null)
+			{
+				error_log("timestream not found " . $timestreamId);
+				return -1;
+			}
+			
+			$currenttime = date ("Y-m-d H:i:s", $newHead);
+			
+			$wpdb->update('wp_ts_head',
+				array(
+					'currenttime' => $currenttime,
+					'rate' => $newRate,
+				),
+				array('head_id' => $timestream->head_id)
+			);
+			
+			$starttime = date ("Y-m-d H:i:s", $newStart);	
+			$endtime = date ("Y-m-d H:i:s", $newEnd);
+			
+			$wpdb->update('wp_ts_timestreams',
+				array(
+					'starttime' => $starttime,
+					'endtime' => $endtime,
+				),
+				array('timestream_id' => $timestreamId)
+			);
+			
+			return 1;
+		}
+		
+		
+		function hn_ts_get_timestreamData($args)
+		{
+			$tablename = $args[2];
+			$limit = $args[3];
+			$lastTimestamp = $args[4];
+			
+						
+			global $wpdb;
+			
+			$where = "";
+			
+			if($lastTimestamp)
+			{
+				$timeStr = date ("Y-m-d H:i:s", $lastTimestamp);
+				$where = "WHERE timestamp > \"$timeStr\"";
+			}
+			
+			$sql = "SELECT * FROM (SELECT * FROM $tablename $where ORDER BY timestamp DESC LIMIT $limit) AS T1 ORDER BY timestamp ASC";
+			
+			$readings = $wpdb->get_results($wpdb->prepare($sql));
+			
+			for($i = 0; $i < count($readings); $i++)
+			{
+				$newts = strtotime($readings[$i]->timestamp);
+				$readings[$i]->timestamp = $newts;
+			}
+			
+			return $readings;			
+		}
+		
+		// update head
+		
+		// update timestream start / end / datasources
+		
+		
+		// external api
+		// TODO rename viz
+		function hn_ts_ext_get_time()
+		{
+			global $wpdb;
+			$_now = $wpdb->get_var($wpdb->prepare("SELECT CURRENT_TIMESTAMP"));
+			return strtotime($_now);
+		}
+		
+		function hn_ts_ext_get_timestreams($args)
+		{
+			global $wpdb;
+			
+			return $wpdb->get_results($wpdb->prepare("SELECT * FROM wp_ts_timestreams"));			
+		}
+		
+		
+		function hn_ts_ext_get_timestream_meta($args)
+		{			
+			$timestreamId = $args[2];
+			
+			// for specific timestream
+			global $wpdb;
+			
+			$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId"));
+			
+			if($timestream==null)
+			{
+				error_log("timestream not found " . $timestreamId);
+				return null;
+			}
+
+			return $this->hn_ts_getMetadata($timestream->metadata_id);
+		}		
+		
+		
+		function hn_ts_ext_get_timestream_data($args)
+		{
+			// TODO return current server time for initial request sync
+			
+			$timestreamId = $args[2];
+			$lastAskTime = $args[3];
+			$limit = $args[4];
+			
+			$this->hn_ts_timestream_update($timestreamId);
+			
+			global $wpdb;
+			
+			$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId"));
+			
+			if($timestream==null)
+			{
+				error_log("timestream not found " . $timestreamId);
+				return null;
+			}
+			
+			$head = $this->hn_ts_getReadHead($timestream->head_id);
+			
+			if($head==null)
+			{
+				error_log("head not found " . $timestream->head_id);
+				return null;
+			}
+			
+			$metadata = $this->hn_ts_getMetadata($timestream->metadata_id);
+			
+			if($metadata==null)
+			{
+				error_log("metadata not found " . $timestream->metadata_id);
+				return null;
+			}
+			
+			// how much timestream has elapsed since last ask
+			if($head->rate==0)
+			{
+				// no data, stopped
+				return null;
+			}
+			
+			$_now = $wpdb->get_var($wpdb->prepare("SELECT CURRENT_TIMESTAMP"));
+			$now = strtotime($_now);
+			
+			//echo "now " . $now . "\n";
+			//echo "lastask " . $lastAskTime . "\n";
+			
+			$elapsed = ($now - $lastAskTime) * $head->rate;
+			
+			//echo "head ct " . $head->currenttime . "\n";
+			//echo "elapsed since last ask " . $elapsed . "\n";
+			
+			// get data between head->currenttime and head->currenttime - elapsed
+			$maxdate = $head->currenttime;
+			$mindate = date ("Y-m-d H:i:s", strtotime($head->currenttime) - $elapsed);
+			
+			//echo "maxdate " . $maxdate . "\n";
+			//echo "mindate " . $mindate . "\n";
+			//echo $metadata->tablename . "\n";
+			
+			$limitstr = "";
+			
+			if($limit!=0)
+			{
+				$limitstr = " LIMIT 0 , $limit";
+			}
+			
+			return $wpdb->get_results($wpdb->prepare("SELECT * FROM $metadata->tablename WHERE timestamp > '$mindate' AND timestamp <= '$maxdate' ORDER BY timestamp DESC $limitstr"));
+		}
+
+		// triggered by viz getting data, update read head at given rate
+		function hn_ts_timestream_update($timestreamId)
+		{
+			global $wpdb;
+			
+			$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId"));
+			
+			if($timestream==null)
+			{
+				error_log("timestream not found " . $timestreamId);
+				return null;
+			}
+			
+			$head = $this->hn_ts_getReadHead($timestream->head_id);
+			
+			if($head==null)
+			{
+				error_log("head not found " . $timestream->head_id);
+				return null;
+			}
+			
+			// TODO ratelimit?
+			// TODO rate should be a float
+			
+			// update/move read head based on timestream time 
+			
+			// currenttime = time in data source frame
+			// lasttime = real time head last moved
+			// distance to move = (now - lasttime) * rate
+			
+			$_now = $wpdb->get_var($wpdb->prepare("SELECT CURRENT_TIMESTAMP"));
+			$now = strtotime($_now);
+			
+			//echo "head->lasttime " . $head->lasttime . "\n";
+			//echo "head->lasttime ut " . strtotime($head->lasttime) . "\n";
+			
+			$newcurrent = (($now - strtotime($head->lasttime)) * $head->rate) + strtotime($head->currenttime);
+
+			if($timestream->endtime > 0 && $newcurrent > strtotime($timestream->endtime))
+			{
+				//error_log("reset to starttime");
+				$currenttime = $timestream->starttime;
+			}
+			else
+			{
+				$currenttime = date ("Y-m-d H:i:s", $newcurrent);
+			}
+
+			$lasttime = date ("Y-m-d H:i:s", $now);						
+			//echo "now " . $now . "\n";
+			//echo "newcur " . $newcurrent . "\n";
+
+			$wpdb->update('wp_ts_head',
+				array(
+					'lasttime' => $lasttime,
+					'currenttime' => $currenttime,
+				),
+				array('head_id' => $timestream->head_id)
+			);
+								
+			$head->lasttime = strtotime($lasttime);
+			$head->currenttime = strtotime($currenttime);
+			
+			return $head;			
 		}
 	}	
 ?>

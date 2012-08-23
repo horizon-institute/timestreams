@@ -394,8 +394,61 @@
 			$methods['timestreams.import_data_from_files'] =  array(&$this, 'hn_ts_import_files');
 			$methods['timestreams.heartbeat'] =  array(&$this, 'hn_ts_heartbeat');
 				
+					// internal interface
+			$methods['timestreams.int_get_timestream_head'] =  array(&$this, 'hn_ts_int_get_timestream_head');
+			$methods['timestreams.int_get_timestream_data'] =  array(&$this, 'hn_ts_int_get_timestream_data');
+			$methods['timestreams.int_update_timestream_head'] =  array(&$this, 'hn_ts_int_update_timestream_head');
 			
+			// external api
+			$methods['timestreams.ext_get_time'] =  array(&$this, 'hn_ts_ext_get_time');
+			$methods['timestreams.ext_get_timestreams'] =  array(&$this, 'hn_ts_ext_get_timestreams');
+			$methods['timestreams.ext_get_timestream_metadata'] =  array(&$this, 'hn_ts_ext_get_timestream_metadata');
+			$methods['timestreams.ext_get_timestream_data'] =  array(&$this, 'hn_ts_ext_get_timestream_data');
+						
 			return $methods;
+		}
+		
+		
+		
+		function hn_ts_int_get_timestream_head($args)
+		{
+			return $this->tsdb->hn_ts_get_timestreamHead($args);
+		}
+		
+		function hn_ts_int_get_timestream_data($args)
+		{
+			return $this->tsdb->hn_ts_get_timestreamData($args);
+		}
+		
+		function hn_ts_int_update_timestream_head($args)
+		{
+			return $this->tsdb->hn_ts_get_updateTimestreamHead($args);
+		}
+		
+		
+		// TODO authentication
+		function hn_ts_ext_get_time($args)
+		{
+			return $this->tsdb->hn_ts_ext_get_time();
+		}
+		
+		function hn_ts_ext_get_timestreams($args)
+		{
+			return $this->tsdb->hn_ts_ext_get_timestreams($args);
+		}
+		
+		
+		function hn_ts_ext_get_timestream_metadata($args)
+		{
+			return $this->tsdb->hn_ts_ext_get_timestream_meta($args);			
+		}
+		
+		
+		function hn_ts_ext_get_timestream_data($args)
+		{	
+			//error_log("incoming...");
+			//error_log(print_r($args));
+			return $this->tsdb->hn_ts_ext_get_timestream_data($args);			
 		}
 	}
 
