@@ -36,7 +36,7 @@
 			        <tr valign="top">
 			        <th scope="row">End Time</th>
 			        <td><input type="text" name="end_time"
-			        value='2012-03-02 00:34:00' /></td>
+			        value="<?php echo get_option('end_time'); ?>" /></td>
 			        </tr>
 			    </table>
 			    
@@ -52,9 +52,12 @@
 						isset($_POST['start_time']) && $_POST['start_time'] && 
 						isset($_POST['end_time']) && $_POST['end_time']) {
 					$db = new Hn_TS_Database();
-					$db->hn_ts_addContextRecord(
-						$_POST['context_type'], $_POST['context_value'],$_POST['start_time'], 
-							$_POST['end_time']
+					global $current_user;
+					get_currentuserinfo();
+					$db->hn_ts_addContextRecordTimestamped(array(
+						$current_user->user_ID,
+						$current_user->user_pass,$_POST['context_type'], $_POST['context_value'],$_POST['start_time'], 
+							$_POST['end_time'])
 					);
 					echo 'Record added.';
 				}	
