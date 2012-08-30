@@ -14,5 +14,6 @@
 	// Require utility files
 	require_once( HN_TS_CONTROLLERS_DIR . '/metadata_ctrl.php'     );
 	require_once( HN_TS_CONTROLLERS_DIR . '/context_ctrl.php'     );
+	require_once( HN_TS_CONTROLLERS_DIR . '/replication_ctrl.php'     );
 	require_once( HN_TS_CONTROLLERS_DIR . '/timestreams_ctrl.php'     );
 ?>
