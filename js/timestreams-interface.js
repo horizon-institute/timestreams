@@ -91,7 +91,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		var _rate = document.getElementById("timestream_"+this.timestreamId+"_rate").value;
 		
 		_this.remote_service.timestreams.int_update_timestream_head({
-			params:  [remote_username, remote_password, _this.timestreamId, _head, _start, _end, _rate],
+			params:  [_this.remote_username, _this.remote_password, _this.timestreamId, _head, _start, _end, _rate],
 				onSuccess:function(successObj){ _this.saveRpcSuccess.call(_this, successObj) },
 				onException:function(errorObj){ _this.saveRpcError.call(_this, errorObj) },
 				onComplete:function(){ _this.saveRpcComplete.call(_this) }
