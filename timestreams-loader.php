@@ -86,7 +86,8 @@
 		$hn_ts_db->hn_ts_createMultisiteTables();
 		 
 		//require_once( ABSPATH.'wp-content/plugins/sample/app/controllers/xml-rpc.php');
-				 
+		//require_once( HN_TS_PLUGIN_DIR . '/admin/posttype.php'     );
+		 //add_action( 'init', 'hn_ts_blah' );
 	}
 	
 	/**
@@ -110,5 +111,7 @@
 	}
 	
 	setup();
+	
+	require_once( HN_TS_PLUGIN_DIR . '/admin/posttype.php'     );
 
 ?>

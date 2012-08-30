@@ -1,10 +1,4 @@
 
-var remote_pollingRate = 5000;
-var remote_username = 'username';
-var remote_password = 'password';
-var remote_url = '/relatedev/xmlrpc.php';
-
-
 
 function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, rate, minY, maxY)
 {
@@ -52,6 +46,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 
 	this.init = function()
 	{	
+		
 		if(this.end > 0)
 		{
 			this.startEndEnabled = true;

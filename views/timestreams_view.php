@@ -1,8 +1,8 @@
 <?php
 			
-	wp_enqueue_script('dygraph', '/wp-content/plugins/Timestreams/js/dygraph-combined.js');
-	wp_enqueue_script('rpc', '/wp-content/plugins/Timestreams/js/rpc.js');
-	wp_enqueue_script('timestreams-interface', '/wp-content/plugins/Timestreams/js/timestreams-interface.js');
+	wp_enqueue_script('dygraph', '/wp-content/plugins/timestreams/js/dygraph-combined.js');
+	wp_enqueue_script('rpc', '/wp-content/plugins/timestreams/js/rpc.js');
+	wp_enqueue_script('timestreams-interface', '/wp-content/plugins/timestreams/js/timestreams-interface.js');
 
 	function hn_ts_showTimestreams()
 	{

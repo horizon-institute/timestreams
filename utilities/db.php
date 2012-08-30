@@ -834,7 +834,7 @@
 			);
 		}
 		
-			// timestreams interface
+		// timestreams interface
 		// FIXME - how much is still used by current version?
 		
 		function hn_ts_addTimestream($timestreamName, $metadataId)
@@ -988,13 +988,13 @@
 				$where = "WHERE timestamp > \"$timeStr\"";
 			}
 			
-			$sql = "SELECT * FROM (SELECT * FROM $tablename $where ORDER BY timestamp DESC LIMIT $limit) AS T1 ORDER BY timestamp ASC";
+			$sql = "SELECT * FROM (SELECT * FROM $tablename $where ORDER BY valid_time DESC LIMIT $limit) AS T1 ORDER BY valid_time ASC";
 			
 			$readings = $wpdb->get_results($wpdb->prepare($sql));
 			
 			for($i = 0; $i < count($readings); $i++)
 			{
-				$newts = strtotime($readings[$i]->timestamp);
+				$newts = strtotime($readings[$i]->valid_time);
 				$readings[$i]->timestamp = $newts;
 			}
 			
@@ -1111,7 +1111,7 @@
 				$limitstr = " LIMIT 0 , $limit";
 			}
 			
-			return $wpdb->get_results($wpdb->prepare("SELECT * FROM $metadata->tablename WHERE timestamp > '$mindate' AND timestamp <= '$maxdate' ORDER BY timestamp DESC $limitstr"));
+			return $wpdb->get_results($wpdb->prepare("SELECT * FROM $metadata->tablename WHERE valid_time > '$mindate' AND valid_time <= '$maxdate' ORDER BY valid_time DESC $limitstr"));
 		}
 
 		// triggered by viz getting data, update read head at given rate
