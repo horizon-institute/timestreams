@@ -1,11 +1,11 @@
 <?php
 	/*
 		Plugin Name: Timestreams
-		Plugin URI: n/a
+		Plugin URI: http://timestreams.wp.horizon.ac.uk/
 		Description: Sensor data I/O for WordPress. Connect information from your community or school with your blog and the rest of the world.
-		Version: 0.1
-		Author: Jesse Blum
-		Author URI: n/a
+		Version: 0.8
+		Author: Horizon Digital Economy Research Institute Jesse Blum (JMB) & Martin Flintham (MDF)
+		Author URI: http://www.horizon.ac.uk
 		License: AGPLv3
 	*/
 	
@@ -31,7 +31,7 @@
 	function setup(){		
 		// Define the Timestreams version
 		if ( !defined( 'HN_TS_VERSION' ) )
-			define( 'HN_TS_VERSION', '0.1' );
+			define( 'HN_TS_VERSION', '0.8' );
 		
 		// Define the database version
 		if ( !defined( 'HN_TS_DB_VERSION' ) )
