@@ -77,4 +77,46 @@
 	
 	add_action('init', 'hn_ts_vizbuttons');
 	
+	function hn_ts_create_post_type()
+	{
+		register_post_type(
+			'timestream',
+			array(
+				'labels' => array(
+					'name' => __( 'Timestream Pages' ),
+					'singular_name' => __( 'Timestream Page' ),
+					'add_new' => __( 'Add A New Timestream Page' ),
+					'add_new_item' => __( 'Add A New Timestream Page' ),
+					'edit' => __( 'Edit Timestream Pages' ),
+					'edit_item' => __( 'Edit Timestream Pages' ),
+					'new_item' => __( 'New Timestream Page' ),
+					'view' => __( 'View This Timestream Page' ),
+					'view_item' => __( 'View This Timestream Page' ),
+					'search_items' => __( 'Search Timestream Page' ),
+					'not_found' => __( 'No Timestream Pages Found' ),
+					'not_found_in_trash' => __( 'No Timestream Pages Found In Trash' ),
+					),
+				'public' => true,
+				'has_archive' => true,
+				'menu_position' => 5,
+				'capability_type' => 'post',
+			)
+		);
+	}
+	
+	add_action( 'init', 'hn_ts_create_post_type' );
+	
+	function hn_ts_add_custom_singletemplate($single_template)
+	{
+		global $post;
+		
+		if ($post->post_type == 'timestream')
+		{
+			$single_template = HN_TS_PLUGIN_DIR . '/views/single-visualisation.php';
+		}
+		return $single_template;
+	}
+
+	add_filter( "single_template", "hn_ts_add_custom_singletemplate" ) ;
+	
 ?>
