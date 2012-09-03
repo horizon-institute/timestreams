@@ -54,7 +54,7 @@
 			        </tr>
 			        
 			        <tr valign="top">
-			        <th scope="row">Data Type</th>
+			        <th scope="row">Data Type *</th>
 			        <td><input type="text" name="datatype" 			/></td>
 			        </tr>
 			        
