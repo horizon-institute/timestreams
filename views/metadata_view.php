@@ -52,7 +52,7 @@
 			<tbody>
 			<?php 
 			$db = new Hn_TS_Database();
-			$rows = $db->hn_ts_select('wp_ts_metadata');
+			$rows = $db->hn_ts_select('wp_ts_metadata ORDER BY metadata_id DESC');
 			if($rows){
 				global $pagenow;
 				$screen = get_current_screen();

@@ -1,7 +1,7 @@
 <?php
 	/*
 		Plugin Name: Timestreams
-		Plugin URI: http://timestreams.wp.horizon.ac.uk/
+		Plugin URI: https://github.com/pszjmb1/Timestreams/
 		Description: Sensor data I/O for WordPress. Connect information from your community or school with your blog and the rest of the world.
 		Version: 0.8
 		Author: Horizon Digital Economy Research Institute Jesse Blum (JMB) & Martin Flintham (MDF)
