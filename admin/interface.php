@@ -15,6 +15,8 @@
 				'administrator', __FILE__, 'hn_ts_main_admin_page');
 		add_submenu_page(__FILE__, 'Data Sources', 'Data Sources', 'manage_options',
 				__FILE__.'datasources','hn_ts_datasources_admin_page');
+		add_submenu_page(__FILE__, 'Visualisations', 'Visualisations', 'manage_options',
+				__FILE__.'visualisations','hn_ts_visualisations_admin_page');				
 		add_submenu_page(__FILE__, 'Context', 'Context', 'manage_options',
 				__FILE__.'context','hn_ts_context_admin_page');
 		add_submenu_page(__FILE__, 'Replication', 'Replication', 'manage_options',
@@ -106,5 +108,20 @@
 		<?php
 	}
 	
+	function hn_ts_visualisations_admin_page()
+	{
+		?>
+		<div class="wrap">
+			<div id="icon-edit-pages" class="icon32"></div>
+			<h2>Timestreams - Visualisations</h2>
+			<h3>Visualisations</h3>
+			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed bibendum elementum sapien, et porttitor enim faucibus at. Sed ut nulla sed turpis dapibus luctus vel non ante. Nunc adipiscing venenatis dui. Morbi vehicula volutpat ornare. Sed non magna id lectus pretium aliquam vitae at velit. Vestibulum posuere pharetra ornare. Pellentesque quis tortor enim, ac molestie urna. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent dignissim augue et urna egestas a sagittis est bibendum. Donec sagittis congue consectetur. Morbi lacinia erat vitae nisl auctor commodo. Donec ut magna id est pretium laoreet. Aenean vitae auctor ligula. Nulla facilisi. Cras ac lorem lacinia justo molestie aliquam varius id ligula. </p>
+			<hr />
+		<?php
+			hn_ts_showVisualisations();
+		?>
+		</div>
+		<?php		
+	}
 	
 ?>

@@ -69,6 +69,8 @@
 		require_once( HN_TS_PLUGIN_DIR . '/views/views-loader.php'     );
 		require_once( HN_TS_PLUGIN_DIR . '/controllers/controllers-loader.php'     );
 		require_once( HN_TS_PLUGIN_DIR . '/admin/admin-loader.php'     );
+	
+		require_once( HN_TS_PLUGIN_DIR . '/admin/visualisation.php'     );
 		
 		// Hook into the dashboard action
 		register_activation_hook(__FILE__, 'hn_ts_timestreams_activate');
@@ -84,10 +86,7 @@
 		
 		$hn_ts_db = new Hn_TS_Database();
 		$hn_ts_db->hn_ts_createMultisiteTables();
-		 
-		//require_once( ABSPATH.'wp-content/plugins/sample/app/controllers/xml-rpc.php');
-		//require_once( HN_TS_PLUGIN_DIR . '/admin/posttype.php'     );
-		 //add_action( 'init', 'hn_ts_blah' );
+
 	}
 	
 	/**
@@ -112,6 +111,5 @@
 	
 	setup();
 	
-	require_once( HN_TS_PLUGIN_DIR . '/admin/posttype.php'     );
 
 ?>
