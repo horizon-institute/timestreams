@@ -1,6 +1,6 @@
 
 
-function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, rate, minY, maxY)
+function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, rate, minY, maxY, unit)
 {
 	this.remote_pollingRate = 5000;
 	this.remote_username = "username";
@@ -22,9 +22,12 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	this.startEndEnabled = true;
 	
 	this.data = [];
+	this.annotations = [];
 	
 	this.minY = minY;
 	this.maxY = maxY;
+	this.unit = unit;
+	this.isMedia = false;
 	
 	this.interactionMode = 0;
 	
@@ -46,6 +49,10 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 
 	this.init = function()
 	{	
+		if(this.unit.indexOf("image")!=-1)
+		{
+			this.isMedia = true;
+		}
 		
 		if(this.end > 0)
 		{
@@ -56,20 +63,48 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	this.initDygraph = function()
 	{
 		var _this = this;
-
-		this.dygraph = new Dygraph(document.getElementById("timestream_"+this.timestreamId),
-				this.data,
-				{
-					interactionModel:
+		
+		if(this.isMedia == true)
+		{
+			this.dygraph = new Dygraph(document.getElementById("timestream_"+this.timestreamId),
+					this.data,
 					{
-						click: function(e, x, points) {	_this.onClickCallback.call(_this, e, x, points); }
-					},
-					plotter: function(e){ _this.onDrawCallback.call(_this, e); },
-					valueRange: [_this.minY, _this.maxY],
-					showRangeSelector: true,
-				}
-		);
-
+						interactionModel:
+						{
+							click: function(e, x, points) {	_this.onClickCallback.call(_this, e, x, points); }
+						},
+						xValueParser: function(x) { return x; }, // annotations are knackered without this
+						plotter: function(e) { _this.onDrawCallback.call(_this, e); },
+						valueRange: [0,1],
+						showRangeSelector: true,
+						labels: ["date", "data"],
+						drawYAxis: true,
+						drawXGrid: true,
+						drawYGrid: false,
+						annotationDblClickHandler: function(ann, point, dg, event) { _this.onAnnotationDblClick.call(_this, ann, point, dg, event); },
+					}
+			);
+			
+			this.dygraph.setAnnotations(this.annotations);			
+		}
+		else
+		{
+			this.dygraph = new Dygraph(document.getElementById("timestream_"+this.timestreamId),
+					this.data,
+					{
+						interactionModel:
+						{
+							click: function(e, x, points) {	_this.onClickCallback.call(_this, e, x, points); }
+						},
+						xValueParser: function(x) { return x; }, // annotations are knackered without this
+						plotter: function(e) { _this.onDrawCallback.call(_this, e); },
+						valueRange: [_this.minY, _this.maxY],
+						showRangeSelector: true,
+						labels: ["date", "data"],
+					}
+			);		
+		}
+		
 		this.initialised = true;
 	}
 	
@@ -127,6 +162,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	{
 		// force redraw
 		this.dygraph.updateOptions( { 'file': this.data } );
+		this.dygraph.setAnnotations(this.annotations);
 	}
 	
 	this.onDrawCallback = function(e)
@@ -158,6 +194,13 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		ctx.fillStyle = "rgba(255, 150, 150, 1.0)";
 		ctx.fillRect(e.dygraph.toDomXCoord(this.newHead), 0, 5, 200);
 
+	}
+	
+	this.onAnnotationDblClick = function(ann, point, dg, event)
+	{
+		var newDiv = jQuery(document.createElement('div')); 
+		newDiv.html("<img src="+ann.text+">");
+		newDiv.dialog();
 	}
 	
 	
@@ -220,13 +263,35 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		
 	}
 	
-	
 	this.dataRpcSuccess = function(message)
 	{	
 		for(property in message)
 		{
 			var reading = message[property];
-			this.data.push([new Date((reading.timestamp+this.offset)*1000), reading.value]);
+			_ts = (reading.timestamp+this.offset)*1000;
+			
+			if(this.isMedia == true)
+			{
+				this.data.push([new Date(_ts), 0]);				
+								
+				this.annotations.push(
+				{
+					series: "data",
+					x: _ts,
+					shortText: ""+reading.value,
+					icon: reading.value,
+					width: 160,
+					height: 120,
+					text: reading.value,
+			        cssClass: 'annotation',
+					attachAtBottom: "true",
+				});
+			}
+			else
+			{
+				this.data.push([new Date(_ts), reading.value]);					
+			}
+						
 			this.dataLastTs = reading.timestamp;
 		}
 

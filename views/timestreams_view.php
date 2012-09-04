@@ -4,6 +4,9 @@
 	wp_enqueue_script('rpc', '/wp-content/plugins/timestreams/js/rpc.js');
 	wp_enqueue_script('timestreams-interface', '/wp-content/plugins/timestreams/js/timestreams-interface.js');
 
+	wp_enqueue_script( 'jquery-ui-dialog' );
+	
+
 	function hn_ts_showTimestreams()
 	{
 		?>
@@ -92,7 +95,8 @@
 						<?php echo strtotime($timestream->endtime) ?>,
 						<?php echo $head->rate ?>,
 						<?php echo $metadata->min_value; ?>,
-						<?php echo $metadata->max_value; ?>);
+						<?php echo $metadata->max_value; ?>,
+						"<?php echo $metadata->unit; ?>");
 
 			</script>
 
