@@ -94,7 +94,8 @@
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
 			}
-			else{
+			else
+			{
 				return $this->tsdb->hn_ts_insert_reading($args);
 			}
 		}
