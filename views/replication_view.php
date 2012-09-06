@@ -24,12 +24,18 @@
 	}
 	add_action('admin_enqueue_scripts', 'hn_ts_doReplicationJSSccript');
 	
+	/**
+	 * Displays the success or failure of an attempt at table replication
+	 */
 	function hn_ts_ajax_repl_get_replication_results(){
 		if(!isset($_POST["hn_ts_ajax_repl_nonce"]) || !wp_verify_nonce($_POST["hn_ts_ajax_repl_nonce"], 'hn_ts_ajax_repl-nonce')){
 			die('Failed permissions check.');
 		}
-		$date = new DateTime();
-		echo substr_replace(gmdate("Y-m-d\TH:i:s\Z", $date->getTimestamp() ) ,"",-1);
+		if(!isset($_POST["hn_ts_ajax_repl_id"])){
+			die('');
+		}else{
+			echo hn_ts_replicate_full($_POST["hn_ts_ajax_repl_id"]);
+		}
 		die();	
 	}
 	add_action('wp_ajax_hn_ts_get_replication_results','hn_ts_ajax_repl_get_replication_results');
@@ -84,16 +90,16 @@
 						<td>$row->remote_url</td>
 						<td>$row->remote_table</td>
 						<td>$row->continuous</td>
-						<td><div id=\"hn_ts_last_repl\">$row->last_replication</td></div>
+						<td><div id=\"hn_ts_last_repl-$row->replication_id\">$row->last_replication</td></div>
 						<td>	
-							<form id=\"doReplicationform\" method=\"POST\" action=\"\">
+							<form id=\"doReplicationform\" name=\"doReplicationForm\" method=\"POST\" action=\"\">
 									<input id=\"hn_ts_rpl_submit\"
 									type=\"submit\" 
-									name=\"doReplicationSubmit\" 
-									class=\"button-primary\" 
+									name=\"rpl.$row->replication_id\" 
+									class=\"button-secondary\" 
 									value=\"Replicate\" />
 							</form>
-							<img id=\"hn_ts_rpl_loading\" src=\"".admin_url('/images/wpspin_light.gif')."\" 
+							<img id=\"hn_ts_rpl_loading-$row->replication_id\" src=\"".admin_url('/images/wpspin_light.gif')."\" 
 								class=\"waiting\" style=\"display:none;\" />
 						</td>
 					</tr>";

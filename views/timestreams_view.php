@@ -13,12 +13,9 @@
 		wp_enqueue_script('dygraph', '/wp-content/plugins/timestreams/js/dygraph-combined.js');
 		wp_enqueue_script('rpc', '/wp-content/plugins/timestreams/js/rpc.js');
 		wp_enqueue_script('timestreams-interface', '/wp-content/plugins/timestreams/js/timestreams-interface.js');
-		
+		wp_enqueue_script( 'jquery-ui-dialog' );
 	}
 	add_action('admin_enqueue_scripts', 'hn_ts_load_TimeStreams_scripts');
-
-	wp_enqueue_script( 'jquery-ui-dialog' );
-	
 
 	function hn_ts_showTimestreams()
 	{

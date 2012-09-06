@@ -1184,5 +1184,28 @@
 			
 			return $head;			
 		}
+		
+		/**
+		 * Get Replication record given its id
+		 * @param unknown_type $replRow
+		 */
+		function hn_ts_getReplRow($replRowId){
+			global $wpdb;			
+			return $wpdb->get_row('SELECT * FROM '.$wpdb->prefix.'ts_replication'.
+					' WHERE replication_id='.$replRowId);
+		}
+		
+		/**
+		 * Update Replication record given an id and timestamp
+		 * @param unknown_type $replRow
+		 */
+		function hn_ts_updateReplRow($replRowId, $date){
+			global $wpdb;		
+				
+			return $wpdb->update(
+					$wpdb->prefix.'ts_replication', 
+					 array( 'last_replication' => $date), array( 'replication_id' => $replRowId),
+					'%s','%s');
+		}
 	}	
 ?>

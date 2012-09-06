@@ -6,6 +6,7 @@
  */
 
 	add_action('admin_menu', 'hn_ts_add_admin_menus');
+	require_once( HN_TS_ADMIN_DIR . '/settings.php' );
 	
 	/**
 	 * Timestreams Admin menu structure
