@@ -6,11 +6,11 @@
  * To do: Add edit/delete functionality
  */
 
-/**
- * A form to add replication records
- * Todo: add validation & make messages stand out more
- * Pass in username and password to hn_ts_insert_replication
- */
+	/**
+	 * A form to add replication records
+	 * Todo: add validation & make messages stand out more
+	 * Pass in username and password to hn_ts_insert_replication
+	 */
 	function hn_ts_addReplicationRecord(){
 		?>			
 			<h3>Add Replication Record</h3>			
@@ -61,7 +61,7 @@
 			    </table>
 			    
 			    <p class="submit">
-			    	<input type="submit" name='submit' class="button-primary" value="<?php _e('Add Metadata Record') ?>" />
+			    	<input type="submit" name='submit' class="button-primary" value="<?php _e('Add Replication Record') ?>" />
 			    </p>
 			
 			</form>

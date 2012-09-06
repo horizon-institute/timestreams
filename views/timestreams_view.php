@@ -1,8 +1,21 @@
 <?php
-			
-	wp_enqueue_script('dygraph', '/wp-content/plugins/timestreams/js/dygraph-combined.js');
-	wp_enqueue_script('rpc', '/wp-content/plugins/timestreams/js/rpc.js');
-	wp_enqueue_script('timestreams-interface', '/wp-content/plugins/timestreams/js/timestreams-interface.js');
+
+	/**
+	 * Enqueue javascript scripts
+	 */
+	function hn_ts_load_TimeStreams_scripts($hook){
+		global $hn_ts_admin_timestreams;
+	
+		if($hook != $hn_ts_admin_timestreams){
+			return;
+		}
+	
+		wp_enqueue_script('dygraph', '/wp-content/plugins/timestreams/js/dygraph-combined.js');
+		wp_enqueue_script('rpc', '/wp-content/plugins/timestreams/js/rpc.js');
+		wp_enqueue_script('timestreams-interface', '/wp-content/plugins/timestreams/js/timestreams-interface.js');
+		
+	}
+	add_action('admin_enqueue_scripts', 'hn_ts_load_TimeStreams_scripts');
 
 	function hn_ts_showTimestreams()
 	{
@@ -76,7 +89,7 @@
 			echo "</tr>";
 			echo "</table>";
 
-			if($metadata!=null && $head!=nulll)
+			if($metadata!=null && $head!=null)
 			{
 
 			?>

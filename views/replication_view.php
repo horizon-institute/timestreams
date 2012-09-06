@@ -8,6 +8,33 @@
  */
 
 	/**
+	 * Enqueue the javascript
+	 */
+	function hn_ts_doReplicationJSSccript($hook){
+		global $hn_ts_admin_page_repl;
+	
+		if($hook != $hn_ts_admin_page_repl){
+			return;
+		}
+	
+		wp_enqueue_script('hn_ts_ajax_repl', plugin_dir_url(HN_TS_VIEWS_DIR).'js/hn_ts_ajax.js', array('jquery'));
+		wp_localize_script('hn_ts_ajax_repl', 'hn_ts_ajax_repl_vars', array(
+			'hn_ts_ajax_repl_nonce' => wp_create_nonce('hn_ts_ajax_repl-nonce')
+		));
+	}
+	add_action('admin_enqueue_scripts', 'hn_ts_doReplicationJSSccript');
+	
+	function hn_ts_ajax_repl_get_replication_results(){
+		if(!isset($_POST["hn_ts_ajax_repl_nonce"]) || !wp_verify_nonce($_POST["hn_ts_ajax_repl_nonce"], 'hn_ts_ajax_repl-nonce')){
+			die('Failed permissions check.');
+		}
+		$date = new DateTime();
+		echo substr_replace(gmdate("Y-m-d\TH:i:s\Z", $date->getTimestamp() ) ,"",-1);
+		die();	
+	}
+	add_action('wp_ajax_hn_ts_get_replication_results','hn_ts_ajax_repl_get_replication_results');
+
+	/**
 	 * Displays replication table.
 	 * To do: Complete pagination functionality. 
 	 */
@@ -24,6 +51,7 @@
 					<th>remote table</th>
 					<th>continuous</th>
 					<th>last_replication</th>
+					<th>Replicate Now</th>
 				</tr>
 			</thead>
 			<tfoot>
@@ -35,6 +63,7 @@
 					<th>remote table</th>
 					<th>continuous</th>
 					<th>last_replication</th>
+					<th>Replicate Now</th>
 				</tr>
 			</tfoot>
 			<tbody>
@@ -45,8 +74,8 @@
 			if($rows){
 				global $pagenow;
 				$screen = get_current_screen();
-				foreach ( $rows as $row )
-					echo "<tr>
+				foreach ( $rows as $row ){
+					$RowString = "<tr>
 						<td>$row->replication_id</td>
 						<td><a href=\"".$pagenow.
 							"?page=timestreams/admin/interface.phpdatasources&table=
@@ -55,8 +84,21 @@
 						<td>$row->remote_url</td>
 						<td>$row->remote_table</td>
 						<td>$row->continuous</td>
-						<td>$row->last_replication</td>
+						<td><div id=\"hn_ts_last_repl\">$row->last_replication</td></div>
+						<td>	
+							<form id=\"doReplicationform\" method=\"POST\" action=\"\">
+									<input id=\"hn_ts_rpl_submit\"
+									type=\"submit\" 
+									name=\"doReplicationSubmit\" 
+									class=\"button-primary\" 
+									value=\"Replicate\" />
+							</form>
+							<img id=\"hn_ts_rpl_loading\" src=\"".admin_url('/images/wpspin_light.gif')."\" 
+								class=\"waiting\" style=\"display:none;\" />
+						</td>
 					</tr>";
+					echo $RowString;
+				}
 			}?>
 			</tbody>
 		</table>
@@ -72,4 +114,4 @@
 		<?php
 		
 	}
-?>
+
