@@ -94,7 +94,7 @@
 				remote_url varchar(255) COLLATE utf8_unicode_ci NOT NULL,
 				remote_table varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 				continuous boolean COLLATE utf8_unicode_ci NOT NULL,
-				last_replication TIMESTAMP COLLATE utf8_unicode_ci NULL DEFAULT 0,
+				last_replication varchar(75) COLLATE utf8_unicode_ci NULL,
 				PRIMARY KEY  (replication_id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
 			
@@ -258,8 +258,9 @@
 			$maximumTime=$args[4];
 			$where="WHERE ";
 			$limit=$this->hn_ts_getLimitStatement($args[5], $args[6]);
-			$sortcolumn=$args[7];
-			$descending=$args[8];
+			$sortcolumn=(count($args) > 7 ? $args[7] : "");
+			$descending=(count($args) > 8 ? $args[8] : "");
+			$sort = "";
 			
 			if($minimumTime){
 				$where=$where."valid_time >= '$minimumTime' ";
@@ -280,7 +281,6 @@
 				if($descending)
 					$sort .= " DESC";
 			}
-			
 			return $wpdb->get_results( 	$wpdb->prepare(
 					"SELECT * FROM $table $where $sort $limit;" )	);
 		}
@@ -1199,12 +1199,12 @@
 		 * Update Replication record given an id and timestamp
 		 * @param unknown_type $replRow
 		 */
-		function hn_ts_updateReplRow($replRowId, $date){
+		function hn_ts_updateReplRow($replRowId, $value){
 			global $wpdb;		
 				
 			return $wpdb->update(
 					$wpdb->prefix.'ts_replication', 
-					 array( 'last_replication' => $date), array( 'replication_id' => $replRowId),
+					 array( 'last_replication' => $value), array( 'replication_id' => $replRowId),
 					'%s','%s');
 		}
 	}	

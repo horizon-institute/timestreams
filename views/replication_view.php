@@ -80,30 +80,49 @@
 			if($rows){
 				global $pagenow;
 				$screen = get_current_screen();
+				//<td></td>
 				foreach ( $rows as $row ){
-					$RowString = "<tr>
+					$rowString = "<tr>
 						<td>$row->replication_id</td>
 						<td><a href=\"".$pagenow.
 							"?page=timestreams/admin/interface.phpdatasources&table=
 							$row->local_table\">$row->local_table</a></td>
 						<td>$row->remote_user_login</td>
 						<td>$row->remote_url</td>
-						<td>$row->remote_table</td>
-						<td>$row->continuous</td>
-						<td><div id=\"hn_ts_last_repl-$row->replication_id\">$row->last_replication</td></div>
-						<td>	
-							<form id=\"doReplicationform\" name=\"doReplicationForm\" method=\"POST\" action=\"\">
+						<td>$row->remote_table</td>";
+						if ($row->continuous){
+							$input="<td><input type=\"checkbox\" name=\"continuous\" checked=\"checked\" disabled=\"disabled\" />";
+						}else{
+							$input="<td><input type=\"checkbox\" name=\"continuous\" />";
+						}
+						$rowString = $rowString.$input.
+						"<td><div id=\"hn_ts_last_repl-$row->replication_id\">".
+						"$row->last_replication</td></div><td>";
+						if($row->continuous){	
+							$form="<form id=\"doReplicationform\" name=\"doReplicationForm\" method=\"POST\" action=\"\">
 									<input id=\"hn_ts_rpl_submit\"
 									type=\"submit\" 
 									name=\"rpl.$row->replication_id\" 
 									class=\"button-secondary\" 
-									value=\"Replicate\" />
-							</form>
-							<img id=\"hn_ts_rpl_loading-$row->replication_id\" src=\"".admin_url('/images/wpspin_light.gif')."\" 
+									value=\"Replicate\"
+									disabled=\"disabled\" 
+									/>
+							</form>";
+						}else{
+							$form="<form id=\"doReplicationform\" name=\"doReplicationForm\" method=\"POST\" action=\"\">
+								<input id=\"hn_ts_rpl_submit\"
+								type=\"submit\"
+								name=\"rpl.$row->replication_id\"
+								class=\"button-secondary\"
+								value=\"Replicate\"
+								/>
+							</form>";
+						};
+						$rowString = $rowString.$form."<img id=\"hn_ts_rpl_loading-$row->replication_id\" src=\"".admin_url('/images/wpspin_light.gif')."\" 
 								class=\"waiting\" style=\"display:none;\" />
 						</td>
 					</tr>";
-					echo $RowString;
+					echo $rowString;
 				}
 			}?>
 			</tbody>

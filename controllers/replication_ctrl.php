@@ -31,6 +31,7 @@ class Proxied_IXR_Client extends IXR_Client{
 	function query()
 	{
 		$args = func_get_args();
+		//var_dump($args);
 		$method = array_shift($args);
 		$request = new IXR_Request($method, $args);
 		$length = $request->getLength();
@@ -51,6 +52,7 @@ class Proxied_IXR_Client extends IXR_Client{
 		$request .= $r;
 	
 		$request .= $xml;
+		//echo $request;
 	
 		// Now send the request
 		if ($this->debug) {
@@ -119,25 +121,56 @@ class Proxied_IXR_Client extends IXR_Client{
 /**
  * Performs a complete copy of a local table to a remote table.
  * @param int $replRecordID is a row id from the Replication Table
- * @return mixed|string, on success the time the replication started or 'Replication failed.'
+ * @return mixed|string, on success the replication response and time or 'Replication failed.'
  */
 function hn_ts_replicate_full($replRecordID){
-
 	$db = new Hn_TS_Database();
 	$replRow = $db->hn_ts_getReplRow($replRecordID);
 	if ($replRow != null) {
 		$date = new DateTime();
 		$date = str_replace("T"," ",
 				substr_replace(gmdate("Y-m-d\TH:i:s\Z", $date->getTimestamp() ) ,"",-1));
-		var_dump(replicateXmlRpc($replRow));
-		if($db->hn_ts_updateReplRow($replRecordID, $date)){
-			return "<br />$date";
+		$resp = replicateXmlRpc($replRow);
+		if($db->hn_ts_updateReplRow($replRecordID, $resp."<br />".$date)){
+			return "$resp<br />$date";
 		}else{
 			return 'Replication failed.';
 		}
 	}else{
 		return 'Replication failed.';
 	}
+}
+/**
+ * Performs a partial copy of a local table to a remote table.
+ * @param int $replRecord is a row from the Replication Table
+ * @return mixed|string, on success the replication response and time started or 'Replication failed.'
+ */
+function hn_ts_replicate_partial($replRecord){
+	// get most recent record from external table (which could be empty)
+	$db = new Hn_TS_Database();
+	
+	// if empty then hn_ts_replicate_full($replRecord->replication_id)
+	// else
+		// lock
+		// select all subsequent rows from internal table
+		// if rows
+			// post records to external table
+			// record response and time to $replRecord 
+		// unlock
+	/*$replRow = $db->hn_ts_getReplRow($replRecord);
+	if ($replRow != null) {
+		$date = new DateTime();
+		$date = str_replace("T"," ",
+				substr_replace(gmdate("Y-m-d\TH:i:s\Z", $date->getTimestamp() ) ,"",-1));
+		$resp = replicateXmlRpc($replRow);
+		if($db->hn_ts_updateReplRow($replRecordID, $resp.$date)){
+			return "<br />$resp $date";
+		}else{
+			return 'Replication failed.';
+		}
+	}else{
+		return 'Replication failed.';
+	}*/
 }
 
 /**
@@ -152,13 +185,18 @@ function replicateXmlRpc($replRow){
 	}else{
 		$client = new IXR_Client($replRow->remote_url);
 	}
-
-	if (!$client->query('timestreams.add_measurements',$replRow->remote_user_login,
-			$replRow->remote_user_pass,$replRow->remote_table,
-			'999.1','2012-03-02 00:34:04',
-			'999.2','2012-03-02 00:34:05',
-			'999.3','2012-03-02 00:34:06'
-		)) {
+	$db = new Hn_TS_Database();
+	$readings = $db->hn_ts_get_readings_from_name(array("","",$replRow->local_table,0,0,0,0,0,0));
+	$readingsArgs = array();
+	foreach($readings as $reading){
+		array_push($readingsArgs, $reading->value, $reading->valid_time);
+	}
+	//var_dump($readings);
+	$queryArgs = array_merge(array('timestreams.add_measurements',$replRow->remote_user_login,
+			$replRow->remote_user_pass,$replRow->remote_table),$readingsArgs);
+	
+	//$client->debug=True;
+	if (!call_user_func_array(array($client,'query'), $queryArgs)){
 		die('An error occurred - '.$client->getErrorCode().":".$client->getErrorMessage());
 	}
 	/*if (!$client->query('wp.getCategories','', 'admin','Time349')) {
@@ -211,7 +249,7 @@ function hn_ts_addReplicationRecord(){
 
 		<tr valign="top">
 			<th scope="row">Continuous</th>
-			<td><input type="checkbox" name="continuous" value="Yes" />
+			<td><input type="checkbox" name="continuous" value="Yes" class="hn_ts_cont_chk"/>
 			</td>
 		</tr>
 

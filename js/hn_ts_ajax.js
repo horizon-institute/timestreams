@@ -3,6 +3,7 @@
  */
 
 jQuery(document).ready(function($){
+	// Handle replication button clicks
 	$('.button-secondary').click(function() {
 		$elem = $(this);
 		var btn_id=$(this).attr('name').split('.')[1];
