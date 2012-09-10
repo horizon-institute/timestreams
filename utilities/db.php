@@ -266,10 +266,10 @@
 				$where=$where."valid_time >= '$minimumTime' ";
 				
 				if($maximumTime){
-					$where=$where."AND valid_time < '$maximumTime'";
+					$where=$where."AND valid_time <= '$maximumTime'";
 				}
 			}else if($maximumTime){
-				$where=$where."valid_time < '$maximumTime'";
+				$where=$where."valid_time <= '$maximumTime'";
 			}
 			
 			if(0==strcmp($where,"WHERE ")){
@@ -381,13 +381,30 @@
 		function hn_ts_get_replication_by_local_table($args){
 			global $wpdb;
 			if(count($args) != 3){
-				return $this->missingcontainername;
+				return $this->missingParameters;
 			}
 				
 			$table=$args[2];
 				
 			return $wpdb->get_results( 	$wpdb->prepare(
 					"SELECT * FROM wp_ts_replication WHERE tablename='$table';" )	);
+		}
+		
+		/** Retrieves replication records for tables of the form:
+		 * wp_[blog-id]_ts_[measurement-type]_[device-id]
+		* @param $args is an array in the expected format of:
+		* [0]username
+		* [1]password
+		 * @return the result of the select
+		*/
+		function hn_ts_get_continuous_replications($args){
+			global $wpdb;
+			if(count($args) != 2){
+				return NULL;
+			}
+				
+			return  $wpdb->get_results( 	$wpdb->prepare(
+					"SELECT * FROM wp_ts_replication WHERE continuous=1;" )	);
 		}
 		
 		/**

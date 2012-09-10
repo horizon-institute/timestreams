@@ -139,38 +139,70 @@ function hn_ts_replicate_full($replRecordID){
 	}else{
 		return 'Replication failed.';
 	}
+	//echo hn_ts_replicate_partial($db->hn_ts_getReplRow($replRecordID));
 }
 /**
  * Performs a partial copy of a local table to a remote table.
  * @param int $replRecord is a row from the Replication Table
  * @return mixed|string, on success the replication response and time started or 'Replication failed.'
  */
-function hn_ts_replicate_partial($replRecord){
-	// get most recent record from external table (which could be empty)
-	$db = new Hn_TS_Database();
-	
-	// if empty then hn_ts_replicate_full($replRecord->replication_id)
-	// else
-		// lock
-		// select all subsequent rows from internal table
-		// if rows
-			// post records to external table
-			// record response and time to $replRecord 
-		// unlock
-	/*$replRow = $db->hn_ts_getReplRow($replRecord);
-	if ($replRow != null) {
+function hn_ts_replicate_partial($replRow){
+	// get most recent record from external table (which could be empty)	
+	$options = get_option('hn_ts');	
+	if(count($options['proxyAddr']) > 0){
+		$client = new Proxied_IXR_Client($options['proxyAddr'], $options['proxyPort'], $replRow->remote_url);
+	}else{
+		$client = new IXR_Client($replRow->remote_url);
+	}
+	$queryArgs = array_merge(array('timestreams.select_latest_measurement',
+			$replRow->remote_user_login,
+			$replRow->remote_user_pass,$replRow->remote_table));
+	if (!call_user_func_array(array($client,'query'), $queryArgs)){
+		die('An error occurred - '.$client->getErrorCode().":".$client->getErrorMessage());
+	}
+	$response = $client->getResponse();	
+	//var_dump($response);
+	if(count($response) <= 1){
+		//hn_ts_replicate_full($replRow->replication_id);
+		echo 'resp <=1';
+	}else{
+		// To do: Lock table to prevent concurent additions
 		$date = new DateTime();
 		$date = str_replace("T"," ",
 				substr_replace(gmdate("Y-m-d\TH:i:s\Z", $date->getTimestamp() ) ,"",-1));
-		$resp = replicateXmlRpc($replRow);
-		if($db->hn_ts_updateReplRow($replRecordID, $resp.$date)){
-			return "<br />$resp $date";
+		// select all subsequent rows from internal table
+		$db = new Hn_TS_Database();
+		$mindate = date( "Y-m-d H:i:s", strtotime( $response["valid_time"] )+1 );
+		$readings = $db->hn_ts_get_readings_from_name(
+				array("","",$replRow->local_table,$mindate,0,0,0,0,0));			
+		if(count($readings) >= 1){
+			// post records to external table
+			$readingsArgs = array();
+			foreach($readings as $reading){
+				array_push($readingsArgs, $reading->value, $reading->valid_time);
+			}
+			$queryArgs = array_merge(array('timestreams.add_measurements',$replRow->remote_user_login,
+					$replRow->remote_user_pass,$replRow->remote_table),$readingsArgs);
+			
+			//var_dump($queryArgs);
+			if (!call_user_func_array(array($client,'query'), $queryArgs)){
+				die('An error occurred - '.$client->getErrorCode().":".$client->getErrorMessage());
+			}
+			
+			$response = $client->getResponse();
+			if($response){
+				// record response and time to $replRecord
+				if($db->hn_ts_updateReplRow($replRow->replication_id, $response."<br />".$date)){
+					return "$response<br />$date";
+				}else{
+					return 'Replication failed.';
+				}
+			}
 		}else{
-			return 'Replication failed.';
+			return "No insertions to make.<br />".$date;
 		}
-	}else{
-		return 'Replication failed.';
-	}*/
+		// Todo: unlock	table
+	}
 }
 
 /**
@@ -191,19 +223,13 @@ function replicateXmlRpc($replRow){
 	foreach($readings as $reading){
 		array_push($readingsArgs, $reading->value, $reading->valid_time);
 	}
-	//var_dump($readings);
 	$queryArgs = array_merge(array('timestreams.add_measurements',$replRow->remote_user_login,
 			$replRow->remote_user_pass,$replRow->remote_table),$readingsArgs);
 	
-	//$client->debug=True;
 	if (!call_user_func_array(array($client,'query'), $queryArgs)){
 		die('An error occurred - '.$client->getErrorCode().":".$client->getErrorMessage());
 	}
-	/*if (!$client->query('wp.getCategories','', 'admin','Time349')) {
-		die('An error occurred - '.$client->getErrorCode().":".$client->getErrorMessage());
-	}*/
 	return $response = $client->getResponse();
-	//var_dump($response);
 }
 
 
