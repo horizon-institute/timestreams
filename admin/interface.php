@@ -6,12 +6,14 @@
  */
 
 	add_action('admin_menu', 'hn_ts_add_admin_menus');
+	require_once( HN_TS_ADMIN_DIR . '/settings.php' );
 	
 	/**
 	 * Timestreams Admin menu structure
 	 */
 	function hn_ts_add_admin_menus(){
-		add_menu_page('Timestreams', 'Timestreams',
+		global $hn_ts_admin_timestreams;
+		$hn_ts_admin_timestreams = add_menu_page('Timestreams', 'Timestreams',
 				'administrator', __FILE__, 'hn_ts_main_admin_page');
 		add_submenu_page(__FILE__, 'Data Sources', 'Data Sources', 'manage_options',
 				__FILE__.'datasources','hn_ts_datasources_admin_page');
@@ -19,7 +21,8 @@
 				__FILE__.'visualisations','hn_ts_visualisations_admin_page');				
 		add_submenu_page(__FILE__, 'Context', 'Context', 'manage_options',
 				__FILE__.'context','hn_ts_context_admin_page');
-		add_submenu_page(__FILE__, 'Replication', 'Replication', 'manage_options',
+		global $hn_ts_admin_page_repl;
+		$hn_ts_admin_page_repl = add_submenu_page(__FILE__, 'Replication', 'Replication', 'manage_options',
 				__FILE__.'replication','hn_ts_replication_admin_page');
 	}
 	

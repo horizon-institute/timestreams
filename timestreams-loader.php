@@ -66,8 +66,8 @@
 		load_plugin_textdomain('timestreams',false,'timestreams/languages');
 		
 		require_once( HN_TS_PLUGIN_DIR . '/utilities/utilitiesloader.php'     );
-		require_once( HN_TS_PLUGIN_DIR . '/views/views-loader.php'     );
 		require_once( HN_TS_PLUGIN_DIR . '/controllers/controllers-loader.php'     );
+		require_once( HN_TS_PLUGIN_DIR . '/views/views-loader.php'     );
 		require_once( HN_TS_PLUGIN_DIR . '/admin/admin-loader.php'     );
 	
 		require_once( HN_TS_PLUGIN_DIR . '/admin/visualisation.php'     );

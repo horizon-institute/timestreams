@@ -370,6 +370,36 @@
 		}
 		
 		/**
+		 * Checks username password then does partial replication for all 
+		 * continuous replication records
+		 * @todo Output angle brackets instead of html codes
+		 * @param array $args should have 2 parameters:
+		 * $username, $password, tablename, ipaddress
+		 * @return string XML-XPC response with either an error message or 1
+		 */
+		function hn_ts_replication($args){
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
+				$replRows = $this->tsdb->hn_ts_get_continuous_replications($args);
+				if($replRows){
+					require_once( HN_TS_PLUGIN_DIR . '/controllers/replication_ctrl.php');					
+					$resp = "<replications>";
+					foreach($replRows as $replRow){
+						$resp = $resp."<replication id=\"$replRow->replication_id\">".
+						hn_ts_replicate_partial($replRow)."</replication>";
+					}
+					$resp = $resp."</replications>";
+					return $resp;
+				}else{
+					return new IXR_Error(403, __('Incorrect number of parameters.'));
+				}
+			}
+		}
+		
+		/**
 		 * Associates XML-RPC method names with functions of this class 
 		 * @param $methods is a key/value paired array
 		 * @return $methods
@@ -394,6 +424,7 @@
 			$methods['timestreams.add_measurement_files'] =  array(&$this, 'hn_ts_add_measurement_files');
 			$methods['timestreams.import_data_from_files'] =  array(&$this, 'hn_ts_import_files');
 			$methods['timestreams.heartbeat'] =  array(&$this, 'hn_ts_heartbeat');
+			$methods['timestreams.replication'] =  array(&$this, 'hn_ts_replication');
 				
 					// internal interface
 			$methods['timestreams.int_get_timestream_head'] =  array(&$this, 'hn_ts_int_get_timestream_head');

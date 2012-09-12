@@ -94,7 +94,7 @@
 				remote_url varchar(255) COLLATE utf8_unicode_ci NOT NULL,
 				remote_table varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 				continuous boolean COLLATE utf8_unicode_ci NOT NULL,
-				last_replication TIMESTAMP COLLATE utf8_unicode_ci NULL DEFAULT 0,
+				last_replication varchar(75) COLLATE utf8_unicode_ci NULL,
 				PRIMARY KEY  (replication_id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
 			
@@ -258,17 +258,18 @@
 			$maximumTime=$args[4];
 			$where="WHERE ";
 			$limit=$this->hn_ts_getLimitStatement($args[5], $args[6]);
-			$sortcolumn=$args[7];
-			$descending=$args[8];
+			$sortcolumn=(count($args) > 7 ? $args[7] : "");
+			$descending=(count($args) > 8 ? $args[8] : "");
+			$sort = "";
 			
 			if($minimumTime){
 				$where=$where."valid_time >= '$minimumTime' ";
 				
 				if($maximumTime){
-					$where=$where."AND valid_time < '$maximumTime'";
+					$where=$where."AND valid_time <= '$maximumTime'";
 				}
 			}else if($maximumTime){
-				$where=$where."valid_time < '$maximumTime'";
+				$where=$where."valid_time <= '$maximumTime'";
 			}
 			
 			if(0==strcmp($where,"WHERE ")){
@@ -280,7 +281,6 @@
 				if($descending)
 					$sort .= " DESC";
 			}
-			
 			return $wpdb->get_results( 	$wpdb->prepare(
 					"SELECT * FROM $table $where $sort $limit;" )	);
 		}
@@ -381,13 +381,30 @@
 		function hn_ts_get_replication_by_local_table($args){
 			global $wpdb;
 			if(count($args) != 3){
-				return $this->missingcontainername;
+				return $this->missingParameters;
 			}
 				
 			$table=$args[2];
 				
 			return $wpdb->get_results( 	$wpdb->prepare(
 					"SELECT * FROM wp_ts_replication WHERE tablename='$table';" )	);
+		}
+		
+		/** Retrieves replication records for tables of the form:
+		 * wp_[blog-id]_ts_[measurement-type]_[device-id]
+		* @param $args is an array in the expected format of:
+		* [0]username
+		* [1]password
+		 * @return the result of the select
+		*/
+		function hn_ts_get_continuous_replications($args){
+			global $wpdb;
+			if(count($args) != 2){
+				return NULL;
+			}
+				
+			return  $wpdb->get_results( 	$wpdb->prepare(
+					"SELECT * FROM wp_ts_replication WHERE continuous=1;" )	);
 		}
 		
 		/**
@@ -1184,6 +1201,29 @@
 			$head->currenttime = strtotime($currenttime);
 			
 			return $head;			
+		}
+		
+		/**
+		 * Get Replication record given its id
+		 * @param unknown_type $replRow
+		 */
+		function hn_ts_getReplRow($replRowId){
+			global $wpdb;			
+			return $wpdb->get_row('SELECT * FROM '.$wpdb->prefix.'ts_replication'.
+					' WHERE replication_id='.$replRowId);
+		}
+		
+		/**
+		 * Update Replication record given an id and timestamp
+		 * @param unknown_type $replRow
+		 */
+		function hn_ts_updateReplRow($replRowId, $value){
+			global $wpdb;		
+				
+			return $wpdb->update(
+					$wpdb->prefix.'ts_replication', 
+					 array( 'last_replication' => $value), array( 'replication_id' => $replRowId),
+					'%s','%s');
 		}
 	}	
 ?>
