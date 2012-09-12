@@ -60,7 +60,7 @@
 			$wpdb->query($sql);
 						
 			$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_timestreams (
-				  timestream_id bigint(20) unsigned NOT NULL,
+				  timestream_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				  name varchar(55) COLLATE utf8_unicode_ci NOT NULL,
 				  head_id bigint(20) NOT NULL,
 				  metadata_id bigint(20) unsigned NOT NULL,
@@ -71,14 +71,14 @@
 			$wpdb->query($sql);
 						
 			$sql = 'CREATE  TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_timestream_has_context (
-				 wp_ts_timestream_id BIGINT(20) UNSIGNED NOT NULL,
+				 wp_ts_timestream_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 				 wp_ts_context_id BIGINT(20) UNSIGNED NOT NULL,
 				 PRIMARY KEY  (wp_ts_timestream_id, wp_ts_context_id)
 				) ENGINE = MyISAM DEFAULT CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;';
 			$wpdb->query($sql);
 						
 			$sql = 'CREATE  TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_head (
-				  head_id BIGINT(20) NOT NULL,
+				  head_id BIGINT(20) NOT NULL AUTO_INCREMENT,
 				  currenttime TIMESTAMP,
 				  lasttime TIMESTAMP,
 				  rate INT(11) NOT NULL,
