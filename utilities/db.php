@@ -975,7 +975,8 @@
 		{
 			$tablename = $args[2];
 			$limit = $args[3];
-			$lastTimestamp = $args[4];
+			$offset = $args[4];
+			$lastTimestamp = $args[5];
 			
 			//error_log($lastTimestamp);
 						
@@ -989,9 +990,9 @@
 				$where = "WHERE valid_time > \"$timeStr\"";
 			}
 			
-			$sql = "SELECT * FROM (SELECT * FROM $tablename $where ORDER BY valid_time DESC LIMIT $limit) AS T1 ORDER BY valid_time ASC";
+			$sql = "SELECT * FROM (SELECT * FROM $tablename $where ORDER BY valid_time DESC LIMIT $offset,$limit) AS T1 ORDER BY valid_time ASC";
 			
-			//error_log($sql);
+			error_log($sql);
 			
 			$readings = $wpdb->get_results($wpdb->prepare($sql));
 			
@@ -1001,7 +1002,7 @@
 				$readings[$i]->timestamp = $newts;
 			}
 			
-			//error_log(count($readings));
+			error_log(count($readings));
 			
 			return $readings;			
 		}

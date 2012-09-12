@@ -72,6 +72,9 @@
 			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(2)\">start</a> ";
 			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(3)\">end </a>";
 			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].save()\">save </a>";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].prev()\">prev </a>";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].next()\">next </a>";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].latest()\">latest </a>";
 			
 			echo "</div>";
 			echo "</td>";
