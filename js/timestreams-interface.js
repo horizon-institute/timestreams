@@ -33,8 +33,11 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	
 	this.dataSource = dataSource;
 	
+	this.dataResetOnData = false;
+	this.dataOffset = 0;
 	this.dataLimit = 500;
 	this.dataLastTs = 0;
+	this.dataLatest = true;
 	this.initialised = false;
 	
 	this.remote_service = new rpc.ServiceProxy(this.remote_url, {
@@ -52,6 +55,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		if(this.unit.indexOf("image")!=-1)
 		{
 			this.isMedia = true;
+			this.dataLimit = 20;
 		}
 		
 		if(this.end > 0)
@@ -106,6 +110,33 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		}
 		
 		this.initialised = true;
+	}
+	
+	this.latest = function()
+	{
+		this.dataLatest = true;
+		this.dataOffset = 0;
+		this.dataResetOnData = true;
+		this.dataLastTs = 0;
+		this.doDataRpc();
+	}
+	
+	this.prev = function()
+	{
+		this.dataLatest = false;
+		this.dataOffset+=this.dataLimit;
+		this.dataResetOnData = true;
+		this.dataLastTs = 0;
+		this.doDataRpc();
+	}
+	
+	this.next = function()
+	{
+		this.dataLatest = false;
+		this.dataOffset-=this.dataLimit;	
+		this.dataResetOnData = true;	
+		this.dataLastTs = 0;
+		this.doDataRpc();
 	}
 	
 	this.save = function()
@@ -265,6 +296,12 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	
 	this.dataRpcSuccess = function(message)
 	{	
+		if(this.dataResetOnData == true)
+		{
+			this.dataResetOnData = false;
+			this.data = [];
+		}
+		
 		for(property in message)
 		{
 			var reading = message[property];
@@ -311,7 +348,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		
 	}
 	
-	this.doRpc = function()
+	this.doHeadRpc = function()
 	{
 		var _this = this;
 		
@@ -322,16 +359,28 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 				onComplete:function(){ _this.headRpcComplete.call(_this) }
 		});
 		
+		setTimeout(function(){ _this.doHeadRpc.call(_this)}, _this.remote_pollingRate);
+	}
+	
+	this.doDataRpc = function()
+	{	
+		var _this = this;
+
 		_this.remote_service.timestreams.int_get_timestream_data({
-			params:  [_this.remote_username, _this.remote_password, _this.dataSource, _this.dataLimit, _this.dataLastTs],
+			params:  [_this.remote_username, _this.remote_password, _this.dataSource, _this.dataLimit, _this.dataOffset, _this.dataLastTs],
 				onSuccess:function(successObj){ _this.dataRpcSuccess.call(_this, successObj) },
 				onException:function(errorObj){ _this.dataRpcError.call(_this, errorObj) },
 				onComplete:function(){ _this.dataRpcComplete.call(_this) }
 		});
-
-		setTimeout(function(){ _this.doRpc.call(_this)}, _this.remote_pollingRate);
+		
+		// poll for latest
+		if(_this.dataLatest==true)
+		{
+			setTimeout(function(){ _this.doDataRpc.call(_this)}, _this.remote_pollingRate);
+		}
 	}
 	
 	this.init();
-	this.doRpc();
+	this.doHeadRpc();
+	this.doDataRpc();
 }
