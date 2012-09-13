@@ -51,7 +51,7 @@
 		 */
 		function hn_ts_check_user_pass($args){
 			if(!$this->wpserver->login($args[0], $args[1])){
-				$this->loginError = $this->loginErrorCode;
+				$this->loginError = $this->wpserver->error;
 			}
 		}
 		
@@ -71,10 +71,11 @@
 			/*(blog_id='', $$measurementType, $minimumvalue, $maximumvalue,
 			$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType, 
 			$missing_data_value)*/
-			$this->hn_ts_check_user_pass($args);
-			if(NULL != $this->loginError){
+			
+			if(!$this->hn_ts_check_user_pass($args)){
+				$err = $this->loginError;
 				$this->loginError=NULL;
-				return $this->loginErrorCode;
+				return $err;
 			}
 			else{
 				return $this->tsdb->hn_ts_addMetadataRecord("",$args[2],$args[3],$args[4],
