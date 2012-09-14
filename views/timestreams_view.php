@@ -21,7 +21,7 @@
 	function hn_ts_showTimestreams()
 	{
 		?>
-		<h3>Timestreams</h3>
+		<h3><?php _e('Timestreams'); ?></h3>
 		<script type="text/javascript">
 			var timestreams = [];
 		</script>
@@ -59,8 +59,8 @@
 			
 			echo "</select></td>";
 			echo "<input type=\"hidden\" name=\"timestream_id\" value=\"" . $timestream->timestream_id . "\">";
-			echo "<td><input type=\"submit\" name=\"command\" class=\"button-primary\" value=\"update\"></td>";
-			echo "<td><input type=\"submit\" name=\"command\" class=\"button-primary\" value=\"delete\"></td>";
+			echo "<td><input type=\"submit\" name=\"command\" class=\"button-primary\" value=\""; _e('update'); echo "\"></td>";
+			echo "<td><input type=\"submit\" name=\"command\" class=\"button-primary\" value=\""; _e('delete'); echo "\"></td>";
 			echo "</form></tr></table>";
 			
 			echo "<table>";
@@ -71,21 +71,21 @@
 			echo "</td>";
 			
 			echo "<td>";
-			echo "<div style=\"width:200px; height:200px\">";
+			echo "<div style=\"width:200px; height:200px; padding-bottom: 1em;\">";
 			
-			echo "head time: <br><input type=\"text\" name=\"head\" id=\"timestream_" . $timestream->timestream_id . "_head\"></input><br>";
-			echo "start time: <br><input type=\"text\" name=\"start\" id=\"timestream_" . $timestream->timestream_id . "_start\"></input><br>";
-			echo "end time: <br><input type=\"text\" name=\"end\" id=\"timestream_" . $timestream->timestream_id . "_end\"></input><br>";
-			echo "start / end time disabled: <input type=\"checkbox\" name=\"endEnable\" value=\"true\" onclick=timestreams[" . $timestream->timestream_id . "].toggleStartEnd() /><br>";
-			echo "rate: <br><input type=\"text\" name=\"rate\" id=\"timestream_" . $timestream->timestream_id . "_rate\" value=\"" . $head->rate . "\"></input><br>";
+			_e('head time'); echo ": <br><input type=\"text\" name=\"head\" id=\"timestream_" . $timestream->timestream_id . "_head\"></input><br>";
+			_e('start time'); echo ": <br><input type=\"text\" name=\"start\" id=\"timestream_" . $timestream->timestream_id . "_start\"></input><br>";
+			_e('end time'); echo ": <br><input type=\"text\" name=\"end\" id=\"timestream_" . $timestream->timestream_id . "_end\"></input><br>";
+			_e('start / end time disabled'); echo ": <input type=\"checkbox\" name=\"endEnable\" value=\"true\" onclick=timestreams[" . $timestream->timestream_id . "].toggleStartEnd() /><br>";
+			_e('rate'); echo ": <br><input type=\"text\" name=\"rate\" id=\"timestream_" . $timestream->timestream_id . "_rate\" value=\"" . $head->rate . "\"></input><br>";
 			
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(1)\">head</a> ";
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(2)\">start</a> ";
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(3)\">end </a>";
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].save()\">save </a>";
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].prev()\">prev </a>";
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].next()\">next </a>";
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].latest()\">latest </a>";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(2)\">";_e('start'); echo "</a> ";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(3)\">";_e('end'); echo "</a> ";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(1)\">";_e('head'); echo "</a><br />";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].prev()\">";_e('prev'); echo "</a> ";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].next()\">";_e('next'); echo "</a> ";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].latest()\">";_e('latest'); echo "</a><br />";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].save()\">";_e('save'); echo "</a><br />";
 			
 			echo "</div>";
 			echo "</td>";
