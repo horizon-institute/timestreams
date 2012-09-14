@@ -85,6 +85,16 @@
 			$head = $db->hn_ts_getReadHead($timestream->head_id);
 			$metadata = $db->hn_ts_getMetadata($timestream->metadata_id);
 			
+			if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
+			{
+				$timestream->endtime = "1970-01-01 00:00:00";
+			}
+			
+			if(strcmp($timestream->starttime, "0000-00-00 00:00:00")==0)
+			{
+				$timestream->starttime = "1970-01-01 00:00:00";
+			}
+			
 			foreach($metarows as $meta)
 			{
 				$selected = "";
@@ -113,12 +123,12 @@
 			echo "<td>";
 			echo "<div style=\"width:200px; height:200px; padding-bottom: 1em;\">";
 			
-			_e('head time'); echo ": <br><input type=\"text\" name=\"head\" id=\"timestream_" . $timestream->timestream_id . "_head\"></input><br>";
-			_e('start time'); echo ": <br><input type=\"text\" name=\"start\" id=\"timestream_" . $timestream->timestream_id . "_start\"></input><br>";
-			_e('end time'); echo ": <br><input type=\"text\" name=\"end\" id=\"timestream_" . $timestream->timestream_id . "_end\"></input><br>";
+			_e('new head time'); echo ": <br><input type=\"text\" name=\"head\" id=\"timestream_" . $timestream->timestream_id . "_head\"></input><br>";
+			_e('new start time'); echo ": <br><input type=\"text\" name=\"start\" id=\"timestream_" . $timestream->timestream_id . "_start\"></input><br>";
+			_e('new end time'); echo ": <br><input type=\"text\" name=\"end\" id=\"timestream_" . $timestream->timestream_id . "_end\"></input><br>";
 			_e('start / end time disabled'); echo ": <input type=\"checkbox\" name=\"endEnable\" value=\"true\" onclick=timestreams[" . $timestream->timestream_id . "].toggleStartEnd() /><br>";
 			_e('rate'); echo ": <br><input type=\"text\" name=\"rate\" id=\"timestream_" . $timestream->timestream_id . "_rate\" value=\"" . $head->rate . "\"></input><br>";
-			
+
 			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(2)\">";_e('start'); echo "</a> ";
 			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(3)\">";_e('end'); echo "</a> ";
 			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(1)\">";_e('head'); echo "</a><br />";

@@ -143,7 +143,14 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	{		
 		var _this = this;
 		
-		var _head = (this.newHead/1000) - this.offset;
+		if(this.newHead==0)
+		{
+			_head = (this.head/1000) - this.offset;
+		}
+		else
+		{
+			_head = (this.newHead/1000) - this.offset;
+		}
 		
 		var _start = 0;
 		var _end = 0;
@@ -187,6 +194,9 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	this.toggleStartEnd = function()
 	{
 		this.startEndEnabled = !this.startEndEnabled;
+		
+		document.getElementById("timestream_" + this.timestreamId + "_start").disabled = !this.startEndEnabled;
+		document.getElementById("timestream_" + this.timestreamId + "_end").disabled = !this.startEndEnabled;
 	}
 	
 	this.redraw = function()

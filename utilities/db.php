@@ -1175,9 +1175,17 @@
 			
 			$newcurrent = (($now - strtotime($head->lasttime)) * $head->rate) + strtotime($head->currenttime);
 
-			if($timestream->endtime > 0 && $newcurrent > strtotime($timestream->endtime))
+			if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
 			{
-				//error_log("reset to starttime");
+				$timestream->endtime = "1970-01-01 00:00:00";
+			}
+			
+			//if(strtotime($timestream->endtime) > 0)
+			//	error_log("blaj");
+				
+			if(strtotime($timestream->endtime) > 0 && $newcurrent > strtotime($timestream->endtime))
+			{
+				error_log("reset to starttime");
 				$currenttime = $timestream->starttime;
 			}
 			else
