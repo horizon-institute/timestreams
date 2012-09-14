@@ -14,6 +14,7 @@
 		wp_enqueue_script('rpc', '/wp-content/plugins/timestreams/js/rpc.js');
 		wp_enqueue_script('timestreams-interface', '/wp-content/plugins/timestreams/js/timestreams-interface.js');
 		wp_enqueue_script( 'jquery-ui-dialog' );
+		wp_enqueue_script('ts-ajax', '/wp-content/plugins/timestreams/js/hn_ts_ajax.js');
 	}
 	add_action('admin_enqueue_scripts', 'hn_ts_load_TimeStreams_scripts');
 

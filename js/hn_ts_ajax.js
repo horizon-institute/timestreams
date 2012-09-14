@@ -25,4 +25,34 @@ jQuery(document).ready(function($){
 		
 		return false;
 	});
+
+	// Hide or show Timestreams usage description and instructions
+	
+    $("#hide_ts_description").show();	   
+    $("#show_ts_description").hide();	
+    
+	$("#hide_ts_description").click(function(){
+	    $(".ts_description").hide();
+	    $("#hide_ts_description").hide();	   
+	    $("#show_ts_description").show();	
+	  });
+	  $("#show_ts_description").click(function(){
+	    $(".ts_description").show();
+	    $("#hide_ts_description").show();	   
+	    $("#show_ts_description").hide();	   
+	  });
+	
+    $("#hide_ts_instructions").show();	   
+    $("#show_ts_instructions").hide();	
+    
+	$("#hide_ts_instructions").click(function(){
+	    $(".ts_instructions").hide();
+	    $("#hide_ts_instructions").hide();	   
+	    $("#show_ts_instructions").show();	
+	  });
+	  $("#show_ts_instructions").click(function(){
+	    $(".ts_instructions").show();
+	    $("#hide_ts_instructions").show();	   
+	    $("#show_ts_instructions").hide();	   
+	  });
 });
