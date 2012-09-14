@@ -16,15 +16,16 @@ function hn_ts_add_page() {
 function hn_ts_options_do_page() {
 	?>
 	<div class="wrap">
-		<h2>Timestreams Options</h2>
+		<h2><?php _e('Timestreams Options'); ?></h2>
+		<p><?php _e('Please enter the following values if you are replicating your data through a proxy server.'); ?></p>
 		<form method="post" action="options.php">
 			<?php settings_fields('hn_ts_options'); ?>
 			<?php $options = get_option('hn_ts'); ?>
 			<table class="form-table">
-				<tr valign="top"><th scope="row">Proxy Address</th>
+				<tr valign="top"><th scope="row"><?php _e('Proxy Address'); ?></th>
 					<td><input type="text" name="hn_ts[proxyAddr]" value="<?php echo $options['proxyAddr']; ?>" /></td>
 				</tr>
-				<tr valign="top"><th scope="row">Proxy Port</th>
+				<tr valign="top"><th scope="row"><?php _e('Proxy Port'); ?></th>
 					<td><input type="text" name="hn_ts[proxyPort]" value="<?php echo $options['proxyPort']; ?>" /></td>
 				</tr>
 			</table>

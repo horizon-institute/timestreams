@@ -12,24 +12,24 @@
  */
 	function hn_ts_showContextTable(){
 		?>
-		<h3>Context Table</h3>
+		<h3><?php _e('Context Table'); ?></h3>
 		<table class="widefat">
 			<thead>
 				<tr>
-					<th>id</th>
-					<th>Context Type</th>
-					<th>Value</th>
-					<th>Start Time</th>
-					<th>End Time</th>
+					<th><?php _e('id'); ?></th>
+					<th><?php _e('Context Type'); ?></th>
+					<th><?php _e('Value'); ?></th>
+					<th><?php _e('Start Time'); ?></th>
+					<th><?php _e('End Time'); ?></th>
 				</tr>
 			</thead>
 			<tfoot>
 				<tr>
-					<th>id</th>
-					<th>Context Type</th>
-					<th>Value</th>
-					<th>Start Time</th>
-					<th>End Time</th>
+					<th><?php _e('id'); ?></th>
+					<th><?php _e('Context Type'); ?></th>
+					<th><?php _e('Value'); ?></th>
+					<th><?php _e('Start Time'); ?></th>
+					<th><?php _e('End Time'); ?></th>
 				</tr>
 			</tfoot>
 			<tbody>
@@ -51,7 +51,7 @@
 		</table>
 		<div class="tablenav">
 			<div class="tablenav-pages">
-				<span class="displaying-num">Displaying <?php echo count($rows);?> of <?php echo count($rows);?></span>
+				<span class="displaying-num"><?php _e('Displaying '); ?><?php echo count($rows);?><?php _e(' of '); ?><?php echo count($rows);?></span>
 				<span class="page-numbers current">1</span>
 				<?php //<a href="#" class="page-numbers">2</a> ?>
 				<?php //<a href="#" class="next page-numbers">&raquo;</a> ?>

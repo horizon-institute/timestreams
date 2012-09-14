@@ -79,7 +79,7 @@
 		</table>
 		<div class="tablenav">
 			<div class="tablenav-pages">
-				<span class="displaying-num">Displaying <?php echo count($rows);?> of <?php echo count($rows);?></span>
+				<span class="displaying-num"><?php _e('Displaying '); ?><?php echo count($rows);?><?php _e(' of '); ?><?php echo count($rows);?></span>
 				<span class="page-numbers current">1</span>
 				<?php //<a href="#" class="page-numbers">2</a> ?>
 				<?php //<a href="#" class="next page-numbers">&raquo;</a> ?>

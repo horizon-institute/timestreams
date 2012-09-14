@@ -34,43 +34,8 @@
 		<div class="wrap">
 			<div id="icon-index" class="icon32"></div>
 			<h2 style="padding-bottom: 1em;"><?php _e('Timestreams'); ?></h2>
-			<button id="hide_ts_description" class="button-primary"><?php _e('Hide Description');?></button>
-			<button id="show_ts_description" class="button-primary"><?php _e(' Show Description');?></button>			
-			<h3 class="ts_description"><?php _e('Description'); ?></h3>
-			<p class="ts_description"><?php _e('Welcome to the Timestreams Wordpress plugin from the <a href="http://horizab1.miniserver.com/relate/" title="Relate Project website">Relate project</a>. Timestreams is developed in collaboration between <a href="http://www.horizon.ac.uk" title="Horizon website">Horizon Digital Economy Research Institute</a> of the University of Nottingham, <a href="http://www.i-am-ai.net" title="Active Ingredient website">Active Ingredient</a>, The Met Office Hadley Centre, Brazilian curator Silvia Leal, University of Exeter, and a number of communities in Brazil and the UK. The project is funded by <a href="http://www.rcuk.ac.uk/" title="RCUK website">RCUK</a>.');?></p>
-			<p class="ts_description"><?php _e('Timestreams is an online platform built in Wordpress for capturing, interpreting and visualising time series data. The platform has been developed for artists to capture and conceptualise environmental data, to look at the relationship between climate change and energy.  Timestreams will be released after this research phase to the public, designed for artists, developers, hackers, amateur scientists, schools and communities to set up their own ‘Timestream’ projects.');?></p>
-			<p class="ts_description"><?php _e('Once you have set up your timestreams you can choose to output the data as a blog post or a separate webpage, there is also a library of visualisations that are available to embed in your post or webpage. <a href="https://github.com/pszjmb1/Timestreams/wiki/Timestreams-API-Documentation" title="Timestreams api">Click here</a> to learn how to send Timestreams data to a non-web based visualisation or Arduino using the API.');?></p>
-			<hr class="ts_description" />
-			<button id="hide_ts_instructions" class="button-primary">Hide Instructions</button>
-			<button id="show_ts_instructions" class="button-primary">Show Instructions</button>
-			<h3 class="ts_instructions">Using Timestreams</h3>
-			<p class="ts_instructions"><?php _e('Timestreams can be used with existing data (basic technical skills) on the site and with new data you collect yourself (moderate technical skills).'.
-			' You can collect data manually using our upload app or Timesense tool kit.'.
-			' Go to <a href="http://192.168.56.101/wordpress/wp-admin/admin.php?page=timestreams/admin/interface.phpdatasources" title="datasources">the datasources page</a> for more information on collecting your own data.'); ?></p>
-			<h3 class="ts_instructions"><?php _e('To create a Timestream:'); ?></h3>
-			<ol class="ts_instructions"><li><?php _e('Type in a name for your timestream'); ?></li>
-			<li><?php _e('Choose the data source that you would like to include in your post, page or output application.'); ?></li>
-			<li><?php _e('Choose the range of data that you would like to appear in your post, blog or by used by the API.'); ?></li>
-			<li><?php _e('You can set up as many timestreams as you want to output to your post, webpage or API.'); ?></li></ol>
-			<p class="ts_instructions"><?php _e('Once you have set up your timestream the data will appear on a timeline below as a graph with an x and y axis. The way it is displayed depends on what type of data it is:'); ?></p>
-			<ul class="ts_instructions" style="list-style-type:circle; padding-left:2em;"><li><?php _e('Numerical data will appear as a bar graph with the units of measurement on the x axis and the measurement of the data on the y axis.'); ?></li>
-			<li><?php _e('Media and text files will appear as a timeline of the items that you can scroll through.'); ?></li></ul>
-			<p class="ts_instructions"><?php _e('Use the scroll bar below the timeline to zoom in and out and move along the timeline.'); ?></p>
-			<p class="ts_instructions"><?php _e('You can change timestream being shown by selecting an alternate datasource from the dropdown box above the timestream, and then clicking the update button.'); ?></p>
-			<p class="ts_instructions"><?php _e('Delete a timestream by clickign its delete button. Please note that this does not delete the datasource.'); ?></p>
-			<h3 class="ts_instructions"><?php _e('To author data'); ?></h3><p class="ts_instructions"><?php _e('You can author your data using your timestream.'); ?></p>
-			<ol class="ts_instructions"><li><?php _e('Click start'); ?></li>
-			<li><?php _e('Click on the timeline where you want the data in your timestream to begin.'); ?></li>
-			<li><?php _e('Click end.'); ?></li>
-			<li><?php _e('Click on the timeline where you want the data in your timestream to end.'.
-					' A green overlay should appear over the data range that you have chosen.'); ?></li>
-			<li><?php _e('Click head and then click the area in the timestream to begin playing from.'); ?></li>
-			<li><?php _e('Set the speed that the data plays out using the rate field (1=realtime, 2=double time, 0.5= half time, etc..)'); ?></li>
-			<li><?php _e('Click save'); ?></li></ol>
-			<p class="ts_instructions"><?php _e('Note that if your toggle on the "start / end time disabled:" checkbox then the timesream will continue to play data as new values come in. If this is toggled off and there is an endtime set, the the data will loop to the start once the end is reached.'); ?></p>
-			<hr />
 		<?php
-		
+			hn_ts_describeTimestreams();
 			hn_ts_addTimestream();
 			hn_ts_showTimestreams();
 			
@@ -90,17 +55,20 @@
 			<div id="icon-themes" class="icon32"></div>
 			<h2><?php _e('Timestreams - Metadata'); ?></h2>
 			<h3><?php _e('Description'); ?></h3>
-			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed bibendum elementum sapien, et porttitor enim faucibus at. Sed ut nulla sed turpis dapibus luctus vel non ante. Nunc adipiscing venenatis dui. Morbi vehicula volutpat ornare. Sed non magna id lectus pretium aliquam vitae at velit. Vestibulum posuere pharetra ornare. Pellentesque quis tortor enim, ac molestie urna. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent dignissim augue et urna egestas a sagittis est bibendum. Donec sagittis congue consectetur. Morbi lacinia erat vitae nisl auctor commodo. Donec ut magna id est pretium laoreet. Aenean vitae auctor ligula. Nulla facilisi. Cras ac lorem lacinia justo molestie aliquam varius id ligula. </p>
-			<hr />
-		<?php
 			
-			if(isset($_GET['table'])){				
-				hn_ts_showDataRecord($_GET['table']);
-			}else{
-				hn_ts_addMetadataRecord();
-				hn_ts_showMetadataTable();
-			}
-		?>
+			<p class="ts_description"><?php _e('Data sources describe the sensor data brought into Timestreams. A device such as a weateher station may collect data using multiple sensors (thermometer, barometer, etc.). Please use one datasource entry per type of sensor.');?></p>
+			<p class="ts_description"><?php _e('To add a new data source fill in the form below so that the platform knows what type of data you are adding into the system. Please note that the values for the unit of measurement field should be entered in <a href="http://en.wikipedia.org/wiki/Internet_media_type" title="Wikipedia entry on Internet media types">internet media type</a> format. For sensor data follow a protocol of: text/x-data-Unit, where Unit would be the unit of measurement (such as Celsius or Decibels). For example: text/x-data-celsius or image/png. Data Types are used to store your data in the correct format. For instance, if you are storing image files you\'d want to use a textual type (VARCHR(255)), but if you\'re storing temperature readings between 0 and 100 then you\'d want to use a numeric type (DECIMAL(4,1)). You may use any of the standard <a href="https://dev.mysql.com/doc/refman/5.5/en/data-types.html" title="mysql data types">MySQL ones</a>.');?></p>
+			<hr />
+			
+			<?php
+				
+				if(isset($_GET['table'])){				
+					hn_ts_showDataRecord($_GET['table']);
+				}else{
+					hn_ts_addMetadataRecord();
+					hn_ts_showMetadataTable();
+				}
+			?>
 		</div>
 		<?php
 	}	
@@ -112,9 +80,9 @@
 		?>
 		<div class="wrap">
 			<div id="icon-edit-pages" class="icon32"></div>
-			<h2>Timestreams - Context</h2>
-			<h3>Description</h3>
-			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed bibendum elementum sapien, et porttitor enim faucibus at. Sed ut nulla sed turpis dapibus luctus vel non ante. Nunc adipiscing venenatis dui. Morbi vehicula volutpat ornare. Sed non magna id lectus pretium aliquam vitae at velit. Vestibulum posuere pharetra ornare. Pellentesque quis tortor enim, ac molestie urna. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent dignissim augue et urna egestas a sagittis est bibendum. Donec sagittis congue consectetur. Morbi lacinia erat vitae nisl auctor commodo. Donec ut magna id est pretium laoreet. Aenean vitae auctor ligula. Nulla facilisi. Cras ac lorem lacinia justo molestie aliquam varius id ligula. </p>
+			<h2><?php _e('Timestreams - Context'); ?></h2>
+			<h3><?php _e('Description'); ?></h3>
+			<p><?php _e('Context records let you describe the context of the data you collect. These can be any type such as location, activity or session id.'); ?></p>
 			<hr />
 		<?php
 			hn_ts_addContextRecord();
@@ -131,9 +99,11 @@
 		?>
 		<div class="wrap">
 			<div id="icon-edit-pages" class="icon32"></div>
-			<h2>Timestreams - Replication</h2>
-			<h3>Description</h3>
-			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed bibendum elementum sapien, et porttitor enim faucibus at. Sed ut nulla sed turpis dapibus luctus vel non ante. Nunc adipiscing venenatis dui. Morbi vehicula volutpat ornare. Sed non magna id lectus pretium aliquam vitae at velit. Vestibulum posuere pharetra ornare. Pellentesque quis tortor enim, ac molestie urna. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent dignissim augue et urna egestas a sagittis est bibendum. Donec sagittis congue consectetur. Morbi lacinia erat vitae nisl auctor commodo. Donec ut magna id est pretium laoreet. Aenean vitae auctor ligula. Nulla facilisi. Cras ac lorem lacinia justo molestie aliquam varius id ligula. </p>
+			<h2><?php _e('Timestreams - Replication'); ?></h2>
+			<h3><?php _e('Description'); ?></h3>
+			<p><?php _e('You can replicate your data sources from one timestreams blog to another. This is useful if you are collecting data locally and want to provide it publicly as well.'); ?></p>
+			<p><?php _e('Timestreams supports two types of replication -- discrete and continuous. Discrete replication means doing a single data transfer. Continuous means that your data will be tranfered all the time as new data come in from a data source.'); ?></p>
+			<p><?php _e('To use replication complete the form below and click add replication record.'); ?></p>
 			<hr />
 		<?php
 			hn_ts_addReplicationRecord();
@@ -148,9 +118,9 @@
 		?>
 		<div class="wrap">
 			<div id="icon-edit-pages" class="icon32"></div>
-			<h2>Timestreams - Visualisations</h2>
-			<h3>Visualisations</h3>
-			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed bibendum elementum sapien, et porttitor enim faucibus at. Sed ut nulla sed turpis dapibus luctus vel non ante. Nunc adipiscing venenatis dui. Morbi vehicula volutpat ornare. Sed non magna id lectus pretium aliquam vitae at velit. Vestibulum posuere pharetra ornare. Pellentesque quis tortor enim, ac molestie urna. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent dignissim augue et urna egestas a sagittis est bibendum. Donec sagittis congue consectetur. Morbi lacinia erat vitae nisl auctor commodo. Donec ut magna id est pretium laoreet. Aenean vitae auctor ligula. Nulla facilisi. Cras ac lorem lacinia justo molestie aliquam varius id ligula. </p>
+			<h2><?php _e('Timestreams - Visualisations'); ?></h2>
+			<p><?php _e('Here is a list and descriptions of the different timestreams visualisations that have been designed by Horizon and Active Ingredient for you to embed in your post or webpage.'); ?>
+			 </p>
 			<hr />
 		<?php
 			hn_ts_showVisualisations();

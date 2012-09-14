@@ -6,16 +6,16 @@
 		$datasources = $db->hn_ts_select('wp_ts_metadata');
 		
 		?>
-		<h3>Create a new Timestream</h3>			
+		<h3><?php _e('Create a new Timestream'); ?></h3>			
 			<form id="timestreamform" method="post" action="">
 				<table class="form-table">
 					<tr valign="top">
-			        <th scope="row">Timestream Name *</th>
+			        <th scope="row"><?php _e('Timestream Name'); ?>*</th>
 			        <td><input type="text" name="timestream_name" />
 			        </td>
-			        <th scope="row">Data Source *</th>
+			        <th scope="row"><?php _e('Data Source'); ?>*</th>
 					<td>
-						<select name="timestream_data"/>
+						<select name="timestream_data" >
 						<?php
 						foreach($datasources as $meta)
 						{

@@ -12,29 +12,31 @@
  */
 	function hn_ts_addContextRecord(){
 		?>			
-			<h3>Add Context Record</h3>
+			<h3><?php _e('Add Context Record'); ?></h3><p>
+			<?php _e('To add a context record complete the form and click add context record. Please note that start and end times are optional. If they are left blank then the context is considered to apply to the earliest or latest readings.'); ?></p>
+			
 			<form method="post" action="">
 				<table class="form-table">
 			        <tr valign="top">
-			        <th scope="row">Context Type</th>
+			        <th scope="row"><?php _e('Context Type'); ?></th>
 			        <td><input type="text" name="context_type" 
 			        value="<?php echo get_option('context_type'); ?>" /></td>
 			        </tr>
 			         
 			        <tr valign="top">
-			        <th scope="row">Value</th>
+			        <th scope="row"><?php _e('Value'); ?></th>
 			        <td><input type="text" name="context_value"
 			        value="<?php echo get_option('context_value'); ?>" /></td>
 			        </tr>
 			         
 			        <tr valign="top">
-			        <th scope="row">Start Time</th>
+			        <th scope="row"><?php _e('Start Time'); ?></th>
 			        <td><input type="text" name="start_time"
 			        value="<?php echo get_option('start_time'); ?>" /></td>
 			        </tr>
 			         
 			        <tr valign="top">
-			        <th scope="row">End Time</th>
+			        <th scope="row"><?php _e('End Time'); ?></th>
 			        <td><input type="text" name="end_time"
 			        value="<?php echo get_option('end_time'); ?>" /></td>
 			        </tr>

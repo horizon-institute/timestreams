@@ -16,6 +16,16 @@
 		}
 		return null;
 	}
+	
+	
+	/**
+	 * Enqueue javascript scripts
+	 */
+	function hn_ts_load_Datasources_scripts($hook){
+		wp_enqueue_script('ts-ajax', '/wp-content/plugins/timestreams/js/hn_ts_ajax.js');
+	}
+	
+	add_action('admin_enqueue_scripts', 'hn_ts_load_Datasources_scripts');
 	/**
 	 * Displays data in a table from the given name of the table
 	 * To do: Complete pagination functionality.
@@ -104,7 +114,7 @@
 			$max = $numRows;
 		}
 		$dispOffset = $offset + 1;
-		echo "<span class='displaying-num'>Displaying $dispOffset - $max of $numRows</span>";
+		echo "<span class='displaying-num'>"; _e('Displaying'); echo" $dispOffset - $max "; _e(' of '); echo" $numRows</span>";
 		if ($pageNum == 1) {
 			echo " FIRST PREV ";
 		} else {

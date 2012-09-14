@@ -11,55 +11,64 @@
  * Todo: add validation & make messages stand out more
  */
 	function hn_ts_addMetadataRecord(){
-		?>			
-			<h3>Add Metadata Record</h3>			
+		?>	<button id="hide_ts_ds_form" class="button-primary"><?php _e('Hide Add Datasource Form');?></button>
+			<button id="show_ts_ds_form" class="button-primary"><?php _e(' Show Add Datasource Form');?></button>			
+			<div id="ts_ds_form">		
+			<h3><?php _e('Add New Data Source'); ?></h3>			
 			<form id="metadataform" method="post" action="">
 				<table class="form-table">
 			        <tr valign="top">
-				        <th scope="row">Measurement Type *</th>
+				        <th scope="row"><?php _e('What are you measuring'); ?>? *</th>
 				        <td>
 					        <input type="text" name="measurement_type"  />
 					    </td>
 			        </tr>
 			         
 			        <tr valign="top">
-			        <th scope="row">Minimum value</th>
+			        <th scope="row"><?php _e('What is the minimum value of measurement you expect to be recorded?'); ?>
+			        </th>
 			        <td><input type="text" name="minimum" />
 			        </td>
 			        </tr>
 			        
 			        <tr valign="top">
-			        <th scope="row">Maximum value</th>
+			        <th scope="row"><?php _e('What is the maximum value of measurement you expect to be recorded?'); ?>
+			        </th>
 			        <td><input type="text" name="maximum" /></td>
 			        </tr>
 			        
 			        <tr valign="top">
-			        <th scope="row">Unit *</th>
+			        <th scope="row"><?php _e('What is the unit of measurement (e.g. Celsius, png image file)?'); ?>
+			        </th>
 			        <td><input type="text" name="unit" /></td>
 			        </tr>
 			        
 			        <tr valign="top">
-			        <th scope="row">Unit symbol</th>
+			        <th scope="row"><?php _e('What is the symbol of this measurement (e,g, C)?'); ?>
+			        </th>
 			        <td><input type="text" name="unit_symbol"  /></td>
 			        </tr>
 			        
 			        <tr valign="top">
-			        <th scope="row">Device Details</th>
+			        <th scope="row"><?php _e('What is the unique name of device containing your sensor called (e.g. Rachel\'s Eco Sense)?'); ?>
+			        </th>
 			        <td><input type="text" name="device"  /></td>
 			        </tr>
 			        
 			        <tr valign="top">
-			        <th scope="row">Other Information</th>
+			        <th scope="row"><?php _e('Any Other Information (this is to help you recognise the data source):'); ?>
+			        </th>
 			        <td><input type="text" name="other" 			/></td>
 			        </tr>
 			        
 			        <tr valign="top">
-			        <th scope="row">Data Type *</th>
+			        <th scope="row"><?php _e('What Data Type do you want to use to store your values?'); ?>
+			         *</th>
 			        <td><input type="text" name="datatype" 			/></td>
 			        </tr>
 			        
 			        <tr valign="top">
-			        <th scope="row">Missing Data Value</th>
+			        <th scope="row">What value does your device use if it has an error or a missing value?</th>
 			        <td><input type="text" name="missingDataValue" 			/></td>
 			        </tr>
 			        
@@ -70,6 +79,7 @@
 			    </p>
 			
 			</form>
+			</div>
 			<hr />
 			<?php
 				if(isset($_POST['measurement_type']) && $_POST['measurement_type'] && 
