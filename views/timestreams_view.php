@@ -61,6 +61,26 @@
 	function hn_ts_showTimestreams()
 	{
 		?>
+		<style>
+		div.ts_preview
+		{
+			width: 640px;
+			height: 480px;
+			position: absolute;
+			display: block;
+			right: 0;
+			bottom: 0;
+			background-color: #dddddd;
+			text-align: left;
+  			z-index: 1000;
+			}
+		</style>
+
+        <div id="ts_preview" class="ts_preview"></div>
+		<script type="text/javascript">
+			jQuery("#ts_preview").hide();
+		</script>
+		
 		<h3><?php _e('Timestreams'); ?></h3>
 		<script type="text/javascript">
 			var timestreams = [];

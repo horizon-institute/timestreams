@@ -27,7 +27,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	this.minY = minY;
 	this.maxY = maxY;
 	this.unit = unit;
-	this.isMedia = false;
+	this.isMedia = 0;
 	
 	this.interactionMode = 0;
 	
@@ -52,9 +52,19 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 
 	this.init = function()
 	{	
-		if(this.unit.indexOf("image")!=-1)
+		if(this.unit.indexOf("text/x-data")!=-1)
 		{
-			this.isMedia = true;
+			this.isMedia = 0;
+			console.log("data");
+		}
+		else if(this.unit.indexOf("image/")!=-1)
+		{
+			this.isMedia = 1;
+			this.dataLimit = 20;
+		}
+		else
+		{
+			this.isMedia = 2;
 			this.dataLimit = 20;
 		}
 		
@@ -68,7 +78,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	{
 		var _this = this;
 		
-		if(this.isMedia == true)
+		if(this.isMedia > 0)
 		{
 			this.dygraph = new Dygraph(document.getElementById("timestream_"+this.timestreamId),
 					this.data,
@@ -85,7 +95,10 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 						drawYAxis: true,
 						drawXGrid: true,
 						drawYGrid: false,
+						showLabelsOnHighlight: false,
 						annotationDblClickHandler: function(ann, point, dg, event) { _this.onAnnotationDblClick.call(_this, ann, point, dg, event); },
+				        annotationMouseOverHandler: function(ann, point, dg, event) { _this.annotationMouseOverHandler.call(_this, ann, point, dg, event); },
+				        annotationMouseOutHandler: function(ann, point, dg, event) { _this.annotationMouseOutHandler.call(_this, ann, point, dg, event); },
 					}
 			);
 			
@@ -239,9 +252,37 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	
 	this.onAnnotationDblClick = function(ann, point, dg, event)
 	{
-		var newDiv = jQuery(document.createElement('div')); 
-		newDiv.html("<img src="+ann.text+">");
-		newDiv.dialog();
+
+
+	}
+	
+	this.annotationMouseOverHandler = function(ann, point, dg, event)
+	{	
+		switch(this.isMedia)
+		{
+		case 1:
+			jQuery("#ts_preview").animate({height: "480px"}, 0);	
+			jQuery("#ts_preview").html("<img width=640 height=480 src="+ann.text+">");
+			break;
+		case 2:
+			jQuery("#ts_preview").animate({height: "100px"}, 0);
+			jQuery("#ts_preview").text(ann.text);
+			break;
+		}
+		
+		jQuery("#ts_preview").show();
+		jQuery("#ts_preview").position(
+		{
+			of: ann.div,
+			at: "right top",
+			my: "left top",
+			offset: "15 0",
+		});
+	}
+	
+	this.annotationMouseOutHandler = function(ann, point, dg, event)
+	{
+		jQuery("#ts_preview").hide();
 	}
 	
 	
@@ -305,7 +346,12 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	}
 	
 	this.dataRpcSuccess = function(message)
-	{	
+	{
+		if(message.length==0)
+		{
+			return;
+		}
+		
 		if(this.dataResetOnData == true)
 		{
 			this.dataResetOnData = false;
@@ -317,28 +363,45 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 			var reading = message[property];
 			_ts = (reading.timestamp+this.offset)*1000;
 			
-			if(this.isMedia == true)
+			switch(this.isMedia)
 			{
+			case 0: // numeric
+				this.data.push([new Date(_ts), reading.value]);
+				break;
+			case 1: // image
 				this.data.push([new Date(_ts), 0]);				
-								
+				
 				this.annotations.push(
 				{
 					series: "data",
 					x: _ts,
-					shortText: ""+reading.value,
+					//shortText: ""+reading.value,
 					icon: reading.value,
-					width: 160,
+					width: 90,
 					height: 120,
 					text: reading.value,
 			        cssClass: 'annotation',
 					attachAtBottom: "true",
 				});
+				break;
+			case 2: // other media
+				this.data.push([new Date(_ts), 0]);				
+				
+				this.annotations.push(
+				{
+					series: "data",
+					x: _ts,
+					//shortText: ""+reading.value,
+					icon: "../wp-includes/images/crystal/document.png",
+					width: 46,
+					height: 60,
+					text: reading.value,
+			        cssClass: 'annotation',
+					attachAtBottom: "true",
+				});
+				break;
 			}
-			else
-			{
-				this.data.push([new Date(_ts), reading.value]);					
-			}
-						
+	
 			this.dataLastTs = reading.timestamp;
 		}
 
