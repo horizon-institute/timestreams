@@ -52,7 +52,9 @@
 		function hn_ts_check_user_pass($args){
 			if(!$this->wpserver->login($args[0], $args[1])){
 				$this->loginError = $this->wpserver->error;
+				return false;
 			}
+			return true;
 		}
 		
 		/**
@@ -75,7 +77,11 @@
 			if(!$this->hn_ts_check_user_pass($args)){
 				$err = $this->loginError;
 				$this->loginError=NULL;
-				return $err;
+				if($err){
+					return $err;
+				}else{
+					return $this->loginErrorCode;
+				}
 			}
 			else{
 				return $this->tsdb->hn_ts_addMetadataRecord("",$args[2],$args[3],$args[4],
