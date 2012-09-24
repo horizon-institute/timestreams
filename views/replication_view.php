@@ -50,26 +50,26 @@
 		<table class="widefat">
 			<thead>
 				<tr>
-					<th><?php _e('id'); ?></th>
-					<th><?php _e('local table'); ?></th>
-					<th><?php _e('remote user'); ?></th>
-					<th><?php _e('remote url'); ?></th>
-					<th><?php _e('remote table'); ?></th>
-					<th><?php _e('continuous'); ?></th>
-					<th><?php _e('last replication'); ?></th>
-					<th><?php _e('Replicate Now'); ?></th>
+					<th><?php _e('id',$HN_TS_NAME); ?></th>
+					<th><?php _e('local table',$HN_TS_NAME); ?></th>
+					<th><?php _e('remote user',$HN_TS_NAME); ?></th>
+					<th><?php _e('remote url',$HN_TS_NAME); ?></th>
+					<th><?php _e('remote table',$HN_TS_NAME); ?></th>
+					<th><?php _e('continuous',$HN_TS_NAME); ?></th>
+					<th><?php _e('last replication',$HN_TS_NAME); ?></th>
+					<th><?php _e('Replicate Now',$HN_TS_NAME); ?></th>
 				</tr>
 			</thead>
 			<tfoot>
 				<tr>
-					<th><?php _e('id'); ?></th>
-					<th><?php _e('local table'); ?></th>
-					<th><?php _e('remote user'); ?></th>
-					<th><?php _e('remote url'); ?></th>
-					<th><?php _e('remote table'); ?></th>
-					<th><?php _e('continuous'); ?></th>
-					<th><?php _e('last_replication'); ?></th>
-					<th><?php _e('Replicate Now'); ?></th>
+					<th><?php _e('id',$HN_TS_NAME); ?></th>
+					<th><?php _e('local table',$HN_TS_NAME); ?></th>
+					<th><?php _e('remote user',$HN_TS_NAME); ?></th>
+					<th><?php _e('remote url',$HN_TS_NAME); ?></th>
+					<th><?php _e('remote table',$HN_TS_NAME); ?></th>
+					<th><?php _e('continuous',$HN_TS_NAME); ?></th>
+					<th><?php _e('last_replication',$HN_TS_NAME); ?></th>
+					<th><?php _e('Replicate Now',$HN_TS_NAME); ?></th>
 				</tr>
 			</tfoot>
 			<tbody>
@@ -129,7 +129,7 @@
 		</table>
 		<div class="tablenav">
 			<div class="tablenav-pages">
-				<span class="displaying-num"><?php _e('Displaying '); ?><?php echo count($rows);?><?php _e(' of '); ?><?php echo count($rows);?></span>
+				<span class="displaying-num"><?php _e('Displaying ',$HN_TS_NAME); ?><?php echo count($rows);?><?php _e(' of ',$HN_TS_NAME); ?><?php echo count($rows);?></span>
 				<span class="page-numbers current">1</span>
 				<?php //<a href="#" class="page-numbers">2</a> ?>
 				<?php //<a href="#" class="next page-numbers">&raquo;</a> ?>

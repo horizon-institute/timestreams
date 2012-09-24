@@ -21,8 +21,8 @@
 		
 		function Hn_TS_Database(){
 			$this->wpserver = new wp_xmlrpc_server();
-			$this->missingcontainername = new IXR_Error(403, __('Missing container name parameter.'));//"Missing container name parameter.";
-			$this->missingParameters= new IXR_Error(403, __('Incorrect number of parameters.'));
+			$this->missingcontainername = new IXR_Error(403, __('Missing container name parameter.',$HN_TS_NAME));//"Missing container name parameter.";
+			$this->missingParameters= new IXR_Error(403, __('Incorrect number of parameters.',$HN_TS_NAME));
 		}
 		
 		/**
@@ -148,13 +148,13 @@
 			}
 			//Ensure that there aren't empty or null values going into mandatory fields.
 			if((0==strcmp(strtoupper($measurementType),"NULL") || 0==strcmp($measurementType,""))){
-				return new IXR_Error(403, __('Measurement type may not be blank.'));
+				return new IXR_Error(403, __('Measurement type may not be blank.',$HN_TS_NAME));
 			}
 			if((0==strcmp(strtoupper($unit),"NULL") || 0==strcmp($unit,""))){
-				return new IXR_Error(403, __('Unit may not be blank.'));
+				return new IXR_Error(403, __('Unit may not be blank.',$HN_TS_NAME));
 			}
 			if((0==strcmp(strtoupper($dataType),"NULL") || 0==strcmp($dataType,""))){
-				return new IXR_Error(403, __('Data type may not be blank.'));
+				return new IXR_Error(403, __('Data type may not be blank.',$HN_TS_NAME));
 			}
 			//Ensure that table names don't have spaces.
 			$measurementType = preg_replace('/\s+/', '_', $measurementType);

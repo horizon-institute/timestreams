@@ -39,7 +39,7 @@
 			$this->tsdb = new Hn_TS_Database();
 			$this->wpserver = new wp_xmlrpc_server();
 			$this->loginError=NULL;
-			$this->loginErrorCode = new IXR_Error(401, __('Incorrect username or password.'));
+			$this->loginErrorCode = new IXR_Error(401, __('Incorrect username or password.',$HN_TS_NAME));
 		}
 		
 		/**
@@ -68,7 +68,7 @@
 		 */
 		function hn_ts_create_measurements($args){
 			if(count($args) < 11){
-				return new IXR_Error(403, __('Incorrect number of parameters.'));
+				return new IXR_Error(403, __('Incorrect number of parameters.',$HN_TS_NAME));
 			}
 			/*(blog_id='', $$measurementType, $minimumvalue, $maximumvalue,
 			$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType, 
@@ -401,7 +401,7 @@
 					$resp = $resp."</replications>";
 					return $resp;
 				}else{
-					return new IXR_Error(403, __('Incorrect number of parameters.'));
+					return new IXR_Error(403, __('Incorrect number of parameters.',$HN_TS_NAME));
 				}
 			}
 		}

@@ -20,41 +20,41 @@
 
 	function hn_ts_describeTimestreams(){	
 		?>	
-		<button id="hide_ts_description" class="button-primary"><?php _e('Hide Description');?></button>
-		<button id="show_ts_description" class="button-primary"><?php _e(' Show Description');?></button>			
-		<h3 class="ts_description"><?php _e('Description'); ?></h3>
-		<p class="ts_description"><?php _e('Welcome to the Timestreams Wordpress plugin from the <a href="http://horizab1.miniserver.com/relate/" title="Relate Project website">Relate project</a>. Timestreams is developed in collaboration between <a href="http://www.horizon.ac.uk" title="Horizon website">Horizon Digital Economy Research Institute</a> of the University of Nottingham, <a href="http://www.i-am-ai.net" title="Active Ingredient website">Active Ingredient</a>, The Met Office Hadley Centre, Brazilian curator Silvia Leal, University of Exeter, and a number of communities in Brazil and the UK. The project is funded by <a href="http://www.rcuk.ac.uk/" title="RCUK website">RCUK</a>.');?></p>
-		<p class="ts_description"><?php _e('Timestreams is an online platform built in Wordpress for capturing, interpreting and visualising time series data. The platform has been developed for artists to capture and conceptualise environmental data, to look at the relationship between climate change and energy.  Timestreams will be released after this research phase to the public, designed for artists, developers, hackers, amateur scientists, schools and communities to set up their own ‘Timestream’ projects.');?></p>
-		<p class="ts_description"><?php _e('Once you have set up your timestreams you can choose to output the data as a blog post or a separate webpage, there is also a library of visualisations that are available to embed in your post or webpage. <a href="https://github.com/pszjmb1/Timestreams/wiki/Timestreams-API-Documentation" title="Timestreams api">Click here</a> to learn how to send Timestreams data to a non-web based visualisation or Arduino using the API.');?></p>
+		<button id="hide_ts_description" class="button-primary"><?php _e('Hide Description',$HN_TS_NAME);?></button>
+		<button id="show_ts_description" class="button-primary"><?php _e(' Show Description',$HN_TS_NAME);?></button>			
+		<h3 class="ts_description"><?php _e('Description',$HN_TS_NAME); ?></h3>
+		<p class="ts_description"><?php _e('Welcome to the Timestreams Wordpress plugin from the <a href="http://horizab1.miniserver.com/relate/" title="Relate Project website">Relate project</a>. Timestreams is developed in collaboration between <a href="http://www.horizon.ac.uk" title="Horizon website">Horizon Digital Economy Research Institute</a> of the University of Nottingham, <a href="http://www.i-am-ai.net" title="Active Ingredient website">Active Ingredient</a>, The Met Office Hadley Centre, Brazilian curator Silvia Leal, University of Exeter, and a number of communities in Brazil and the UK. The project is funded by <a href="http://www.rcuk.ac.uk/" title="RCUK website">RCUK</a>.',$HN_TS_NAME);?></p>
+		<p class="ts_description"><?php _e('Timestreams is an online platform built in Wordpress for capturing, interpreting and visualising time series data. The platform has been developed for artists to capture and conceptualise environmental data, to look at the relationship between climate change and energy.  Timestreams will be released after this research phase to the public, designed for artists, developers, hackers, amateur scientists, schools and communities to set up their own ‘Timestream’ projects.',$HN_TS_NAME);?></p>
+		<p class="ts_description"><?php _e('Once you have set up your timestreams you can choose to output the data as a blog post or a separate webpage, there is also a library of visualisations that are available to embed in your post or webpage. <a href="https://github.com/pszjmb1/Timestreams/wiki/Timestreams-API-Documentation" title="Timestreams api">Click here</a> to learn how to send Timestreams data to a non-web based visualisation or Arduino using the API.',$HN_TS_NAME);?></p>
 		<hr class="ts_description" />
 		<button id="hide_ts_instructions" class="button-primary">Hide Instructions</button>
 		<button id="show_ts_instructions" class="button-primary">Show Instructions</button>
 		<h3 class="ts_instructions">Using Timestreams</h3>
 		<p class="ts_instructions"><?php _e('Timestreams can be used with existing data (basic technical skills) on the site and with new data you collect yourself (moderate technical skills).'.
 		' You can collect data manually using our upload app or Timesense tool kit.'.
-		' Go to <a href="http://192.168.56.101/wordpress/wp-admin/admin.php?page=timestreams/admin/interface.phpdatasources" title="datasources">the datasources page</a> for more information on collecting your own data.'); ?></p>
-		<h3 class="ts_instructions"><?php _e('To create a Timestream:'); ?></h3>
-		<ol class="ts_instructions"><li><?php _e('Type in a name for your timestream'); ?></li>
-		<li><?php _e('Choose the data source that you would like to include in your post, page or output application.'); ?></li>
-		<li><?php _e('Choose the range of data that you would like to appear in your post, blog or by used by the API.'); ?></li>
-		<li><?php _e('You can set up as many timestreams as you want to output to your post, webpage or API.'); ?></li></ol>
-		<p class="ts_instructions"><?php _e('Once you have set up your timestream the data will appear on a timeline below as a graph with an x and y axis. The way it is displayed depends on what type of data it is:'); ?></p>
-		<ul class="ts_instructions" style="list-style-type:circle; padding-left:2em;"><li><?php _e('Numerical data will appear as a bar graph with the units of measurement on the x axis and the measurement of the data on the y axis.'); ?></li>
-		<li><?php _e('Media and text files will appear as a timeline of the items that you can scroll through.'); ?></li></ul>
-		<p class="ts_instructions"><?php _e('Use the scroll bar below the timeline to zoom in and out and move along the timeline.'); ?></p>
-		<p class="ts_instructions"><?php _e('You can change timestream being shown by selecting an alternate datasource from the dropdown box above the timestream, and then clicking the update button.'); ?></p>
-		<p class="ts_instructions"><?php _e('Delete a timestream by clickign its delete button. Please note that this does not delete the datasource.'); ?></p>
-		<h3 class="ts_instructions"><?php _e('To author data'); ?></h3><p class="ts_instructions"><?php _e('You can author your data using your timestream.'); ?></p>
-		<ol class="ts_instructions"><li><?php _e('Click start'); ?></li>
-		<li><?php _e('Click on the timeline where you want the data in your timestream to begin.'); ?></li>
-		<li><?php _e('Click end.'); ?></li>
+		' Go to <a href="http://192.168.56.101/wordpress/wp-admin/admin.php?page=timestreams/admin/interface.phpdatasources" title="datasources">the datasources page</a> for more information on collecting your own data.',$HN_TS_NAME); ?></p>
+		<h3 class="ts_instructions"><?php _e('To create a Timestream:',$HN_TS_NAME); ?></h3>
+		<ol class="ts_instructions"><li><?php _e('Type in a name for your timestream',$HN_TS_NAME); ?></li>
+		<li><?php _e('Choose the data source that you would like to include in your post, page or output application.',$HN_TS_NAME); ?></li>
+		<li><?php _e('Choose the range of data that you would like to appear in your post, blog or by used by the API.',$HN_TS_NAME); ?></li>
+		<li><?php _e('You can set up as many timestreams as you want to output to your post, webpage or API.',$HN_TS_NAME); ?></li></ol>
+		<p class="ts_instructions"><?php _e('Once you have set up your timestream the data will appear on a timeline below as a graph with an x and y axis. The way it is displayed depends on what type of data it is:',$HN_TS_NAME); ?></p>
+		<ul class="ts_instructions" style="list-style-type:circle; padding-left:2em;"><li><?php _e('Numerical data will appear as a bar graph with the units of measurement on the x axis and the measurement of the data on the y axis.',$HN_TS_NAME); ?></li>
+		<li><?php _e('Media and text files will appear as a timeline of the items that you can scroll through.',$HN_TS_NAME); ?></li></ul>
+		<p class="ts_instructions"><?php _e('Use the scroll bar below the timeline to zoom in and out and move along the timeline.',$HN_TS_NAME); ?></p>
+		<p class="ts_instructions"><?php _e('You can change timestream being shown by selecting an alternate datasource from the dropdown box above the timestream, and then clicking the update button.',$HN_TS_NAME); ?></p>
+		<p class="ts_instructions"><?php _e('Delete a timestream by clickign its delete button. Please note that this does not delete the datasource.',$HN_TS_NAME); ?></p>
+		<h3 class="ts_instructions"><?php _e('To author data',$HN_TS_NAME); ?></h3><p class="ts_instructions"><?php _e('You can author your data using your timestream.',$HN_TS_NAME); ?></p>
+		<ol class="ts_instructions"><li><?php _e('Click start',$HN_TS_NAME); ?></li>
+		<li><?php _e('Click on the timeline where you want the data in your timestream to begin.',$HN_TS_NAME); ?></li>
+		<li><?php _e('Click end.',$HN_TS_NAME); ?></li>
 		<li><?php _e('Click on the timeline where you want the data in your timestream to end.'.
-				' A green overlay should appear over the data range that you have chosen.'); ?></li>
-		<li><?php _e('Click head and then click the area in the timestream to begin playing from.'); ?></li>
-		<li><?php _e('Set the speed that the data plays out using the rate field (1=realtime, 2=double time, 0.5= half time, etc..)'); ?></li>
+				' A green overlay should appear over the data range that you have chosen.',$HN_TS_NAME); ?></li>
+		<li><?php _e('Click head and then click the area in the timestream to begin playing from.',$HN_TS_NAME); ?></li>
+		<li><?php _e('Set the speed that the data plays out using the rate field (1=realtime, 2=double time, 0.5= half time, etc..)',$HN_TS_NAME); ?></li>
 		<li><?php _e('Click save'); ?></li></ol>
-		<p class="ts_instructions"><?php _e('Note that if your toggle on the "start / end time disabled:" checkbox then the timesream will continue to play data as new values come in. If this is toggled off and there is an endtime set, the the data will loop to the start once the end is reached.'); ?></p>
-		<p class="ts_instructions"><?php _e('After you have authored your timestreams you can put them in blog posts, blog pages, or special timestreams pages.'); ?></p>
+		<p class="ts_instructions"><?php _e('Note that if your toggle on the "start / end time disabled:" checkbox then the timesream will continue to play data as new values come in. If this is toggled off and there is an endtime set, the the data will loop to the start once the end is reached.',$HN_TS_NAME); ?></p>
+		<p class="ts_instructions"><?php _e('After you have authored your timestreams you can put them in blog posts, blog pages, or special timestreams pages.',$HN_TS_NAME); ?></p>
 		<hr />
 		<?php
 	}
@@ -81,7 +81,7 @@
 			jQuery("#ts_preview").hide();
 		</script>
 		
-		<h3><?php _e('Timestreams'); ?></h3>
+		<h3><?php _e('Timestreams',$HN_TS_NAME); ?></h3>
 		<script type="text/javascript">
 			var timestreams = [];
 		</script>
@@ -129,8 +129,8 @@
 			
 			echo "</select></td>";
 			echo "<input type=\"hidden\" name=\"timestream_id\" value=\"" . $timestream->timestream_id . "\">";
-			echo "<td><input type=\"submit\" name=\"command\" class=\"button-primary\" value=\""; _e('update'); echo "\"></td>";
-			echo "<td><input type=\"submit\" name=\"command\" class=\"button-primary\" value=\""; _e('delete'); echo "\"></td>";
+			echo "<td><input type=\"submit\" name=\"command\" class=\"button-primary\" value=\""; _e('update',$HN_TS_NAME); echo "\"></td>";
+			echo "<td><input type=\"submit\" name=\"command\" class=\"button-primary\" value=\""; _e('delete',$HN_TS_NAME); echo "\"></td>";
 			echo "</form></tr></table>";
 			
 			echo "<table>";
@@ -149,13 +149,13 @@
 			_e('start / end time disabled'); echo ": <input type=\"checkbox\" name=\"endEnable\" value=\"true\" onclick=timestreams[" . $timestream->timestream_id . "].toggleStartEnd() /><br>";
 			_e('rate'); echo ": <br><input type=\"text\" name=\"rate\" id=\"timestream_" . $timestream->timestream_id . "_rate\" value=\"" . $head->rate . "\"></input><br>";
 
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(2)\">";_e('start'); echo "</a> ";
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(3)\">";_e('end'); echo "</a> ";
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(1)\">";_e('head'); echo "</a><br />";
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].prev()\">";_e('prev'); echo "</a> ";
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].next()\">";_e('next'); echo "</a> ";
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].latest()\">";_e('latest'); echo "</a><br />";
-			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].save()\">";_e('save'); echo "</a><br />";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(2)\">";_e('start',$HN_TS_NAME); echo "</a> ";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(3)\">";_e('end',$HN_TS_NAME); echo "</a> ";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(1)\">";_e('head',$HN_TS_NAME); echo "</a><br />";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].prev()\">";_e('prev',$HN_TS_NAME); echo "</a> ";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].next()\">";_e('next',$HN_TS_NAME); echo "</a> ";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].latest()\">";_e('latest',$HN_TS_NAME); echo "</a><br />";
+			echo "<a href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].save()\">";_e('save',$HN_TS_NAME); echo "</a><br />";
 			
 			echo "</div>";
 			echo "</td>";
