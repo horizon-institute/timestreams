@@ -63,7 +63,7 @@
 		
 		hn_ts_timestreams_checkVersion(3);
 		
-		load_plugin_textdomain('timestreams',false,'timestreams/languages');
+		//load_plugin_textdomain('timestreams',false,'timestreams/languages');
 		
 		require_once( HN_TS_PLUGIN_DIR . '/utilities/utilitiesloader.php'     );
 		require_once( HN_TS_PLUGIN_DIR . '/controllers/controllers-loader.php'     );
@@ -76,6 +76,12 @@
 		register_activation_hook(__FILE__, 'hn_ts_timestreams_activate');
 		register_deactivation_hook(__FILE__, 'hn_ts_timestreams_deactivate');
 	}
+	
+	function timestreams_init() {
+		$plugin_path = dirname( plugin_basename( __FILE__ ) ) ;
+		load_plugin_textdomain(HN_TS_NAME, false, $plugin_path);
+	}
+	add_action('init', 'timestreams_init');
 
 	/**
 	 * Plugin activation. This creates the initial multisite tables.

@@ -134,10 +134,10 @@ function hn_ts_replicate_full($replRecordID){
 		if($db->hn_ts_updateReplRow($replRecordID, $resp."<br />".$date)){
 			return "$resp<br />$date";
 		}else{
-			return  __('Replication failed.',$HN_TS_NAME);
+			return  __('Replication failed.',HN_TS_NAME);
 		}
 	}else{
-		return  __('Replication failed.',$HN_TS_NAME);
+		return  __('Replication failed.',HN_TS_NAME);
 	}
 	//echo hn_ts_replicate_partial($db->hn_ts_getReplRow($replRecordID));
 }
@@ -195,11 +195,11 @@ function hn_ts_replicate_partial($replRow){
 				if($db->hn_ts_updateReplRow($replRow->replication_id, $response."<br />".$date)){
 					return "$response<br />$date";
 				}else{
-					return __('Replication failed.',$HN_TS_NAME);
+					return __('Replication failed.',HN_TS_NAME);
 				}
 			}
 		}else{
-			return __("No insertions to make.<br />",$HN_TS_NAME).$date;
+			return __("No insertions to make.<br />",HN_TS_NAME).$date;
 		}
 		// Todo: unlock	table
 	}
@@ -243,37 +243,37 @@ function hn_ts_addReplicationRecord(){
 	<form id="replicationform" method="post" action="">
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><?php _e('Local Table',$HN_TS_NAME); ?>*</th>
+				<th scope="row"><?php _e('Local Table',HN_TS_NAME); ?>*</th>
 				<td><input type="text" name="local_table" />
 				</td>
 			</tr>
 	
 			<tr valign="top">
-				<th scope="row"><?php _e('Remote-User Login Name',$HN_TS_NAME); ?> *</th>
+				<th scope="row"><?php _e('Remote-User Login Name',HN_TS_NAME); ?> *</th>
 				<td><input type="text" name="remote_user_login" />
 				</td>
 			</tr>
 	
 			<tr valign="top">
-				<th scope="row"><?php _e('Remote-User Password',$HN_TS_NAME); ?> *</th>
+				<th scope="row"><?php _e('Remote-User Password',HN_TS_NAME); ?> *</th>
 				<td><input type="password" name="pwrd" />
 				</td>
 			</tr>
 	
 			<tr valign="top">
-				<th scope="row"><?php _e('Remote Url',$HN_TS_NAME); ?> *</th>
+				<th scope="row"><?php _e('Remote Url',HN_TS_NAME); ?> *</th>
 				<td><input type="text" name="remote_url" />
 				</td>
 			</tr>
 	
 			<tr valign="top">
-				<th scope="row"><?php _e('Remote Table',$HN_TS_NAME); ?> *</th>
+				<th scope="row"><?php _e('Remote Table',HN_TS_NAME); ?> *</th>
 				<td><input type="text" name="remote_table" />
 				</td>
 			</tr>
 	
 			<tr valign="top">
-				<th scope="row"><?php _e('Continuous',$HN_TS_NAME); ?></th>
+				<th scope="row"><?php _e('Continuous',HN_TS_NAME); ?></th>
 				<td><input type="checkbox" name="continuous" value="Yes" class="hn_ts_cont_chk"/>
 				</td>
 			</tr>
@@ -282,7 +282,7 @@ function hn_ts_addReplicationRecord(){
 	
 		<p class="submit">
 			<input type="submit" name='submit' class="button-primary"
-				value="<?php _e('Add Replication Record',$HN_TS_NAME) ?>" />
+				value="<?php _e('Add Replication Record',HN_TS_NAME) ?>" />
 		</p>
 	
 	</form>
@@ -303,6 +303,6 @@ function hn_ts_addReplicationRecord(){
 				$_POST['pwrd'], $_POST['remote_url'], $_POST['remote_table'],
 				$cont,"")
 		);
-		_e('Record added.',$HN_TS_NAME);
+		_e('Record added.',HN_TS_NAME);
 	}
 }

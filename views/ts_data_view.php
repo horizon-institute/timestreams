@@ -114,7 +114,7 @@
 			$max = $numRows;
 		}
 		$dispOffset = $offset + 1;
-		echo "<span class='displaying-num'>"; _e('Displaying',$HN_TS_NAME); echo" $dispOffset - $max "; _e(' of ',$HN_TS_NAME); echo" $numRows</span>";
+		echo "<span class='displaying-num'>"; _e('Displaying',HN_TS_NAME); echo" $dispOffset - $max "; _e(' of ',HN_TS_NAME); echo" $numRows</span>";
 		if ($pageNum == 1) {
 			echo " FIRST PREV ";
 		} else {

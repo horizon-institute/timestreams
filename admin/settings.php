@@ -16,21 +16,21 @@ function hn_ts_add_page() {
 function hn_ts_options_do_page() {
 	?>
 	<div class="wrap">
-		<h2><?php _e('Timestreams Options',$HN_TS_NAME); ?></h2>
-		<p><?php _e('Please enter the following values if you are replicating your data through a proxy server.',$HN_TS_NAME); ?></p>
+		<h2><?php _e('Timestreams Options',HN_TS_NAME); ?></h2>
+		<p><?php _e('Please enter the following values if you are replicating your data through a proxy server.',HN_TS_NAME); ?></p>
 		<form method="post" action="options.php">
 			<?php settings_fields('hn_ts_options'); ?>
 			<?php $options = get_option('hn_ts'); ?>
 			<table class="form-table">
-				<tr valign="top"><th scope="row"><?php _e('Proxy Address',$HN_TS_NAME); ?></th>
+				<tr valign="top"><th scope="row"><?php _e('Proxy Address',HN_TS_NAME); ?></th>
 					<td><input type="text" name="hn_ts[proxyAddr]" value="<?php echo $options['proxyAddr']; ?>" /></td>
 				</tr>
-				<tr valign="top"><th scope="row"><?php _e('Proxy Port',$HN_TS_NAME); ?></th>
+				<tr valign="top"><th scope="row"><?php _e('Proxy Port',HN_TS_NAME); ?></th>
 					<td><input type="text" name="hn_ts[proxyPort]" value="<?php echo $options['proxyPort']; ?>" /></td>
 				</tr>
 			</table>
 			<p class="submit">
-			<input type="submit" class="button-primary" value="<?php _e('Save Changes',$HN_TS_NAME) ?>" />
+			<input type="submit" class="button-primary" value="<?php _e('Save Changes',HN_TS_NAME) ?>" />
 			</p>
 		</form>
 	</div>

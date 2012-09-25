@@ -12,38 +12,38 @@
  */
 	function hn_ts_addContextRecord(){
 		?>			
-			<h3><?php _e('Add Context Record',$HN_TS_NAME); ?></h3><p>
-			<?php _e('To add a context record complete the form and click add context record. Please note that start and end times are optional. If they are left blank then the context is considered to apply to the earliest or latest readings.',$HN_TS_NAME); ?></p>
+			<h3><?php _e('Add Context Record',HN_TS_NAME); ?></h3><p>
+			<?php _e('To add a context record complete the form and click add context record. Please note that start and end times are optional. If they are left blank then the context is considered to apply to the earliest or latest readings.',HN_TS_NAME); ?></p>
 			
 			<form method="post" action="">
 				<table class="form-table">
 			        <tr valign="top">
-			        <th scope="row"><?php _e('Context Type',$HN_TS_NAME); ?></th>
+			        <th scope="row"><?php _e('Context Type',HN_TS_NAME); ?></th>
 			        <td><input type="text" name="context_type" 
 			        value="<?php echo get_option('context_type'); ?>" /></td>
 			        </tr>
 			         
 			        <tr valign="top">
-			        <th scope="row"><?php _e('Value',$HN_TS_NAME); ?></th>
+			        <th scope="row"><?php _e('Value',HN_TS_NAME); ?></th>
 			        <td><input type="text" name="context_value"
 			        value="<?php echo get_option('context_value'); ?>" /></td>
 			        </tr>
 			         
 			        <tr valign="top">
-			        <th scope="row"><?php _e('Start Time',$HN_TS_NAME); ?></th>
+			        <th scope="row"><?php _e('Start Time',HN_TS_NAME); ?></th>
 			        <td><input type="text" name="start_time"
 			        value="<?php echo get_option('start_time'); ?>" /></td>
 			        </tr>
 			         
 			        <tr valign="top">
-			        <th scope="row"><?php _e('End Time',$HN_TS_NAME); ?></th>
+			        <th scope="row"><?php _e('End Time',HN_TS_NAME); ?></th>
 			        <td><input type="text" name="end_time"
 			        value="<?php echo get_option('end_time'); ?>" /></td>
 			        </tr>
 			    </table>
 			    
 			    <p class="submit">
-			    <input type="submit" class="button-primary" value="<?php _e('Add Context Record',$HN_TS_NAME) ?>" />
+			    <input type="submit" class="button-primary" value="<?php _e('Add Context Record',HN_TS_NAME) ?>" />
 			    </p>
 			
 			</form>

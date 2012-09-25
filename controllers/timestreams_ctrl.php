@@ -6,14 +6,14 @@
 		$datasources = $db->hn_ts_select('wp_ts_metadata');
 		
 		?>
-		<h3><?php _e('Create a new Timestream',$HN_TS_NAME); ?></h3>			
+		<h3><?php _e('Create a new Timestream',HN_TS_NAME); ?></h3>			
 			<form id="timestreamform" method="post" action="">
 				<table class="form-table">
 					<tr valign="top">
-			        <th scope="row"><?php _e('Timestream Name',$HN_TS_NAME); ?>*</th>
+			        <th scope="row"><?php _e('Timestream Name',HN_TS_NAME); ?>*</th>
 			        <td><input type="text" name="timestream_name" />
 			        </td>
-			        <th scope="row"><?php _e('Data Source',$HN_TS_NAME); ?>*</th>
+			        <th scope="row"><?php _e('Data Source',HN_TS_NAME); ?>*</th>
 					<td>
 						<select name="timestream_data" >
 						<?php
@@ -29,7 +29,7 @@
 			    
 			    <p class="submit">
 			    <input type="hidden" name='command' value='add'/>
-			    <input type="submit" class="button-primary" value="<?php _e('Create Timestream',$HN_TS_NAME) ?>" />
+			    <input type="submit" class="button-primary" value="<?php _e('Create Timestream',HN_TS_NAME) ?>" />
 			    </p>
 			
 			</form>
