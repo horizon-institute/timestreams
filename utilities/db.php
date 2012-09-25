@@ -1058,7 +1058,7 @@
 			if($timestream==null)
 			{
 				error_log("timestream not found " . $timestreamId);
-				return null;
+				return new IXR_Error(403, __('Timestream not found.',HN_TS_NAME));
 			}
 
 			return $this->hn_ts_getMetadata($timestream->metadata_id);
@@ -1082,7 +1082,7 @@
 			if($timestream==null)
 			{
 				error_log("timestream not found " . $timestreamId);
-				return null;
+				return new IXR_Error(403, __('Timestream not found.',HN_TS_NAME));
 			}
 			
 			$head = $this->hn_ts_getReadHead($timestream->head_id);
@@ -1090,7 +1090,7 @@
 			if($head==null)
 			{
 				error_log("head not found " . $timestream->head_id);
-				return null;
+				return new IXR_Error(403, __('Head not found.',HN_TS_NAME));
 			}
 			
 			$metadata = $this->hn_ts_getMetadata($timestream->metadata_id);
@@ -1098,14 +1098,14 @@
 			if($metadata==null)
 			{
 				error_log("metadata not found " . $timestream->metadata_id);
-				return null;
+				return new IXR_Error(403, __('Metadata not found.',HN_TS_NAME));
 			}
 			
 			// how much timestream has elapsed since last ask
 			if($head->rate==0)
 			{
 				// no data, stopped
-				return null;
+				return new IXR_Error(403, __('Data not found.',HN_TS_NAME));
 			}
 			
 			$_now = $wpdb->get_var($wpdb->prepare("SELECT CURRENT_TIMESTAMP"));
@@ -1147,7 +1147,7 @@
 			if($timestream==null)
 			{
 				error_log("timestream not found " . $timestreamId);
-				return null;
+				return new IXR_Error(403, __('Timestream not found.',HN_TS_NAME));
 			}
 			
 			$head = $this->hn_ts_getReadHead($timestream->head_id);
