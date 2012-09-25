@@ -1,0 +1,537 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Timestreams v 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-09-24 15:17-0300\n"
+"PO-Revision-Date: 2012-09-25 11:27-0300\n"
+"Last-Translator: Jesse Blum <jesse.blum@nottingham.ac.uk>\n"
+"Language-Team: Horizon and Active Ingredient for Project Relate\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-Country: BRAZIL\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: admin/settings.php:19
+msgid "Timestreams Options"
+msgstr "Opções de Timestreams"
+
+#: admin/settings.php:20
+msgid "Please enter the following values if you are replicating your data through a proxy server."
+msgstr "Por favor entre com os seguinte valores se você está replicando seus dados através de um servidor proxy."
+
+#: admin/settings.php:25
+msgid "Proxy Address"
+msgstr "Endereço do proxy"
+
+#: admin/settings.php:28
+msgid "Proxy Port"
+msgstr "Porta do Proxy"
+
+#: admin/settings.php:33
+msgid "Save Changes"
+msgstr "Salvar"
+
+#: admin/interface.php:16
+#: admin/interface.php:36
+msgid "Timestreams"
+msgstr "Timestreams"
+
+#: admin/interface.php:18
+msgid "Data Sources"
+msgstr "Fontes de Dados"
+
+#: admin/interface.php:20
+msgid "Visualisations"
+msgstr "Visualizações"
+
+#: admin/interface.php:22
+msgid "Context"
+msgstr "Contexto"
+
+#: admin/interface.php:25
+msgid "Replication"
+msgstr "Replicação"
+
+#: admin/interface.php:56
+msgid "Timestreams - Metadata"
+msgstr ""
+
+#: admin/interface.php:57
+#: admin/interface.php:84
+#: admin/interface.php:103
+msgid "Description"
+msgstr "Descrição"
+
+#: admin/interface.php:59
+msgid "Data sources describe the sensor data brought into Timestreams. A device such as a weateher station may collect data using multiple sensors (thermometer, barometer, etc.). Please use one datasource entry per type of sensor."
+msgstr "As fontes de dados descrevem os dados dos sensores que são trazidos para o Timestream. "
+
+#: admin/interface.php:60
+msgid "To add a new data source fill in the form below so that the platform knows what type of data you are adding into the system. Please note that the values for the unit of measurement field should be entered in <a href=\"http://en.wikipedia.org/wiki/Internet_media_type\" title=\"Wikipedia entry on Internet media types\">internet media type</a> format. For sensor data follow a protocol of: text/x-data-Unit, where Unit would be the unit of measurement (such as Celsius or Decibels). For example: text/x-data-celsius or image/png. Data Types are used to store your data in the correct format. For instance, if you are storing image files you'd want to use a textual type (VARCHR(255)), but if you're storing temperature readings between 0 and 100 then you'd want to use a numeric type (DECIMAL(4,1)). You may use any of the standard <a href=\"https://dev.mysql.com/doc/refman/5.5/en/data-types.html\" title=\"mysql data types\">MySQL ones</a>."
+msgstr "Para adicionar uma nova fonte de dados preencha o formulário abaixo, de forma que a plataforma saiba que tipo de daods você está adicionando ao sistema. Por favor observe que valores para  o campo “unidade de medida” devem ser colocados no formato <a href=\"http://en.wikipedia.org/wiki/Internet_media_type\" title=\"Wikipedia entry on Internet media types\">Tipo de mídia da internet</a>. Para sensores de dados siga o protocolo: text/x-dado-Unidade, where Unidade será a unidade de medida(como Celsius ou Decibéis). Por exemplo: text/x-dado-celsius or image/png. Tipos de dados são utilizados para armazenar seus dados no formato correto. Por exemplo, se você estiver guardando arquivos de imagens, você deverá usuar um tipo textual (VARCHR(255)). Porém, se você estiver guardando leituras de temperatura entre 0 e 100 então você deverá usar o tipo numérico (DECIMAL(4,1)). Você poderá usar qualquer um dos padrões de <a href=\"https://dev.mysql.com/doc/refman/5.5/en/data-types.html\" title=\"mysql data types\"> MySQL </a>."
+
+#: admin/interface.php:83
+msgid "Timestreams - Context"
+msgstr "Timestreams - Contexto"
+
+#: admin/interface.php:85
+msgid "Context records let you describe the context of the data you collect. These can be any type such as location, activity or session id."
+msgstr "Os registros de contexto deixam você descrever o contexto no qual os seus dados são coletados. Estes podem ser de qualquer tipo como localização, atividade ou um identificador de sessão"
+
+#: admin/interface.php:102
+msgid "Timestreams - Replication"
+msgstr "Timestreams - Replicação"
+
+#: admin/interface.php:104
+msgid "You can replicate your data sources from one timestreams blog to another. This is useful if you are collecting data locally and want to provide it publicly as well."
+msgstr "Você pode replicar as suas fontes de dados  a partir de um blog contendo um timestream para o outro.  Isto é conveniente caso você esteja coletando dados localmente e queira provê-los de forma pública simultaneamente."
+
+#: admin/interface.php:105
+msgid "Timestreams supports two types of replication -- discrete and continuous. Discrete replication means doing a single data transfer. Continuous means that your data will be tranfered all the time as new data come in from a data source."
+msgstr "Os timestreams funcionam com dois tipos de replicação - discreto e contínuo. Replicação discreta significa que uma única transferência de daos. Contínua significa que seus dados serão transferidos sempre que um novo dados aparecer nas fontes de dados."
+
+#: admin/interface.php:106
+msgid "To use replication complete the form below and click add replication record."
+msgstr "Para utilizar a replicação complete o formulário abaixo e clique em adicionar registro de replicação."
+
+#: admin/interface.php:121
+msgid "Timestreams - Visualisations"
+msgstr "Timestreams - Visualizações"
+
+#: admin/interface.php:122
+msgid "Here is a list and descriptions of the different timestreams visualisations that have been designed by Horizon and Active Ingredient for you to embed in your post or webpage."
+msgstr "Aqui está uma lista e descrições das diferentes visualizações de timestream desenvolvidos pelo Horizon e pela Active Ingredient para você colocar no seus posts ou páginas"
+
+#: admin/visualisation.php:86
+msgid "Timestream Pages"
+msgstr "Páginas  de Timestream"
+
+#: admin/visualisation.php:87
+msgid "Timestream Page"
+msgstr "Páginas  de Timestream"
+
+#: admin/visualisation.php:88
+#: admin/visualisation.php:89
+msgid "Add A New Timestream Page"
+msgstr "Adicionar uma nova Página de Timestream"
+
+#: admin/visualisation.php:90
+#: admin/visualisation.php:91
+msgid "Edit Timestream Pages"
+msgstr "Editar páginas de Timestream"
+
+#: admin/visualisation.php:92
+msgid "New Timestream Page"
+msgstr "Adicionar uma nova Página de Timestream"
+
+#: admin/visualisation.php:93
+#: admin/visualisation.php:94
+msgid "View This Timestream Page"
+msgstr "Visualizar a página deste Timestream"
+
+#: admin/visualisation.php:95
+msgid "Search Timestream Page"
+msgstr "Procurar por uma Página de Timestream"
+
+#: admin/visualisation.php:96
+msgid "No Timestream Pages Found"
+msgstr ""
+
+#: admin/visualisation.php:97
+msgid "No Timestream Pages Found In Trash"
+msgstr ""
+
+#: controllers/replication_ctrl.php:137
+#: controllers/replication_ctrl.php:140
+#: controllers/replication_ctrl.php:198
+msgid "Replication failed."
+msgstr ""
+
+#: controllers/replication_ctrl.php:202
+msgid "No insertions to make.<br />"
+msgstr ""
+
+#: controllers/replication_ctrl.php:246
+msgid "Local Table"
+msgstr "Tabela Local"
+
+#: controllers/replication_ctrl.php:252
+msgid "Remote-User Login Name"
+msgstr "Nome do usuário remoto"
+
+#: controllers/replication_ctrl.php:258
+msgid "Remote-User Password"
+msgstr "Senha do usuário remoto"
+
+#: controllers/replication_ctrl.php:264
+msgid "Remote Url"
+msgstr "URL remota"
+
+#: controllers/replication_ctrl.php:270
+msgid "Remote Table"
+msgstr "Tabela remota"
+
+#: controllers/replication_ctrl.php:276
+msgid "Continuous"
+msgstr "Contínua"
+
+#: controllers/replication_ctrl.php:285
+msgid "Add Replication Record"
+msgstr "Adicionar Registro de Replicação"
+
+#: controllers/replication_ctrl.php:306
+msgid "Record added."
+msgstr "Registro adicionado"
+
+#: controllers/metadata_ctrl.php:14
+msgid "Hide Add Datasource Form"
+msgstr ""
+
+#: controllers/metadata_ctrl.php:15
+msgid " Show Add Datasource Form"
+msgstr ""
+
+#: controllers/metadata_ctrl.php:17
+msgid "Add New Data Source"
+msgstr "Adicionar fonte de dados"
+
+#: controllers/metadata_ctrl.php:21
+msgid "What are you measuring"
+msgstr "O que você está medindo?"
+
+#: controllers/metadata_ctrl.php:28
+msgid "What is the minimum value of measurement you expect to be recorded?"
+msgstr "Qual o valor mínimo de medida que você espera ser gravado?"
+
+#: controllers/metadata_ctrl.php:35
+msgid "What is the maximum value of measurement you expect to be recorded?"
+msgstr "Qual o valor máximo de medida que você espera ser gravado?"
+
+#: controllers/metadata_ctrl.php:41
+msgid "What is the unit of measurement (e.g. Celsius, png image file)?"
+msgstr "What is the unit of measurement (e.g. Celsius, png image file)?"
+
+#: controllers/metadata_ctrl.php:47
+msgid "What is the symbol of this measurement (e,g, C)?"
+msgstr "Qual o simbolo desta medida(por exemplo, C)?"
+
+#: controllers/metadata_ctrl.php:53
+msgid "What is the unique name of device containing your sensor called (e.g. Rachel's Eco Sense)?"
+msgstr "Qual o nome único do dispositivo contendo o sensor utilizado (por exemplo \"Eco Sense da Rachel\")?"
+
+#: controllers/metadata_ctrl.php:59
+msgid "Any Other Information (this is to help you recognise the data source):"
+msgstr "Alguma informação adicional (isto é para ajudar no reconhecimento da fonte de dados)"
+
+#: controllers/metadata_ctrl.php:65
+msgid "What Data Type do you want to use to store your values?"
+msgstr ""
+
+#: controllers/metadata_ctrl.php:71
+msgid "What value does your device use if it has an error or a missing value?"
+msgstr "Qual o valor a ser utilizado pelo dispositivo ser um erro ou um valor inexistente estiver presente?"
+
+#: controllers/metadata_ctrl.php:78
+msgid "Add Metadata Record"
+msgstr ""
+
+#: controllers/timestreams_ctrl.php:9
+msgid "Create a new Timestream"
+msgstr "Criar um novo Timestream"
+
+#: controllers/timestreams_ctrl.php:13
+msgid "Timestream Name"
+msgstr "Nome do Timestream"
+
+#: controllers/timestreams_ctrl.php:16
+msgid "Data Source"
+msgstr "Fonte de Dados"
+
+#: controllers/timestreams_ctrl.php:32
+msgid "Create Timestream"
+msgstr "Criar Timestream"
+
+#: controllers/context_ctrl.php:15
+#: controllers/context_ctrl.php:46
+msgid "Add Context Record"
+msgstr "Adicionar registro de contexto"
+
+#: controllers/context_ctrl.php:16
+msgid "To add a context record complete the form and click add context record. Please note that start and end times are optional. If they are left blank then the context is considered to apply to the earliest or latest readings."
+msgstr "Para adicionar um registro de contexto complete o formulário e clique em adicionar registro de contexto. Por favor observe que tempos iniciais e finais são opcionais. Se os mesmos forem deixados em branco, então o contexto será aplicado à primeira e à última leitura de dados."
+
+#: controllers/context_ctrl.php:21
+msgid "Context Type"
+msgstr "Tipo de contexto"
+
+#: controllers/context_ctrl.php:27
+msgid "Value"
+msgstr "Valor"
+
+#: controllers/context_ctrl.php:33
+msgid "Start Time"
+msgstr "Tempo Inicial"
+
+#: controllers/context_ctrl.php:39
+msgid "End Time"
+msgstr "Tempo Final"
+
+#: utilities/db.php:24
+msgid "Missing container name parameter."
+msgstr ""
+
+#: utilities/db.php:25
+#: utilities/xml_rpc.php:71
+#: utilities/xml_rpc.php:404
+msgid "Incorrect number of parameters."
+msgstr ""
+
+#: utilities/db.php:151
+msgid "Measurement type may not be blank."
+msgstr ""
+
+#: utilities/db.php:154
+msgid "Unit may not be blank."
+msgstr ""
+
+#: utilities/db.php:157
+msgid "Data type may not be blank."
+msgstr ""
+
+#: utilities/xml_rpc.php:42
+msgid "Incorrect username or password."
+msgstr ""
+
+#: views/metadata_view.php:82
+#: views/replication_view.php:132
+msgid "Displaying "
+msgstr "Visualizando"
+
+#: views/metadata_view.php:82
+#: views/replication_view.php:132
+msgid " of "
+msgstr "de"
+
+#: views/replication_view.php:53
+#: views/replication_view.php:65
+msgid "id"
+msgstr "id"
+
+#: views/replication_view.php:54
+#: views/replication_view.php:66
+msgid "local table"
+msgstr "tabela local"
+
+#: views/replication_view.php:55
+#: views/replication_view.php:67
+msgid "remote user"
+msgstr "usuário remoto"
+
+#: views/replication_view.php:56
+#: views/replication_view.php:68
+msgid "remote url"
+msgstr "URL remota"
+
+#: views/replication_view.php:57
+#: views/replication_view.php:69
+msgid "remote table"
+msgstr "tabela remota"
+
+#: views/replication_view.php:58
+#: views/replication_view.php:70
+msgid "continuous"
+msgstr "contínua"
+
+#: views/replication_view.php:59
+msgid "last replication"
+msgstr "última replicação"
+
+#: views/replication_view.php:60
+#: views/replication_view.php:72
+msgid "Replicate Now"
+msgstr "Replicar agora"
+
+#: views/replication_view.php:71
+msgid "last_replication"
+msgstr "última replicação"
+
+#: views/ts_data_view.php:117
+msgid "Displaying"
+msgstr "Visualizando"
+
+#: views/timestreams_view.php:23
+msgid "Hide Description"
+msgstr "Esconder descrição"
+
+#: views/timestreams_view.php:24
+msgid " Show Description"
+msgstr "Mostar descrição"
+
+#: views/timestreams_view.php:26
+msgid "Welcome to the Timestreams Wordpress plugin from the <a href=\"http://horizab1.miniserver.com/relate/\" title=\"Relate Project website\">Relate project</a>. Timestreams is developed in collaboration between <a href=\"http://www.horizon.ac.uk\" title=\"Horizon website\">Horizon Digital Economy Research Institute</a> of the University of Nottingham, <a href=\"http://www.i-am-ai.net\" title=\"Active Ingredient website\">Active Ingredient</a>, The Met Office Hadley Centre, Brazilian curator Silvia Leal, University of Exeter, and a number of communities in Brazil and the UK. The project is funded by <a href=\"http://www.rcuk.ac.uk/\" title=\"RCUK website\">RCUK</a>."
+msgstr "Boas vindas ao plugin Timestreams Wordpress da <a href=\"http://horizab1.miniserver.com/relate/\" title=\"Relate Project website\">Relate Project</a>.  O timestreams é desenvolvido em colaboração entre o <a href=\"http://www.horizon.ac.uk\" title=\"Horizon website\">Horizon Digital Economy Research Institute</a> da Universidade de Nottingham, <a href=\"http://www.i-am-ai.net\" title=\"Active Ingredient website\">Active Ingredient</a>, The Met Office Hadley Centre, curadoria brasileira por Silvia Leal, Universidade de Exeter,e um número de comunidades tanto no Brasil quanto no Reino Unido. Este projeto é financiado pelo <a href=\"http://www.rcuk.ac.uk/\" title=\"RCUK website\">RCUK</a>"
+
+#: views/timestreams_view.php:27
+msgid "Timestreams is an online platform built in Wordpress for capturing, interpreting and visualising time series data. The platform has been developed for artists to capture and conceptualise environmental data, to look at the relationship between climate change and energy.  Timestreams will be released after this research phase to the public, designed for artists, developers, hackers, amateur scientists, schools and communities to set up their own Timestream projects."
+msgstr "O timestream é uma plataforma online contruída no Wordpress para capturar, interpretar e visualizar dados na linha do tempo. A plataforma tem sido desenvolvida por artistar para capturar e conceitualizar dados ambientais, para observar o relacionamento entre mudanças climáticas e energia. O timestream vai ser lançado para o público após este fase de pesquisa, o qual é desenvolido para artistas, desenvolvedores, hackers, cientistas amadores, escolar e comunidades que queiram configurar os seus projetos de timstream."
+
+#: views/timestreams_view.php:28
+msgid "Once you have set up your timestreams you can choose to output the data as a blog post or a separate webpage, there is also a library of visualisations that are available to embed in your post or webpage. <a href=\"https://github.com/pszjmb1/Timestreams/wiki/Timestreams-API-Documentation\" title=\"Timestreams api\">Click here</a> to learn how to send Timestreams data to a non-web based visualisation or Arduino using the API."
+msgstr "Uma vez configurado o seu timestream, você pode selecionar a saída de dados como um post de um blog ou como uma página separada. Há também uma biblioteca de visualizações que está disponível para agregar no seu post ou em sua página. <a href=\"https://github.com/pszjmb1/Timestreams/wiki/Timestreams-API-Documentation\" title=\"Timestreams api\"> Clique aqui </a> para aprender como enviar dados dos timestreams para uma visualização não baseada na internet ou o Arduino utlizando a API."
+
+#: views/timestreams_view.php:33
+msgid "Timestreams can be used with existing data (basic technical skills) on the site and with new data you collect yourself (moderate technical skills). You can collect data manually using our upload app or Timesense tool kit. Go to <a href=\"http://192.168.56.101/wordpress/wp-admin/admin.php?page=timestreams/admin/interface.phpdatasources\" title=\"datasources\">the datasources page</a> for more information on collecting your own data."
+msgstr "Timestreams podem ser utlizados com dados existentes (conhecimentos técnicos básicos)  na página e com novos dados coletados por você(conhecimentos técnicos moderados)"
+
+#: views/timestreams_view.php:36
+msgid "To create a Timestream:"
+msgstr "Para criar um Timestream:"
+
+#: views/timestreams_view.php:37
+msgid "Type in a name for your timestream"
+msgstr "Digite um nome para o seu Timestream"
+
+#: views/timestreams_view.php:38
+msgid "Choose the data source that you would like to include in your post, page or output application."
+msgstr "Selecione a fonte de dados que você quer incluir no seu \"post\", página ou aplicativo de saída"
+
+#: views/timestreams_view.php:39
+msgid "Choose the range of data that you would like to appear in your post, blog or by used by the API."
+msgstr "Selecione o intervalo de dados que você quer que apareça no seu \"post\",  blog ou para ser utilizado pela API."
+
+#: views/timestreams_view.php:40
+msgid "You can set up as many timestreams as you want to output to your post, webpage or API."
+msgstr "Você pode configurar quantos timestreams você quiser para aparecer no seu \"post\", página ou API."
+
+#: views/timestreams_view.php:41
+msgid "Once you have set up your timestream the data will appear on a timeline below as a graph with an x and y axis. The way it is displayed depends on what type of data it is:"
+msgstr "Uma vez configurado o seu timestream, os dados aparecerão em um fluxo do tempo, conforme o gráfico com eixos X e Y mostrado abaixo. A maneira como são mostrados depende de que tipo os dados são:"
+
+#: views/timestreams_view.php:42
+msgid "Numerical data will appear as a bar graph with the units of measurement on the x axis and the measurement of the data on the y axis."
+msgstr "Dados numéricos irão aparecer como um gráfico de barras com as unidades de medida no eixo x e as medidas dos dados no eixo y."
+
+#: views/timestreams_view.php:43
+msgid "Media and text files will appear as a timeline of the items that you can scroll through."
+msgstr "Mídia e arquivos de texto serão mostrados em uma linha de tempo com os itens que você poderá fazer uma rolagem sobre os mesmos."
+
+#: views/timestreams_view.php:44
+msgid "Use the scroll bar below the timeline to zoom in and out and move along the timeline."
+msgstr "Use a barra de rolagem  abaixo da linha do tempo para aumetar e diminuir o zoom, e mover pela linha do tempo."
+
+#: views/timestreams_view.php:45
+msgid "You can change timestream being shown by selecting an alternate datasource from the dropdown box above the timestream, and then clicking the update button."
+msgstr "Você pode mudar o timestream a ser exibido selecionando uma fonte de dados alternativa na caixa de opções acima do timestream, e em seguida clicando no botão atualizar."
+
+#: views/timestreams_view.php:46
+msgid "Delete a timestream by clickign its delete button. Please note that this does not delete the datasource."
+msgstr "Delete um timestream clicando no botão deletar. Observe que a sua fonte de dados não é deletada."
+
+#: views/timestreams_view.php:47
+msgid "To author data"
+msgstr "Para criar dados"
+
+#: views/timestreams_view.php:47
+msgid "You can author your data using your timestream."
+msgstr "Você pode criar os seus dados usando o seu timestream."
+
+#: views/timestreams_view.php:48
+msgid "Click start"
+msgstr "Clique em começar"
+
+#: views/timestreams_view.php:49
+msgid "Click on the timeline where you want the data in your timestream to begin."
+msgstr "Clique na linha do tempo onde você quer que os dados do timestream começem."
+
+#: views/timestreams_view.php:50
+msgid "Click end."
+msgstr "Clique em finalizar."
+
+#: views/timestreams_view.php:51
+msgid "Click on the timeline where you want the data in your timestream to end. A green overlay should appear over the data range that you have chosen."
+msgstr "Clique na linha do tempo onde você quer que os dados do timestream acabem."
+
+#: views/timestreams_view.php:53
+msgid "Click head and then click the area in the timestream to begin playing from."
+msgstr "Clique em principal (\"head\")  e em seguida clique na área do timestream para começar a reproduzir os dados."
+
+#: views/timestreams_view.php:54
+msgid "Set the speed that the data plays out using the rate field (1=realtime, 2=double time, 0.5= half time, etc..)"
+msgstr "Mude a velocidade com a qual os dados são reproduzidos utilizando a opção taxa (1= em tempo real, 2= no dobro do tempo, 0.5 = na metade do tempo, etc...)."
+
+#: views/timestreams_view.php:55
+msgid "Click save"
+msgstr "Clique em salvar"
+
+#: views/timestreams_view.php:56
+msgid "Note that if your toggle on the \"start / end time disabled:\" checkbox then the timesream will continue to play data as new values come in. If this is toggled off and there is an endtime set, the the data will loop to the start once the end is reached."
+msgstr "Observe que se você selecionar  o \"tempo inicial / final como desabilitado\", então o seu timestream vai continuar a reproduzir quando novos dados aparecerem.  Se esta opção estiver desligada e um tempo final foi previamente configurado, os dados vão começar novamente do princípio quando o final for atingido."
+
+#: views/timestreams_view.php:57
+msgid "After you have authored your timestreams you can put them in blog posts, blog pages, or special timestreams pages."
+msgstr "Após criar os seus timestreams você pode colocá-los nos seus \"posts\", páginas de blog, ou páginas especiais de Timestreams."
+
+#: views/timestreams_view.php:132
+msgid "update"
+msgstr "atualizar"
+
+#: views/timestreams_view.php:133
+msgid "delete"
+msgstr "deletar"
+
+#: views/timestreams_view.php:146
+msgid "new head time"
+msgstr "novo tempo principal"
+
+#: views/timestreams_view.php:147
+msgid "new start time"
+msgstr "novo tempo inicial"
+
+#: views/timestreams_view.php:148
+msgid "new end time"
+msgstr "novo tempo final"
+
+#: views/timestreams_view.php:149
+msgid "start / end time disabled"
+msgstr "tempo inicial / final desabilitado"
+
+#: views/timestreams_view.php:150
+msgid "rate"
+msgstr "taxa"
+
+#: views/timestreams_view.php:152
+msgid "start"
+msgstr "começar"
+
+#: views/timestreams_view.php:153
+msgid "end"
+msgstr "finalizar"
+
+#: views/timestreams_view.php:154
+msgid "head"
+msgstr "principal"
+
+#: views/timestreams_view.php:155
+msgid "prev"
+msgstr "anterior"
+
+#: views/timestreams_view.php:156
+msgid "next"
+msgstr "próximo"
+
+#: views/timestreams_view.php:157
+msgid "latest"
+msgstr "ultimo"
+
+#: views/timestreams_view.php:158
+msgid "save"
+msgstr "salvar"
+
+#: views/context_view.php:15
+msgid "Context Table"
+msgstr "Tabela Contexto"
+
