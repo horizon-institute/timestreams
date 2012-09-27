@@ -1205,7 +1205,7 @@ class Hn_TS_Database {
 
 		if(strtotime($timestream->endtime) > 0 && $newcurrent > strtotime($timestream->endtime))
 		{
-			error_log("reset to starttime");
+			//error_log("reset to starttime");
 			$currenttime = $timestream->starttime;
 		}
 		else
