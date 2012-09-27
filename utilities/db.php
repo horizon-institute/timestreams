@@ -1072,6 +1072,12 @@
 			$timestreamId = $args[2];
 			$lastAskTime = $args[3];
 			$limit = $args[4];
+			// JMB added to allow user to choose the order (ASC or DESC) of the results
+			if(count($args) > 5){
+				$order=$args[5];
+			} else{
+				$order = "DESC";
+			}
 			
 			$this->hn_ts_timestream_update($timestreamId);
 			
@@ -1134,7 +1140,7 @@
 				$limitstr = " LIMIT 0 , $limit";
 			}
 			
-			return $wpdb->get_results($wpdb->prepare("SELECT * FROM $metadata->tablename WHERE valid_time > '$mindate' AND valid_time <= '$maxdate' ORDER BY valid_time DESC $limitstr"));
+			return $wpdb->get_results($wpdb->prepare("SELECT * FROM $metadata->tablename WHERE valid_time > '$mindate' AND valid_time <= '$maxdate' ORDER BY valid_time $order $limitstr"));
 		}
 
 		// triggered by viz getting data, update read head at given rate
