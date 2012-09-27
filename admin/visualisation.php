@@ -6,12 +6,14 @@
 		public $timestreamId;
 		public $vizId;
 		public $description;
+		public $style;
 		
-		public function Visualisation($vizId, $name, $timestreamId)
+		public function Visualisation($vizId, $name, $timestreamId, $styleIn='')
 		{
 			$this->vizId = $vizId;
 			$this->name = $name;
 			$this->timestreamId = $timestreamId;
+			$this->style = $styleIn;
 		}
 		
 		public function write()
@@ -34,6 +36,7 @@
 		extract( shortcode_atts( array(
 			'tsid' => -1,
 			'viz' => 'none',
+			'style' => ''
 		), $atts ) );
 		
 		if(strcmp($viz, 'none') != 0 && $tsid != -1)
@@ -41,7 +44,7 @@
 			require_once( HN_TS_PLUGIN_DIR . '/visualisations/' . $viz . '/viz.php'     );
 		
 			$vizId = $post->ID . "_" . $tsid . "_" . rand();
-			$vizInstance = new $viz($vizId, $viz, $tsid);
+			$vizInstance = new $viz($vizId, $viz, $tsid, $style);
 			$vizInstance->write();
 		}
 		else
