@@ -114,7 +114,8 @@
 		 * @return string XML-XPC response with either an error message as a param or the
 		 * number of insertions
 		 */
-		function hn_ts_add_measurements($args){$this->hn_ts_check_user_pass($args);
+		function hn_ts_add_measurements($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -132,6 +133,7 @@
 		 * @return string XML-XPC response with either an error message as a param or measurement data
 		 */
 		function hn_ts_select_measurements($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -148,6 +150,7 @@
 		 * @return string XML-XPC response with either an error message as a param or measurement data
 		 */
 		function hn_ts_select_first_measurement($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -164,6 +167,7 @@
 		 * @return string XML-XPC response with either an error message as a param or measurement data
 		 */
 		function hn_ts_select_latest_measurement($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -180,6 +184,7 @@
 		 * @return string XML-XPC response with either an error message as a param or count value
 		 */
 		function hn_ts_count_measurements($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -198,6 +203,7 @@
 		 * metadata
 		 */
 		function hn_ts_select_metadata_by_name($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -214,6 +220,7 @@
 		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
 		 */
 		function hn_ts_add_context($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -231,6 +238,7 @@
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_by_type($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -248,6 +256,7 @@
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_by_value($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -265,6 +274,7 @@
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_by_type_and_value($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -282,6 +292,7 @@
 		 * @return string XML-XPC response with either an error message as a param or context records
 		 */
 		function hn_ts_select_context_within_time_range($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -298,6 +309,7 @@
 		 * @return string XML-XPC response with either an error message as a param or number of updated records
 		 */
 		function hn_ts_update_context($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -314,6 +326,7 @@
 		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
 		 */
 		function hn_ts_add_measurement_file($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -334,6 +347,7 @@
 		 * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
 		 */
 		function hn_ts_add_measurement_files($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -351,6 +365,7 @@
 		 */
 		function hn_ts_import_files($args){
 			require_once( HN_TS_PLUGIN_DIR . '/controllers/weather_station_ctrl.php');
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -367,6 +382,7 @@
 		 * @return string XML-XPC response with either an error message or 1
 		 */
 		function hn_ts_heartbeat($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -380,11 +396,12 @@
 		 * Checks username password then does partial replication for all 
 		 * continuous replication records
 		 * @todo Output angle brackets instead of html codes
-		 * @param array $args should have 2 parameters:
+		 * @param array $args should have 4 parameters:
 		 * $username, $password, tablename, ipaddress
 		 * @return string XML-XPC response with either an error message or 1
 		 */
 		function hn_ts_replication($args){
+			$this->hn_ts_check_user_pass($args);
 			if(NULL != $this->loginError){
 				$this->loginError=NULL;
 				return $this->loginErrorCode;
@@ -404,50 +421,7 @@
 					return new IXR_Error(403, __('Incorrect number of parameters.',HN_TS_NAME));
 				}
 			}
-		}
-		
-		/**
-		 * Associates XML-RPC method names with functions of this class 
-		 * @param $methods is a key/value paired array
-		 * @return $methods
-		 */
-		function add_new_xmlrpc_methods( $methods ) {
-			//$methods['timestreams.insert_reading'] =  array(&$this, 'hn_ts_insert_reading');
-			$methods['timestreams.create_measurements'] =  array(&$this, 'hn_ts_create_measurements');
-			$methods['timestreams.add_measurement'] =  array(&$this, 'hn_ts_add_measurement');
-			$methods['timestreams.add_measurements'] =  array(&$this, 'hn_ts_add_measurements');
-			$methods['timestreams.select_measurements'] =  array(&$this, 'hn_ts_select_measurements');
-			$methods['timestreams.select_first_measurement'] =  array(&$this, 'hn_ts_select_first_measurement');
-			$methods['timestreams.select_latest_measurement'] =  array(&$this, 'hn_ts_select_latest_measurement');
-			$methods['timestreams.count_measurements'] =  array(&$this, 'hn_ts_count_measurements');
-			$methods['timestreams.select_metadata_by_name'] =  array(&$this, 'hn_ts_select_metadata_by_name');
-			$methods['timestreams.add_context'] =  array(&$this, 'hn_ts_add_context');
-			$methods['timestreams.select_context_by_type'] =  array(&$this, 'hn_ts_select_context_by_type');
-			$methods['timestreams.select_context_by_value'] =  array(&$this, 'hn_ts_select_context_by_value');
-			$methods['timestreams.select_context_by_type_and_value'] =  array(&$this, 'hn_ts_select_context_by_type_and_value');
-			$methods['timestreams.select_context_within_time_range'] =  array(&$this, 'hn_ts_select_context_within_time_range');
-			$methods['timestreams.update_context'] =  array(&$this, 'hn_ts_update_context');
-			$methods['timestreams.add_measurement_file'] =  array(&$this, 'hn_ts_add_measurement_file');
-			$methods['timestreams.add_measurement_files'] =  array(&$this, 'hn_ts_add_measurement_files');
-			$methods['timestreams.import_data_from_files'] =  array(&$this, 'hn_ts_import_files');
-			$methods['timestreams.heartbeat'] =  array(&$this, 'hn_ts_heartbeat');
-			$methods['timestreams.replication'] =  array(&$this, 'hn_ts_replication');
-				
-					// internal interface
-			$methods['timestreams.int_get_timestream_head'] =  array(&$this, 'hn_ts_int_get_timestream_head');
-			$methods['timestreams.int_get_timestream_data'] =  array(&$this, 'hn_ts_int_get_timestream_data');
-			$methods['timestreams.int_update_timestream_head'] =  array(&$this, 'hn_ts_int_update_timestream_head');
-			
-			// external api
-			$methods['timestreams.ext_get_time'] =  array(&$this, 'hn_ts_ext_get_time');
-			$methods['timestreams.ext_get_timestreams'] =  array(&$this, 'hn_ts_ext_get_timestreams');
-			$methods['timestreams.ext_get_timestream_metadata'] =  array(&$this, 'hn_ts_ext_get_timestream_metadata');
-			$methods['timestreams.ext_get_timestream_data'] =  array(&$this, 'hn_ts_ext_get_timestream_data');
-						
-			return $methods;
-		}
-		
-		
+		}		
 		
 		function hn_ts_int_get_timestream_head($args)
 		{
@@ -488,6 +462,68 @@
 			//error_log("incoming...");
 			//error_log(print_r($args));
 			return $this->tsdb->hn_ts_ext_get_timestream_data($args);			
+		}
+		
+		/**
+		 * Returns information pertaining to the site, blog and user
+		 * @param array $args should have 2 parameters:
+		 * $username, $password
+		function hn_ts_siteinfo($args){
+			$this->hn_ts_check_user_pass($args);
+			if(NULL != $this->loginError){
+				$this->loginError=NULL;
+				return $this->loginErrorCode;
+			}
+			else{
+				global $current_blog;
+				global $current_user;
+				get_currentuserinfo();
+				return array(get_current_blog_id(),
+						$current_user->user_login, $current_user->display_name);
+			}			
+		}
+		 */
+		
+		/**
+		 * Associates XML-RPC method names with functions of this class 
+		 * @param $methods is a key/value paired array
+		 * @return $methods
+		 */
+		function add_new_xmlrpc_methods( $methods ) {
+			//$methods['timestreams.insert_reading'] =  array(&$this, 'hn_ts_insert_reading');
+			$methods['timestreams.create_measurements'] =  array(&$this, 'hn_ts_create_measurements');
+			$methods['timestreams.add_measurement'] =  array(&$this, 'hn_ts_add_measurement');
+			$methods['timestreams.add_measurements'] =  array(&$this, 'hn_ts_add_measurements');
+			$methods['timestreams.select_measurements'] =  array(&$this, 'hn_ts_select_measurements');
+			$methods['timestreams.select_first_measurement'] =  array(&$this, 'hn_ts_select_first_measurement');
+			$methods['timestreams.select_latest_measurement'] =  array(&$this, 'hn_ts_select_latest_measurement');
+			$methods['timestreams.count_measurements'] =  array(&$this, 'hn_ts_count_measurements');
+			$methods['timestreams.select_metadata_by_name'] =  array(&$this, 'hn_ts_select_metadata_by_name');
+			$methods['timestreams.add_context'] =  array(&$this, 'hn_ts_add_context');
+			$methods['timestreams.select_context_by_type'] =  array(&$this, 'hn_ts_select_context_by_type');
+			$methods['timestreams.select_context_by_value'] =  array(&$this, 'hn_ts_select_context_by_value');
+			$methods['timestreams.select_context_by_type_and_value'] =  array(&$this, 'hn_ts_select_context_by_type_and_value');
+			$methods['timestreams.select_context_within_time_range'] =  array(&$this, 'hn_ts_select_context_within_time_range');
+			$methods['timestreams.update_context'] =  array(&$this, 'hn_ts_update_context');
+			$methods['timestreams.add_measurement_file'] =  array(&$this, 'hn_ts_add_measurement_file');
+			$methods['timestreams.add_measurement_files'] =  array(&$this, 'hn_ts_add_measurement_files');
+			$methods['timestreams.import_data_from_files'] =  array(&$this, 'hn_ts_import_files');
+			$methods['timestreams.heartbeat'] =  array(&$this, 'hn_ts_heartbeat');
+			$methods['timestreams.replication'] =  array(&$this, 'hn_ts_replication');
+			//$methods['timestreams.siteinfo'] =  array(&$this, 'hn_ts_siteinfo');
+				
+			// internal interface
+			$methods['timestreams.int_get_timestream_head'] =  array(&$this, 'hn_ts_int_get_timestream_head');
+			$methods['timestreams.int_get_timestream_data'] =  array(&$this, 'hn_ts_int_get_timestream_data');
+			$methods['timestreams.int_update_timestream_head'] =  array(&$this, 'hn_ts_int_update_timestream_head');
+			
+			// external api
+			$methods['timestreams.ext_get_time'] =  array(&$this, 'hn_ts_ext_get_time');
+			$methods['timestreams.ext_get_timestreams'] =  array(&$this, 'hn_ts_ext_get_timestreams');
+			$methods['timestreams.ext_get_timestream_metadata'] =  array(&$this, 'hn_ts_ext_get_timestream_metadata');
+			$methods['timestreams.ext_get_timestream_data'] =  array(&$this, 'hn_ts_ext_get_timestream_data');
+						
+			return $methods;
 		}
 	}
 
