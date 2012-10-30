@@ -94,4 +94,16 @@
 					);
 					echo 'Record added.';
 				}	
-			}	
+			}
+/**
+ * A button to go to the share interface for a given table
+ */
+function hn_ts_addShareTableButton($tableName){
+	//$share = _e("Share",HN_TS_NAME);  // brakes the button for no apparent reason :(
+	$share = "Share";
+	return "<form id='shareform' method='post' action=''>
+			<button name='share_button' value='$tableName' class='button-primary'>
+				$share
+			</button>
+		</form>";
+}
