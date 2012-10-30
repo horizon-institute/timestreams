@@ -53,7 +53,7 @@
 		?>
 		<div class="wrap">
 			<div id="icon-themes" class="icon32"></div>
-			<h2><?php _e('Timestreams - Metadata',HN_TS_NAME); ?></h2>
+			<h2><?php _e('Timestreams - Measurement Containers',HN_TS_NAME); ?></h2>
 			<h3><?php _e('Description',HN_TS_NAME); ?></h3>
 			
 			<p class="ts_description"><?php _e('Data sources describe the sensor data brought into Timestreams. A device such as a weateher station may collect data using multiple sensors (thermometer, barometer, etc.). Please use one datasource entry per type of sensor.',HN_TS_NAME);?></p>
