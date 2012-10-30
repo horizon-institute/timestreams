@@ -15,7 +15,7 @@
 		global $hn_ts_admin_timestreams;
 		$hn_ts_admin_timestreams = add_menu_page('Timestreams', __('Timestreams',HN_TS_NAME),
 				'administrator', __FILE__, 'hn_ts_main_admin_page');
-		add_submenu_page(__FILE__, 'Data Sources', __('Data Sources',HN_TS_NAME), 'manage_options',
+		add_submenu_page(__FILE__, 'Measurements', __('Measurements',HN_TS_NAME), 'manage_options',
 				__FILE__.'datasources','hn_ts_datasources_admin_page');
 		add_submenu_page(__FILE__, 'Visualisations', __('Visualisations',HN_TS_NAME), 'manage_options',
 				__FILE__.'visualisations','hn_ts_visualisations_admin_page');				
