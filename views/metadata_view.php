@@ -13,7 +13,7 @@
 	 */
 	function hn_ts_showMetadataTable(){
 		?>
-		<h3>Metadata Table</h3>
+		<h3>Measurement Container</h3>
 		<table class="widefat">
 			<thead>
 				<tr>
@@ -52,7 +52,8 @@
 			<tbody>
 			<?php 
 			$db = new Hn_TS_Database();
-			$rows = $db->hn_ts_select('wp_ts_metadata ORDER BY metadata_id DESC');
+			//$rows = $db->hn_ts_select('wp_ts_metadata ORDER BY metadata_id DESC');
+			$rows = $db->hn_ts_select_viewable_metadata();
 			if($rows){
 				global $pagenow;
 				$screen = get_current_screen();

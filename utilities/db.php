@@ -468,6 +468,65 @@ class Hn_TS_Database {
 		$sql="SELECT * FROM $table;";
 		return $wpdb->get_results($wpdb->prepare($sql));
 	}
+	
+	/**
+	 * Select metadata for viewable tables from multisite wordpress instance
+	 * Viewables tables are either owned or shared with the current user or the current blog/site
+	 */
+	function hn_ts_select_viewable_metadata_multisite(){
+		global $current_user;
+		global $wpdb;
+		get_currentuserinfo();
+		$blogId = get_current_blog_id();
+		$siteId = get_current_site();
+		$siteId = $siteId->id;
+		$sql = "SELECT * FROM `wp_ts_metadata` WHERE (
+				producer_id = $current_user->ID OR (
+					producer_blog_id = $blogId AND producer_site_id = $siteId
+				) OR 
+				tablename IN (
+					SELECT `wp_ts_container_shared_with_blog`.table_name 
+					FROM `wp_ts_container_shared_with_blog` WHERE 
+					`wp_ts_container_shared_with_blog`.blog_id = $blogId AND 
+					`wp_ts_container_shared_with_blog`.site_id = $siteId
+				)
+			)";
+		return $wpdb->get_results($wpdb->prepare($sql));
+	}
+	
+	/**
+	 * Select metadata for viewable tables from singlesite wordpress instance
+	 * Viewables tables are either owned or shared with the current user or the current blog/site
+	 */
+	function hn_ts_select_viewable_metadata_singlesite(){
+		global $current_user;
+		global $wpdb;
+		get_currentuserinfo();
+		$blogId = get_current_blog_id();
+		$sql = "SELECT * FROM `wp_ts_metadata` WHERE (
+				producer_id = $current_user->ID OR 
+				producer_blog_id = $blogId
+				OR 
+				tablename IN (
+					SELECT `wp_ts_container_shared_with_blog`.table_name 
+					FROM `wp_ts_container_shared_with_blog` WHERE 
+					`wp_ts_container_shared_with_blog`.blog_id = $blogId
+				)
+			)";
+		return $wpdb->get_results($wpdb->prepare($sql));
+	}
+	
+	/**
+	 * Select metadata for viewable tables
+	 * Viewables tables are either owned or shared with the current user or the current blog/site
+	 */
+	function hn_ts_select_viewable_metadata(){
+		if(is_multisite()){
+			return $this->hn_ts_select_viewable_metadata_multisite();
+		}else{
+			return $this->hn_ts_select_viewable_metadata_singlesite();
+		}
+	}
 
 	/**
 	 * Retrieves context information
