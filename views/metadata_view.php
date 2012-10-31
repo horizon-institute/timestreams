@@ -13,8 +13,7 @@
 		?>
 		<div id="icon-themes" class="icon32"></div>
 		<h2><?php _e('Timestreams - Measurement Containers',HN_TS_NAME); ?></h2>
-		<h3><?php _e('Description',HN_TS_NAME); ?></h3>
-		
+		<h3><?php _e('Description',HN_TS_NAME); ?></h3>		
 		<p class="ts_description"><?php _e('Data sources describe the sensor data brought into Timestreams. A device such as a weateher station may collect data using multiple sensors (thermometer, barometer, etc.). Please use one datasource entry per type of sensor.',HN_TS_NAME);?></p>
 		<p class="ts_description"><?php _e('To add a new data source fill in the form below so that the platform knows what type of data you are adding into the system. Please note that the values for the unit of measurement field should be entered in <a href="http://en.wikipedia.org/wiki/Internet_media_type" title="Wikipedia entry on Internet media types">internet media type</a> format. For sensor data follow a protocol of: text/x-data-Unit, where Unit would be the unit of measurement (such as Celsius or Decibels). For example: text/x-data-celsius or image/png. Data Types are used to store your data in the correct format. For instance, if you are storing image files you\'d want to use a textual type (VARCHR(255)), but if you\'re storing temperature readings between 0 and 100 then you\'d want to use a numeric type (DECIMAL(4,1)). You may use any of the standard <a href="https://dev.mysql.com/doc/refman/5.5/en/data-types.html" title="mysql data types">MySQL ones</a>.',HN_TS_NAME);?></p>
 		<hr />
@@ -36,7 +35,10 @@
 	function hn_ts_sharingDescription($table){
 		?>
 		<div id="icon-themes" class="icon32"></div>
-		<h2><?php _e('Timestreams - Measurement Sharing - '.$table, HN_TS_NAME); ?></h2>
+		<h2><?php _e('Timestreams - Share: '.$table, HN_TS_NAME); ?></h2>
+		<h3><?php _e('Description',HN_TS_NAME); ?></h3>
+		<p class="ts_description"><?php _e('Share your data with other blogs. Sharing your data allows others to see the data and make their own Timestreams for the data, but the data is immutable so they cannott modify them or pass the data on or share the data with others.',HN_TS_NAME);?></p>
+		<p class="ts_description"><?php _e('To share your data, simply select the blogs below and click save. You can share with as many blogs as you want.',HN_TS_NAME);?></p>
 		<hr />
 		<?php
 	}
@@ -56,6 +58,7 @@
 			<thead>
 				<tr>
 				<th>id</th>
+				<th>view</th>
 				<th>share</th>
 				<th>table name</th>
 				<th>measurement type</th>
@@ -74,6 +77,7 @@
 			<tfoot>
 				<tr>
 				<th>id</th>
+				<th>view</th>
 				<th>share</th>
 				<th>table name</th>
 				<th>measurement type</th>
@@ -102,14 +106,15 @@
 					if($db->hn_ts_isTableOwnedByBlogOrUser($row->tablename)){
 						$btn = hn_ts_addShareTableButton($row->tablename);
 					}else{
-						$btn = NULL;
+						$btn = "Can't share.";
 					}
 					echo "<tr>
 					<td>$row->metadata_id</td>
-					<td>$btn</td>
-					<td><a href=\"".$pagenow.
+					<td><a class='button-primary'  href=\"".$pagenow.
 						"?page=timestreams/admin/interface.phpdatasources&table=
-						$row->tablename\">$row->tablename</a></td>
+						$row->tablename\">View</a></td>
+					<td>$btn</td>
+					<td>$row->tablename</td>
 					<td>$row->measurement_type</td>
 					<td>$row->min_value</td>
 					<td>$row->max_value</td>

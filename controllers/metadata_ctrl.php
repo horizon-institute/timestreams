@@ -101,9 +101,10 @@
 function hn_ts_addShareTableButton($tableName){
 	//$share = _e("Share",HN_TS_NAME);  // brakes the button for no apparent reason :(
 	$share = "Share";
-	return "<form id='shareform' method='post' action=''>
-			<button name='share_button' value='$tableName' class='button-primary'>
-				$share
-			</button>
-		</form>";
+	global $pagenow;
+	return "<a class='button-primary' href=\"$pagenow?page=timestreams/admin/interface.phpdatasources&share_button=$tableName\">Share</a>";
+			
 }
+/*<button name='share_button' value='$tableName' class='button-primary'>
+				$share
+			</button>*/

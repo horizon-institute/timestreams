@@ -56,8 +56,8 @@
 				if(isset($_GET['table'])){			
 					hn_ts_meaurementsDescription($_GET['table']);
 					hn_ts_showDataRecord($_GET['table']);
-				}else if(isset($_POST['share_button'])){
-					hn_ts_sharingDescription($_POST['share_button']);
+				}else if(isset($_GET['share_button'])){
+					hn_ts_sharingDescription($_GET['share_button']);
 					hn_ts_showShareInterface();
 				}else{
 					hn_ts_meaurementContainerDescription();
