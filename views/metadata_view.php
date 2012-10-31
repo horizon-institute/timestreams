@@ -98,7 +98,12 @@
 				global $pagenow;
 				$screen = get_current_screen();
 				foreach ( $rows as $row ){
-					$btn = hn_ts_addShareTableButton($row->tablename);
+					
+					if($db->hn_ts_isTableOwnedByBlogOrUser($row->tablename)){
+						$btn = hn_ts_addShareTableButton($row->tablename);
+					}else{
+						$btn = NULL;
+					}
 					echo "<tr>
 					<td>$row->metadata_id</td>
 					<td>$btn</td>
