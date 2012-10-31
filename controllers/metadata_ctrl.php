@@ -105,6 +105,3 @@ function hn_ts_addShareTableButton($tableName){
 	return "<a class='button-primary' href=\"$pagenow?page=timestreams/admin/interface.phpdatasources&share_button=$tableName\">Share</a>";
 			
 }
-/*<button name='share_button' value='$tableName' class='button-primary'>
-				$share
-			</button>*/

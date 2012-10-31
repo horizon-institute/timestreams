@@ -592,6 +592,25 @@ class Hn_TS_Database {
 			return false;
 		}
 	}
+	
+	/**
+	 * Determines if given table has been shared with the given site/blog
+	 * @return bool true if table is shared or false otherwise
+	 */
+	function hn_ts_isTableSharedWithBlog($tableIn, $site_id, $blog_id){
+		if(!is_multisite()){
+			return false;
+		}else{
+			$sql = "SELECT COUNT(*) FROM `wp_ts_container_shared_with_blog` WHERE " .
+					" table_name = $tableIn AND site_id = $site_id AND blog_id = $blog_id";
+			$count = $wpdb->get_var($wpdb->prepare($sql) );
+			if($count > 0){
+				return true;
+			}else{
+				return false;
+			}
+		}
+	}
 
 	/**
 	 * Retrieves context information
@@ -1376,6 +1395,26 @@ class Hn_TS_Database {
 				$wpdb->prefix.'ts_replication',
 				array( 'last_replication' => $value), array( 'replication_id' => $replRowId),
 				'%s','%s');
+	}
+	
+	/**
+	 * Returns a list of all blogs excluding the current one ordered by site id then blog id
+	 * Returns NULL for non multisite blogs.
+	 */
+	function hn_ts_getBlogList(){
+		if(!is_multisite()){
+			return NULL;
+		}
+		global $wpdb;
+		global $current_user;
+		global $wpdb;
+		get_currentuserinfo();
+		$blogId = get_current_blog_id();
+		$siteId = get_current_site();
+		$siteId = $siteId->id;
+		return $wpdb->get_results( 
+				$wpdb->prepare( "SELECT blog_id, site_id, domain, path FROM wp_blogs WHERE (blog_id <> $blogId AND site_id <> $siteId) AND deleted = 0 AND spam = 0 AND archived = 0 ORDER BY site_id, blog_id" ) 
+		);
 	}
 }
 ?>

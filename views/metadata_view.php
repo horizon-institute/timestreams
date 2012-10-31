@@ -46,10 +46,6 @@
 		<?php
 	}
 
-	function hn_ts_showShareInterface(){
-		echo 'W00T';
-	}
-
 	/**
 	 * Displays metadata in a table. 
 	 * To do: Complete pagination functionality.

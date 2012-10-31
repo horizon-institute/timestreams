@@ -13,6 +13,7 @@
 		define( 'HN_TS_VIEWS_DIR', HN_TS_PLUGIN_DIR . '/views' );
 	
 	// Require utility files
+	require_once( HN_TS_VIEWS_DIR . '/shareMeasurementContainerView.php'     );
 	require_once( HN_TS_VIEWS_DIR . '/metadata_view.php'     );
 	require_once( HN_TS_VIEWS_DIR . '/ts_data_view.php'     );
 	require_once( HN_TS_VIEWS_DIR . '/context_view.php'     );
