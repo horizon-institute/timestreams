@@ -58,7 +58,7 @@
 			$min=hn_ts_setVar('min');
 			$limit=hn_ts_setVar('limit');
 			if(!$limit){
-				$limit = 10;
+				$limit = 100;
 			}
 			$offset=hn_ts_setVar('pageNum');
 			if($offset){
