@@ -35,7 +35,6 @@
 	 */	
 	 function hn_ts_showDataRecord($tablename){
 		?>
-		<h3>Data Table</h3>
 		<table class="widefat">
 			<thead>
 				<tr>
