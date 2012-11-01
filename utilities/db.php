@@ -1074,13 +1074,17 @@ class Hn_TS_Database {
 		);
 			
 		$headId = mysql_insert_id();
+		
+		global $current_user;
+		get_currentuserinfo();
 			
 		// create timestream
 		$wpdb->insert('wp_ts_timestreams',
 				array(	'head_id' => $headId,
 						'metadata_id' => $metadataId,
-						'name' => $timestreamName),
-				array('%s', '%s', '%s')
+						'name' => $timestreamName,
+						'user_id => $current_user'),
+				array('%s', '%s', '%s', '%s')
 		);
 			
 		$timestreamId = mysql_insert_id();
