@@ -59,7 +59,7 @@
 		
 		/**
 		 * Checks username password then creates a new measurement container.
-		 * @param array $args should have 10 parameters:
+		 * @param array $args should have 11 parameters:
 		 * $username, $password, $measurementType, $minimumvalue, $maximumvalue,
 		 *	$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType, 
 		 *	$missing_data_value
@@ -86,6 +86,38 @@
 			else{
 				return $this->tsdb->hn_ts_addMetadataRecord("",$args[2],$args[3],$args[4],
 						$args[5],$args[6],$args[7],$args[8],$args[9],$args[10]);
+			}
+		}
+		
+		/**
+		 * Checks username password then creates a new measurement container.
+		 * @param array $args should have 13 parameters:
+		 * $username, $password, $measurementType, $minimumvalue, $maximumvalue,
+		 *	$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType, 
+		 *	$missing_data_value, $siteId, $blogId
+		 * @return string XML-XPC response with either an error message as a param or the
+		 * name of the measurement container
+		 */
+		function hn_ts_create_measurementsForBlog($args){
+			if(count($args) < 13){
+				return new IXR_Error(403, __('Incorrect number of parameters.',HN_TS_NAME));
+			}
+			/*(blog_id='', $$measurementType, $minimumvalue, $maximumvalue,
+			$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType, 
+			$missing_data_value, $siteId, $blogId)*/
+			
+			if(!$this->hn_ts_check_user_pass($args)){
+				$err = $this->loginError;
+				$this->loginError=NULL;
+				if($err){
+					return $err;
+				}else{
+					return $this->loginErrorCode;
+				}
+			}
+			else{
+				return $this->tsdb->hn_ts_addMetadataRecord($args[12],$args[2],$args[3],$args[4],
+						$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11]);
 			}
 		}
 		
@@ -492,6 +524,7 @@
 		function add_new_xmlrpc_methods( $methods ) {
 			//$methods['timestreams.insert_reading'] =  array(&$this, 'hn_ts_insert_reading');
 			$methods['timestreams.create_measurements'] =  array(&$this, 'hn_ts_create_measurements');
+			$methods['timestreams.create_measurementsForBlog'] =  array(&$this, 'hn_ts_create_measurementsForBlog');
 			$methods['timestreams.add_measurement'] =  array(&$this, 'hn_ts_add_measurement');
 			$methods['timestreams.add_measurements'] =  array(&$this, 'hn_ts_add_measurements');
 			$methods['timestreams.select_measurements'] =  array(&$this, 'hn_ts_select_measurements');

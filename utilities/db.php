@@ -153,10 +153,14 @@ class Hn_TS_Database {
 	 * @param String $otherInformation
 	 * @param $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
 	 * @param $missingDataValue is a value of type $dataType which represents rows in the timeseries with unknown values.
+	 * @param $siteId site that owns the measurement container
+	 * @param $blogId blog that owns the measurement container
 	 * To do: Sanitise inputs
+	 * @change 01/11/2012 - Modified by JMB to handle siteId and BlogId
 	 */
 	function hn_ts_addMetadataRecord($blog_id='', $measurementType, $minimumvalue, $maximumvalue,
-			$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType,$missingDataValue){
+			$unit, $unitSymbol, $deviceDetails, $otherInformation, 
+			$dataType,$missingDataValue,$siteId=1){
 		global $wpdb;
 		if($blog_id==''){
 			global $blog_id;
@@ -182,6 +186,8 @@ class Hn_TS_Database {
 		);
 		$nextdevice=$nextdevice->Auto_increment;
 		$tablename = $wpdb->prefix.$blog_id.'_ts_'.$measurementType.'_'.$nextdevice;
+		global $current_user;
+		get_currentuserinfo();
 		$wpdb->insert(
 				'wp_ts_metadata',
 				array( 	'tablename' => $tablename,
@@ -193,8 +199,11 @@ class Hn_TS_Database {
 						'device_details' => $deviceDetails,
 						'other_info' => $otherInformation,
 						'data_type' => $dataType,
-						'missing_data_value' => $missingDataValue),
-				array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' , '%s' )
+						'missing_data_value' => $missingDataValue,
+						'producer_site_id' => $siteId,
+						'producer_blog_id' => $blog_id,
+						'producer_id' => $current_user->ID),
+				array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' , '%s','%s', '%s' , '%s' )
 		);
 			
 		return $this->hn_ts_createMeasurementTable($blog_id, $measurementType, $nextdevice, $dataType);
