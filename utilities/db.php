@@ -1087,12 +1087,17 @@ class Hn_TS_Database {
 		}
 	}
 
-
+	/**
+	 * @change 01/11/2012 - Modified by JMB to restrict timestreams to those owned by the current user
+	 */
 	function hn_ts_getTimestreams()
 	{
 		global $wpdb;
+		global $current_user;
+		get_currentuserinfo();
 			
-		return $wpdb->get_results($wpdb->prepare("SELECT * FROM wp_ts_timestreams ORDER BY timestream_id DESC"));
+		return $wpdb->get_results($wpdb->prepare("SELECT * FROM wp_ts_timestreams WHERE ".
+				"user_id = '$current_user->ID' ORDER BY timestream_id DESC"));
 	}
 
 	function hn_ts_getReadHead($headId)

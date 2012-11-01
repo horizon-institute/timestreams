@@ -18,6 +18,9 @@
 	}
 	add_action('admin_enqueue_scripts', 'hn_ts_load_TimeStreams_scripts');
 
+	/**
+	 * Writes the timestreams admin page description and usage instructions
+	 */
 	function hn_ts_describeTimestreams(){	
 		?>	
 		<button id="hide_ts_description" class="button-primary"><?php _e('Hide Description',HN_TS_NAME);?></button>
@@ -58,6 +61,12 @@
 		<hr />
 		<?php
 	}
+	/**
+	 * Displays a user's Timestreams
+	 * @change 01/11/2012 - Modified by JMB to limit the display of timestreams to 
+	 * those of the given user and to limit the dropdown selection to the measurement
+	 * containers owned by the user or the current blog
+	 */
 	function hn_ts_showTimestreams()
 	{
 		?>
@@ -91,7 +100,8 @@
 		$db = new Hn_TS_Database();
 		
 		// data sources
-		$metarows = $db->hn_ts_select('wp_ts_metadata');
+		//$metarows = $db->hn_ts_select('wp_ts_metadata');		
+		$metarows = $db->hn_ts_select_viewable_metadata();
 		// TODO limit / ownership / group
 		$timestreams = $db->hn_ts_getTimestreams();
 		

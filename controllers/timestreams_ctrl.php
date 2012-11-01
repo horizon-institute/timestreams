@@ -1,9 +1,14 @@
 <?php
-
+	/**
+	 * HTML form and processing code to add a Timestream 
+	 * @change 01/11/2012 - Modified by JMB to only display datasources 
+	 * owned by the current user or current blog
+	 */
 	function hn_ts_addTimestream()
 	{
 		$db = new Hn_TS_Database();
-		$datasources = $db->hn_ts_select('wp_ts_metadata');
+		//$datasources = $db->hn_ts_select('wp_ts_metadata');
+		$datasources =  $db->hn_ts_select_viewable_metadata();
 		
 		?>
 		<h3><?php _e('Create a new Timestream',HN_TS_NAME); ?></h3>			
@@ -13,7 +18,7 @@
 			        <th scope="row"><?php _e('Timestream Name',HN_TS_NAME); ?>*</th>
 			        <td><input type="text" name="timestream_name" />
 			        </td>
-			        <th scope="row"><?php _e('Data Source',HN_TS_NAME); ?>*</th>
+			        <th scope="row"><?php _e('Measurement Container',HN_TS_NAME); ?>*</th>
 					<td>
 						<select name="timestream_data" >
 						<?php
