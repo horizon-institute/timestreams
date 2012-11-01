@@ -1074,7 +1074,6 @@ class Hn_TS_Database {
 		);
 			
 		$headId = mysql_insert_id();
-		
 		global $current_user;
 		get_currentuserinfo();
 			
@@ -1083,7 +1082,8 @@ class Hn_TS_Database {
 				array(	'head_id' => $headId,
 						'metadata_id' => $metadataId,
 						'name' => $timestreamName,
-						'user_id => $current_user'),
+						'user_id' => "$current_user->ID"
+				),
 				array('%s', '%s', '%s', '%s')
 		);
 			
