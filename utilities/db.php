@@ -551,6 +551,7 @@ class Hn_TS_Database {
 		get_currentuserinfo();
 		$blogId = get_current_blog_id();
 		$siteId = get_current_site();
+		$siteId = $siteId->id;
 		if(!isset($tableIn)){
 			return false;
 		}
@@ -601,8 +602,10 @@ class Hn_TS_Database {
 		if(!is_multisite()){
 			return false;
 		}else{
+			global $wpdb;
 			$sql = "SELECT COUNT(*) FROM `wp_ts_container_shared_with_blog` WHERE " .
-					" table_name = $tableIn AND site_id = $site_id AND blog_id = $blog_id";
+					" table_name = '$tableIn' AND site_id = ".
+					"'$site_id' AND blog_id = '$blog_id'";
 			$count = $wpdb->get_var($wpdb->prepare($sql) );
 			if($count > 0){
 				return true;
@@ -902,6 +905,45 @@ class Hn_TS_Database {
 				'wp_ts_context',  array( 'end_time' => $args[5]), $where,'%s','%s'
 		);
 	}
+	
+	/**
+	 * Updates wp_ts_container_shared_with_blog based on an array of items 
+	 * which should have array elements in the form [yes|no]:[siteId]:[blogId] 
+	 * The wp_ts_container_shared_with_blog model should be updated to remove any 
+	 * no entries for the given tablename and add any unpresent yes entries.
+	 * @param $tablename is the measurement container table name to insert and remove 
+	 * records for
+	 * To do: make this all happen in a single database transaction
+	 */
+	function updateWp_ts_container_shared_with_blog($tablename, $responseArray){		
+		global $wpdb;
+		foreach ($responseArray as $response){
+			list($answer, $siteId, $blogId) = explode(":",$response);
+			if(!strcasecmp("yes",$answer)){
+				// Add yes items to database if they aren't already present
+				$sql="SELECT COUNT(*) FROM wp_ts_container_shared_with_blog WHERE ".
+						"table_name='$tablename' AND ". 
+						"site_id = '$siteId' AND blog_id = '$blogId';";
+				$thecount = $wpdb->get_var($wpdb->prepare($sql));
+				if($thecount <= 0){
+					$wpdb->insert(
+							'wp_ts_container_shared_with_blog',
+							array( 	'table_name' => $tablename,
+									'site_id' => $siteId,
+									'blog_id' => $blogId),
+							array( '%s', '%s', '%s' )
+					);
+				}
+			} else if(!strcasecmp("no",$answer)){
+				// Remove no items from database	
+				$sql="DELETE FROM wp_ts_container_shared_with_blog WHERE ".
+						"table_name='$tablename' AND ". 
+						"site_id = '$siteId' AND blog_id = '$blogId';";
+				$wpdb->query( $wpdb->prepare($sql));
+			}
+		}		
+	}
+	
 	/**
 	 * Records that a file was uploaded. The timestamp is the time the file was last modified prior to upload
 	 * Todo: handle write permissions from username and password
@@ -1413,7 +1455,7 @@ class Hn_TS_Database {
 		$siteId = get_current_site();
 		$siteId = $siteId->id;
 		return $wpdb->get_results( 
-				$wpdb->prepare( "SELECT blog_id, site_id, domain, path FROM wp_blogs WHERE (blog_id <> $blogId AND site_id <> $siteId) AND deleted = 0 AND spam = 0 AND archived = 0 ORDER BY site_id, blog_id" ) 
+				$wpdb->prepare( "SELECT blog_id, site_id, domain, path FROM wp_blogs WHERE (blog_id <> $blogId OR site_id <> $siteId) AND deleted = '0' AND spam = '0' AND archived = '0' ORDER BY site_id, blog_id" ) 
 		);
 	}
 }

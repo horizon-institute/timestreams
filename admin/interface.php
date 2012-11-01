@@ -53,12 +53,13 @@
 		?>
 		<div class="wrap">
 			<?php				
+				//print_r($_REQUEST);
 				if(isset($_GET['table'])){			
 					hn_ts_meaurementsDescription($_GET['table']);
 					hn_ts_showDataRecord($_GET['table']);
 				}else if(isset($_GET['share_button'])){
-					hn_ts_sharingDescription($_GET['share_button']);
-					hn_ts_showShareBlogList($_GET['share_button']);
+					hn_ts_sharingDescription($_REQUEST['share_button']);
+					hn_ts_showShareBlogList($_REQUEST['share_button']);
 				}else{
 					hn_ts_meaurementContainerDescription();
 					hn_ts_addMetadataRecord();
