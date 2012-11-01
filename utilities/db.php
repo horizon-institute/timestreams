@@ -33,6 +33,7 @@ class Hn_TS_Database {
 		global $wpdb;
 		$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_context (
 		context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  		user_id bigint(20) NOT NULL,
 		context_type varchar(100) COLLATE utf8_unicode_ci NOT NULL,
 		value varchar(100) COLLATE utf8_unicode_ci NOT NULL,
 		start_time TIMESTAMP NULL DEFAULT 0,
@@ -44,6 +45,9 @@ class Hn_TS_Database {
 		$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_metadata (
 		metadata_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 		tablename varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+	    producer_site_id bigint(20) NOT NULL DEFAULT \'1\',
+	    producer_blog_id int(20) NOT NULL DEFAULT \'1\',
+	    producer_id int(20) DEFAULT NULL,
 		measurement_type varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 		min_value varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 		max_value varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -61,6 +65,7 @@ class Hn_TS_Database {
 
 		$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_timestreams (
 		timestream_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  		user_id bigint(20) NOT NULL,
 		name varchar(55) COLLATE utf8_unicode_ci NOT NULL,
 		head_id bigint(20) NOT NULL,
 		metadata_id bigint(20) unsigned NOT NULL,
@@ -84,6 +89,7 @@ class Hn_TS_Database {
 		rate INT(11) NOT NULL,
 		PRIMARY KEY  (head_id)
 		) ENGINE = MyISAM DEFAULT CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;';
+		$wpdb->query($sql);
 
 		$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_replication (
 		replication_id bigint(20) unsigned NOT NULL AUTO_INCREMENT COLLATE utf8_unicode_ci,
@@ -96,9 +102,18 @@ class Hn_TS_Database {
 		continuous boolean COLLATE utf8_unicode_ci NOT NULL,
 		last_replication varchar(75) COLLATE utf8_unicode_ci NULL,
 		PRIMARY KEY  (replication_id)
-		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
-			
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';			
 		$wpdb->query($sql);
+		
+		$sql = 'CREATE  TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_container_shared_with_blog (
+		id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+		table_name varchar(45) COLLATE utf8_unicode_ci NOT NULL COMMENT \'Table name for a measurement container\',
+		site_id bigint(20) NOT NULL,
+		blog_id bigint(20) NOT NULL,
+		PRIMARY KEY  (id)
+		) ENGINE = MyISAM DEFAULT CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;';
+		$wpdb->query($sql);
+		
 		//For some reason dbDelta wasn't working for all of the tables :(
 	}
 	/**
