@@ -4,6 +4,8 @@ require 'Slim/Slim.php';
 
 $app = new Slim();
 
+/** ROUTES (resource URIs to callback function mappings) *********************/
+
 $app->get('/', 'describeAPI');
 $app->get('/measurementContainerMetadata', function() use ($app) {
 	$paramValue = $app->request()->get('tsid');
@@ -61,12 +63,37 @@ $app->post('/heartbeat/:id', 'hn_ts_heartbeat');
 $app->put('/replicate', 'hn_ts_replicate'); // not reall a put or a post -- do we need to define a new verb for activation?
 $app->get('/timestream', 'hn_ts_ext_get_timestreams');
 $app->get('/timestream/id/:id', 'hn_ts_ext_get_timestream_data');	// id is the timestream id
-$app->get('/timestream/name/:name', 'hn_ts_int_get_timestream_data'); // name is the timestream table name
+
+// name is the timestream table name
+$app->get('/timestream/name/:name', function() use ($app) {
+	$args=func_get_args();
+	$limit = $app->request()->get('limit');
+	$offset = $app->request()->get('offset');
+	$lastTimestamp = $app->request()->get('lastts');
+	hn_ts_int_get_timestream_data($args[0], $limit, $offset, $lastTimestamp);
+});
 $app->get('/timestream/head/:id', 'hn_ts_int_get_timestream_head');
-$app->put('/timestream/head/:id', 'hn_ts_int_update_timestream_head');
+$app->put('/timestream/head/:id', function() use ($app) {
+	$args=func_get_args();
+	$newHead = $app->request()->put('curtime');
+	$newStart = $app->request()->put('start');
+	$newEnd = $app->request()->put('end');
+	$newRate = $app->request()->put('rate');
+	hn_ts_int_update_timestream_head($args[0], $newHead, $newStart, $newEnd, $newRate);
+});
 $app->get('/time', 'hn_ts_ext_get_time');
 
 $app->run();
+
+/** Utility functions ********************************************************/
+
+/**
+ * Outputs an error message
+ * @param $txt is the message to output
+ */
+function hn_ts_error_msg($txt){
+	echo '{"error":{"message":"'.$txt.'"}}';
+}
 
 /**
  * Handles database connection
@@ -83,7 +110,36 @@ function getConnection() {
 	return $dbh;
 }
 
-/**API FUNCTIONS********************************************************/
+/**
+ * Makes a SQL database call given a SQL string
+ * @param $sql is a SQL string
+ * returns the recordset;
+ */
+function querySql($sql){
+		$db = getConnection();
+		$stmt = $db->query($sql);  
+		$recordset = $stmt->fetchAll(PDO::FETCH_OBJ);
+		$db = null;	
+		return $recordset;
+}
+
+/**
+ * Runs a SQL query and echos the results as JSON
+ * @param $sql is the query to execute
+ * @param $root is the root item for the returned JSON
+ */
+function echoJsonQuery($sql, $root){
+	try {
+		echo '{"'.$root.'": ' . json_encode(querySql($sql)) . '}';
+	} catch(PDOException $e) {
+		hn_ts_error_msg($e->getMessage()); 
+	}	
+}
+/** API Callback functions ***************************************************/
+
+/**
+ * Describes this API
+ */
 function describeAPI(){	
 	echo'<h1>Timestreams API</h1>';
 	echo '	<table border="1">
@@ -100,7 +156,8 @@ function describeAPI(){
 						<a href="../api/measurementContainerMetadata">./measurementContainerMetadata</a><br/>
 						<a href="../api/measurementContainerMetadata?tsid=1">./measurementContainerMetadata?tsid=1</a>
 					</td>
-					<td>Returns the metadata for all of the measurement container entries.</td><td>GET</td>
+					<td>If no parameter is given then returns the metadata for all of the measurement container entries.
+					<br/>When used with id parameter returns the metadata record id for the given timestream id. Relpaces timestreams.ext_get_timestream_metadata. </td><td>GET</td>
 					<td>(Optional)tsid: Id of a Timestream</td><td>Metadata list</td><td>Complete.</td>
 				</tr>
 				<tr>
@@ -177,45 +234,57 @@ function describeAPI(){
 					<td>Adds new measurements to the given measurement container.</td><td>POST</td>
 					<td>... </td><td>Success or failure message.</td><td>Incomplete.</td>
 				</tr>
+				<tr><td>*****************</td></tr>
+				<tr>
+					<td><a href="../api/timestream">./timestream</a></td>
+					<td>Returns all of the Timestreams. Replaces timestreams.ext_get_timestreams.</td><td>GET</td>
+					<td>None </td><td>The list of timestreams</td><td>Complete.</td>
+				</tr>
+				<tr>
+					<td><a href="../api/time">./time</a></td>
+					<td>Returns the current timestamp.</td><td>GET</td>
+					<td>None </td><td>The current timestamp</td><td>Complete.</td>
+				</tr>
+				<tr>
+					<td><a href="../api/timestream/name/wp_1_ts_temperature_23">./timestream/name/wp_1_ts_temperature_23</a></td>
+					<td>Returns timestream readings for a given measurement container name. Replaces timestreams.int_get_timestream_data.</td><td>GET</td>
+					<td>limit<br/>offset<br/>lastts </td><td>The readings.</td><td>Complete.</td>
+				</tr>
+				<tr>
+					<td>curl --noproxy 192.168.56.101 -i -X PUT http://192.168.56.101/wordpress/wp-content/plugins/timestreams/utilities/api/timestream/head/1</td>
+					<td>Returns timestream readings for a given measurement container name. Replaces timestreams.int_update_timestream_head.</td><td>GET</td>
+					<td>limit<br/>offset<br/>lastts </td><td>The readings.</td><td>Complete.</td>
+				</tr>
+				
 			</table>';
 	/*
 	 * 
-$app->post('/context/add', 'hn_ts_add_context');
-$app->get('/context', 'hn_ts_select_contexts');
-$app->get('/context/:id', 'hn_ts_select_context');
-$app->get('/context/:type/', 'hn_ts_select_context_by_type');
-$app->get('/context/:value/', 'hn_ts_select_context_by_value');
-$app->get('/context/:type:value/', 'hn_ts_select_context_by_type_and_value');
-$app->get('/context/:startTime:endTime/', 'hn_ts_select_context_within_time_range');
-$app->put('/context/:id', 'hn_ts_update_context');
-$app->post('/measurementFile', 'hn_ts_add_measurement_file');
-$app->post('/measurementFiles', 'hn_ts_add_measurement_files');
-$app->post('/import', 'hn_ts_import_data_from_files');
-$app->post('/heartbeat', 'hn_ts_heartbeat');
-$app->put('/replicate', 'hn_ts_replicate'); // not reall a put or a post -- do we need to define a new verb for activation?
-$app->get('/timestream', 'hn_ts_ext_get_timestreams');
-$app->get('/timestream/:id', 'hn_ts_ext_get_timestream_data');	// id is the timestream id
-$app->get('/timestream/:name', 'hn_ts_int_get_timestream_data'); // name is the timestream table name
+
+$app->get('/timestream/id/:id', 'hn_ts_ext_get_timestream_data');	// id is the timestream id
+$app->get('/timestream/name/:name', 'hn_ts_int_get_timestream_data'); // name is the timestream table name
 $app->get('/timestream/head/:id', 'hn_ts_int_get_timestream_head');
 $app->put('/timestream/head/:id', 'hn_ts_int_update_timestream_head');
-$app->get('/time', 'hn_ts_ext_get_time');
+
+			// internal interface
+			$methods['timestreams.int_get_timestream_head'] =  array(&$this, 'hn_ts_int_get_timestream_head');
+			*$methods['timestreams.int_get_timestream_data'] =  array(&$this, 'hn_ts_int_get_timestream_data');
+			$methods['timestreams.int_update_timestream_head'] =  array(&$this, 'hn_ts_int_update_timestream_head');
+			
+			// external api
+			*$methods['timestreams.ext_get_time'] =  array(&$this, 'hn_ts_ext_get_time');
+			*$methods['timestreams.ext_get_timestreams'] =  array(&$this, 'hn_ts_ext_get_timestreams');
+			*$methods['timestreams.ext_get_timestream_metadata'] =  array(&$this, 'hn_ts_ext_get_timestream_metadata');
+			$methods['timestreams.ext_get_timestream_data'] =  array(&$this, 'hn_ts_ext_get_timestream_data');
 	 */
 	
 }
+
 /**
  * Returns wp_ts_metadata entries
  */
 function measurementContainerMetadata() {
 	$sql = "select * FROM wp_ts_metadata ORDER BY tablename";
-	try {
-		$db = getConnection();
-		$stmt = $db->query($sql);  
-		$measurementContainers = $stmt->fetchAll(PDO::FETCH_OBJ);
-		$db = null;
-		echo '{"measurementContainerMetadata": ' . json_encode($measurementContainers) . '}';
-	} catch(PDOException $e) {
-		echo '{"error":{"text":'. $e->getMessage() .'}}'; 
-	}
+	echoJsonQuery($sql, "measurementContainerMetadata");
 }
 
 /**
@@ -223,15 +292,7 @@ function measurementContainerMetadata() {
  */
 function hn_ts_list_mc_names() {
 	$sql = "select metadata_id AS id, tablename AS name FROM wp_ts_metadata ORDER BY id";
-	try {
-		$db = getConnection();
-		$stmt = $db->query($sql);
-		$measurementContainers = $stmt->fetchAll(PDO::FETCH_OBJ);
-		$db = null;
-		echo '{"measurementContainers": ' . json_encode($measurementContainers) . '}';
-	} catch(PDOException $e) {
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
-	}
+	echoJsonQuery($sql, "measurementContainers");
 }
 
 
@@ -245,7 +306,7 @@ function hn_ts_list_mc_names() {
  * name of the measurement container
  */
 function hn_ts_create_measurement_containerForBlog(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_create_measurement_containerForBlog"}}';
+	hn_ts_error_msg("hn_ts_create_measurement_containerForBlog");
 }
 
 /**
@@ -255,7 +316,7 @@ function hn_ts_create_measurement_containerForBlog(){
  * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
  */
 function hn_ts_add_measurement(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_add_measurement"}}';
+	hn_ts_error_msg("hn_ts_add_measurement");
 	
 }		
 
@@ -267,7 +328,7 @@ function hn_ts_add_measurement(){
  * number of insertions
  */
 function hn_ts_add_measurements(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_add_measurements"}}';
+	hn_ts_error_msg("hn_ts_add_measurements");
 	
 }
 
@@ -277,7 +338,7 @@ function hn_ts_add_measurements(){
  * @param measurement container id with optional query parameters: first, latest, count
  */
 function hn_ts_select_measurements($id){	
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_measurements"}}<br/>';
+	hn_ts_error_msg("hn_ts_select_measurements");
 }
 
 /**
@@ -287,7 +348,7 @@ function hn_ts_select_measurements($id){
  * @return string XML-XPC response with either an error message as a param or measurement data
  */
 function hn_ts_select_first_measurement($id){
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_first_measurement"}}<br/>';
+	hn_ts_error_msg("hn_ts_select_first_measurement");
 	echo $id;	
 }
 
@@ -298,7 +359,7 @@ function hn_ts_select_first_measurement($id){
 * @return string XML-XPC response with either an error message as a param or measurement data
 */
 function hn_ts_select_latest_measurement($id){
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_latest_measurement"}}';
+	hn_ts_error_msg("hn_ts_select_latest_measurement");
 	
 }
 
@@ -309,7 +370,7 @@ function hn_ts_select_latest_measurement($id){
  * @return string XML-XPC response with either an error message as a param or count value
  */
 function hn_ts_count_measurements($id){
-	echo '{"error":{"text":"Function incomplete: hn_ts_count_measurements"}}';
+	hn_ts_error_msg("hn_ts_count_measurements");
 	
 }
 
@@ -322,7 +383,7 @@ function hn_ts_count_measurements($id){
  * metadata
  */
 function hn_ts_select_metadata_by_name(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_metadata_by_name"}}';
+	hn_ts_error_msg("hn_ts_select_metadata_by_name");
 	
 }
 
@@ -334,7 +395,7 @@ function hn_ts_select_metadata_by_name(){
  */
 function hn_ts_add_context(){
 	
-	echo '{"error":{"text":"Function incomplete: hn_ts_add_context"}}';
+	hn_ts_error_msg("hn_ts_add_context");
 }
 
 /**
@@ -345,7 +406,7 @@ function hn_ts_add_context(){
  * @return string XML-XPC response with either an error message as a param or context records
  */
 function hn_ts_select_context($id){
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_context"}}<br/>';
+	hn_ts_error_msg("hn_ts_select_context");
 	echo "id: $id";
 	
 }
@@ -358,7 +419,7 @@ function hn_ts_select_context($id){
  * @return string XML-XPC response with either an error message as a param or context records
  */
 function hn_ts_select_contexts(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_contexts"}}';
+	hn_ts_error_msg("hn_ts_select_contexts");
 	
 }
 
@@ -370,7 +431,7 @@ function hn_ts_select_contexts(){
  * @return string XML-XPC response with either an error message as a param or context records
  */
 function hn_ts_select_context_by_type(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_context_by_type"}}';
+	hn_ts_error_msg("hn_ts_select_context_by_type");
 	
 }
 
@@ -382,7 +443,7 @@ function hn_ts_select_context_by_type(){
  * @return string XML-XPC response with either an error message as a param or context records
  */
 function hn_ts_select_context_by_value(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_context_by_value"}}';
+	hn_ts_error_msg("hn_ts_select_context_by_value");
 	
 }
 
@@ -394,7 +455,7 @@ function hn_ts_select_context_by_value(){
  * @return string XML-XPC response with either an error message as a param or context records
  */
 function hn_ts_select_context_by_type_and_value(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_context_by_type_and_value"}}';
+	hn_ts_error_msg("hn_ts_select_context_by_type_and_value");
 	
 }
 
@@ -406,7 +467,7 @@ function hn_ts_select_context_by_type_and_value(){
  * @return string XML-XPC response with either an error message as a param or context records
  */
 function hn_ts_select_context_within_time_range($start,$end){
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_context_within_time_range"}}<br/>';
+	hn_ts_error_msg("hn_ts_select_context_within_time_range");
 	echo "start:$start<br>";
 	echo "end:$end<br>";	
 }
@@ -418,7 +479,7 @@ function hn_ts_select_context_within_time_range($start,$end){
  * @return string XML-XPC response with either an error message as a param or number of updated records
  */
 function hn_ts_update_context(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_update_context"}}';
+	hn_ts_error_msg("hn_ts_update_context");
 	
 }
 
@@ -429,7 +490,7 @@ function hn_ts_update_context(){
  * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
  */
 function hn_ts_add_measurement_file(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_add_measurement_file"}}';
+	hn_ts_error_msg("hn_ts_add_measurement_file");
 	
 }
 
@@ -440,7 +501,7 @@ function hn_ts_add_measurement_file(){
  * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
  */
 function hn_ts_add_measurement_files(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_add_measurement_files"}}';
+	hn_ts_error_msg("hn_ts_add_measurement_files");
 }
 
 /**
@@ -450,7 +511,7 @@ function hn_ts_add_measurement_files(){
  * @return string XML-XPC response with either an error message or 1
  */
 function hn_ts_import_data_from_files(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_import_data_from_files"}}';
+	hn_ts_error_msg("hn_ts_import_data_from_files");
 	
 }
 
@@ -461,7 +522,7 @@ function hn_ts_import_data_from_files(){
  * @return string XML-XPC response with either an error message or 1
  */
 function hn_ts_heartbeat(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_heartbeat"}}';
+	hn_ts_error_msg("hn_ts_heartbeat");
 	
 }
 
@@ -474,7 +535,7 @@ function hn_ts_heartbeat(){
  * @return string XML-XPC response with either an error message or 1
  */
 function hn_ts_replicate(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_replication"}}';
+	hn_ts_error_msg("hn_ts_replication");
 	
 }
 
@@ -482,39 +543,147 @@ function hn_ts_replicate(){
 
 // internal interface
 function hn_ts_int_get_timestream_head(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_int_get_timestream_head"}}';
+	hn_ts_error_msg("hn_ts_int_get_timestream_head");
 	
 }
 
-function hn_ts_int_get_timestream_data(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_int_get_timestream_data"}}';
+/**
+ * Get readings for a given measurement container table
+ * @param $tablename is the table name for the measurement container
+ * @param $limit is the number of rows to return
+ * @param $offset is the row offset
+ * @param $lastTimestamp is the last time the database was queried
+ */
+function hn_ts_int_get_timestream_data($tablename, $limit, $offset, $lastTimestamp){
+	$where = "";
+		
+	if($lastTimestamp)
+	{
+		$timeStr = date ("Y-m-d H:i:s", $lastTimestamp);
+		$where = "WHERE valid_time > \"$timeStr\"";
+	}
 	
+	$limitStmt="";
+	if($limit){
+		if($offset){
+			$limitStmt = "LIMIT $offset,$limit";			
+		}else{
+			$limitStmt = "LIMIT 1,$limit";			
+		}
+	}else if($offset){
+			$limitStmt = "LIMIT $offset,1844674407370955161";				
+	}
+	
+	$sql = "SELECT id,value,valid_time AS timestamp,transaction_time 
+			FROM (SELECT * FROM $tablename $where ORDER BY valid_time DESC $limitStmt)
+			AS T1 ORDER BY timestamp ASC";
+	
+	echoJsonQuery($sql, "measurements");
+	/*	
+	$sql = "SELECT * FROM (SELECT * FROM $tablename $where ORDER BY valid_time DESC $limitStmt) 
+			 AS T1 ORDER BY valid_time ASC";
+		
+	$readings = querySql($sql);
+		
+	for($i = 0; $i < count($readings); $i++)
+	{
+		$newts = strtotime($readings[$i]->valid_time);
+		$readings[$i]->timestamp = $newts;
+	}
+		
+	return $readings;*/
 }
 
-function hn_ts_int_update_timestream_head(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_int_update_timestream_head"}}';
-	
+/**
+ * Update a timestream head
+ * @param $timestreamId is the id of the timestream to update
+ * @param $newHead is the new head time
+ * @param $newStart is the new start time
+ * @param $newEnd is the new end time
+ * @param $newRate is the new rate
+ */
+function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $newEnd, $newRate){
+		if(!$timestreamId){
+			echo '{"error":{"text":"timestream not found: '.$timestreamId.'"}}';
+			return;			
+		}
+		if(!$newHead){
+			echo '{"error":{"text":"Missing current time."}}';
+			return;			
+		}
+		if(!$newStart){
+			echo '{"error":{"text":"Missing new start value"}}';
+			return;			
+		}
+		if(!$newEnd){
+			echo '{"error":{"text":"Missing new end value"}}';
+			return;			
+		}
+		if(!$newRate){
+			echo '{"error":{"text":"Missing new rate value"}}';
+			return;			
+		}
+		
+		$currenttime = date ("Y-m-d H:i:s", $newHead);			
+		$starttime = date ("Y-m-d H:i:s", $newStart);
+		$endtime = date ("Y-m-d H:i:s", $newEnd);
+		$sql = "SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
+		
+		$db = getConnection();
+		$stmt = $db->query($sql);
+		$timestreams = $stmt->fetchAll();		
+		
+		if($timestreams==null) {
+			hn_ts_error_msg("Timestream not found");
+			return;
+		}	
+		/*$wpdb->update('wp_ts_head',
+				array(
+						'currenttime' => $currenttime,
+						'rate' => $newRate,
+				),
+				array('head_id' => $timestreams->head_id)
+		);*/
+		$id = $timestreams[0]["head_id"];
+		$sql = "UPDATE wp_ts_head SET currenttime='$currenttime', rate='$newRate'
+				WHERE head_id = $id";
+		
+		$count1 = $db->exec($sql);  
+		$sql = "UPDATE wp_ts_timestreams SET starttime='$starttime', endtime='$endtime'
+				WHERE timestream_id = $timestreamId";
+		
+		$count2 = $db->exec($sql);
+		echo '{"updates":[{"table":"wp_ts_head","rows":'.$count1.'},
+				{"table":"wp_ts_timestreams","rows":'.$count2.'}]}';
+		$db = null;		
 }
 
 	
 // external api
 function hn_ts_ext_get_time(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_ext_get_time"}}';
-	
+	$sql = "SELECT CURRENT_TIMESTAMP";
+	echoJsonQuery($sql, "timestamp");
 }
 
+/**
+ * Returns all timestreams
+ */
 function hn_ts_ext_get_timestreams(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_ext_get_timestreams"}}';
-	
+	$sql = "SELECT * FROM wp_ts_timestreams";
+	echoJsonQuery($sql, "timestreams");
 }
 
+/**
+ * Returns the measurement table's metadata row id for the given timestream id
+ * @param $timestreamId is the id of the timestream to return the metadata id for
+ */
 function hn_ts_ext_get_timestream_metadata($timestreamId){
-	echo '{"error":{"text":"Function incomplete: hn_ts_ext_get_timestream_metadata"}}';
-	
+	$sql = "SELECT metadata_id FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
+	echoJsonQuery($sql, "metadata_id");	
 }
 
 function hn_ts_ext_get_timestream_data(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_ext_get_timestream_data"}}';
+	hn_ts_error_msg("hn_ts_ext_get_timestream_data");
 	
 }	
 
