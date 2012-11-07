@@ -5,26 +5,67 @@ require 'Slim/Slim.php';
 $app = new Slim();
 
 $app->get('/', 'describeAPI');
-$app->get('/measurementContainerMetadata', 'measurementContainerMetadata');
-$app->get('/measurementContainerMetadata:name', 'hn_ts_select_metadata_by_name');
+$app->get('/measurementContainerMetadata', function() use ($app) {
+	$paramValue = $app->request()->get('tsid');
+	if(!$paramValue){
+		measurementContainerMetadata();
+	}else{
+		hn_ts_ext_get_timestream_metadata($paramValue);
+	}
+});
+$app->get('/measurementContainerMetadata/:name', 'hn_ts_select_metadata_by_name');
 $app->get('/measurementContainer', 'hn_ts_list_mc_names');
-$app->post('/measurementContainer', 'hn_ts_create_measurement_container');
+$app->post('/measurementContainer', 'hn_ts_create_measurement_containerForBlog');
 $app->get('/measurementContainer/:id', 'hn_ts_select_measurements');
-$app->post('/measurementContainer/:id', 'hn_ts_create_measurement_containerForBlog');
-$app->get('/measurement/first:id', 'hn_ts_select_first_measurement');
-$app->get('/measurement/latest:id', 'hn_ts_select_latest_measurement');
-$app->get('/measurement/count:id', 'hn_ts_count_measurements');
-$app->get('/measurement:id', 'hn_ts_select_measurements');
-$app->get('/measurements:id', 'hn_ts_select_measurements');
-$app->post('/measurement/add:id', 'hn_ts_add_measurement');
-$app->post('/measurements/add:id', 'hn_ts_add_measurements');
+$app->get('/measurement/:id', function($id) use ($app) {
+	$paramValue = $app->request()->get('action');
+	if(NULL == $paramValue){
+		hn_ts_select_measurements($id);
+	}else if(!strcasecmp($paramValue, "first")){
+		hn_ts_select_first_measurement($id);
+	}else if(!strcasecmp($paramValue, "latest")){
+		hn_ts_select_latest_measurement($id);
+	}else if(!strcasecmp($paramValue, "count")){
+		hn_ts_count_measurements($id);
+	}
+});
+$app->post('/measurement/:id/add/', 'hn_ts_add_measurement');
+$app->post('/measurements/:id/add', 'hn_ts_add_measurements');
+$app->post('/context/add', 'hn_ts_add_context');
+$app->get('/context', function() use ($app) {
+	if(NULL == $app->request()->get()){
+		hn_ts_select_contexts();
+	}
+	$typeParam = $app->request()->get('type');
+	$valueParam = $app->request()->get('value');
+	$startParam = $app->request()->get('start');
+	$endParam = $app->request()->get('end');
+	if($typeParam){
+		if(NULL == $valueParam){
+			hn_ts_select_context_by_type();
+		}else{
+			hn_ts_select_context_by_type_and_value();			
+		}
+	}else if($valueParam){
+		hn_ts_select_context_by_value();
+	}else if($startParam || $endParam){
+		hn_ts_select_context_within_time_range($startParam,$endParam);
+	}
+});
+$app->get('/context/:id', 'hn_ts_select_context');
+$app->put('/context/:id', 'hn_ts_update_context');
+$app->post('/measurementFile/:id', 'hn_ts_add_measurement_file');
+$app->post('/measurementFiles/:id', 'hn_ts_add_measurement_files');
+$app->put('/import', 'hn_ts_import_data_from_files'); // not reall a put or a post -- do we need to define a new verb for activation?
+$app->post('/heartbeat/:id', 'hn_ts_heartbeat');
+$app->put('/replicate', 'hn_ts_replicate'); // not reall a put or a post -- do we need to define a new verb for activation?
+$app->get('/timestream', 'hn_ts_ext_get_timestreams');
+$app->get('/timestream/id/:id', 'hn_ts_ext_get_timestream_data');	// id is the timestream id
+$app->get('/timestream/name/:name', 'hn_ts_int_get_timestream_data'); // name is the timestream table name
+$app->get('/timestream/head/:id', 'hn_ts_int_get_timestream_head');
+$app->put('/timestream/head/:id', 'hn_ts_int_update_timestream_head');
+$app->get('/time', 'hn_ts_ext_get_time');
 
-/*$app->get('/wines/:id',	'getWine');
-$app->get('/wines/search/:query', 'findByName');
-$app->post('/wines', 'addWine');
-$app->put('/wines/:id', 'updateWine');
-$app->delete('/wines/:id',	'deleteWine');
-*/
 $app->run();
 
 /**
@@ -55,29 +96,23 @@ function describeAPI(){
 					<td>None</td><td>This table.</td><td>Incomplete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/measurementContainerMetadata">./measurementContainerMetadata</a></td>
+					<td>
+						<a href="../api/measurementContainerMetadata">./measurementContainerMetadata</a><br/>
+						<a href="../api/measurementContainerMetadata?tsid=1">./measurementContainerMetadata?tsid=1</a>
+					</td>
 					<td>Returns the metadata for all of the measurement container entries.</td><td>GET</td>
-					<td>None</td><td>Metadata list</td><td>Complete.</td>
+					<td>(Optional)tsid: Id of a Timestream</td><td>Metadata list</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/measurementContainerMetadata:wp_1_ts_temperature_1">./measurementContainerMetadata:name</a></td>
-					<td>Returns the metadata for all of the measurement container entries.</td><td>GET</td>
-					<td>None</td><td>Metadata list</td><td>Complete.</td>
+					<td><a href="../api/measurementContainerMetadata/wp_1_ts_temperature_1">./measurementContainerMetadata/name</a></td>
+					<td>Returns the metadata for the named measurement container.</td><td>GET</td>
+					<td>None</td><td>Metadata list</td><td>Incomplete.</td>
 				</tr>
 				
 				<tr>
 					<td><a href="../api/measurementContainer">./measurementContainer</a></td>
 					<td>Returns the names of the measurement containers.</td><td>GET</td>
 					<td>None</td><td>Measurement container name list</td><td>Complete.</td>
-				</tr>
-				<tr>
-					<td>./measurementContainer
-						<form name="hn_ts_addMC" action="../api/measurementContainer" method="post">
-							<input type="submit" value="Submit">
-						</form>
-					</td> 
-					<td>Creates a new measurement container.</td><td>POST</td>
-					<td>...</td><td>Success or failure message.</td><td>Incomplete.</td>
 				</tr>
 				<tr>
 					<td><a href="../api/measurementContainer/1">./measurementContainer/id</a></td>
@@ -93,7 +128,7 @@ function describeAPI(){
 					<td>blog id ... </td><td>Success or failure message.</td><td>Incomplete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/measurement/first:1">./measurement/first:id</a></td>
+					<td><a href="../api/measurement/:id:first">./measurement/:id:first</a></td>
 					<td>Returns the first measurement from a measurement container.</td><td>GET</td>
 					<td>blog id ... </td><td>First measurement.</td><td>Incomplete.</td>
 				</tr>
@@ -134,7 +169,37 @@ function describeAPI(){
 					<td>Adds new measurements to the given measurement container.</td><td>POST</td>
 					<td>measurement container id ... </td><td>Success or failure message.</td><td>Incomplete.</td>
 				</tr>
+				<tr>
+					<td>./context/add
+						<form name="hn_ts_addContext" action="../api/context/add" method="post">
+							<input type="submit" value="Submit">
+						</form></td>
+					<td>Adds new measurements to the given measurement container.</td><td>POST</td>
+					<td>... </td><td>Success or failure message.</td><td>Incomplete.</td>
+				</tr>
 			</table>';
+	/*
+	 * 
+$app->post('/context/add', 'hn_ts_add_context');
+$app->get('/context', 'hn_ts_select_contexts');
+$app->get('/context/:id', 'hn_ts_select_context');
+$app->get('/context/:type/', 'hn_ts_select_context_by_type');
+$app->get('/context/:value/', 'hn_ts_select_context_by_value');
+$app->get('/context/:type:value/', 'hn_ts_select_context_by_type_and_value');
+$app->get('/context/:startTime:endTime/', 'hn_ts_select_context_within_time_range');
+$app->put('/context/:id', 'hn_ts_update_context');
+$app->post('/measurementFile', 'hn_ts_add_measurement_file');
+$app->post('/measurementFiles', 'hn_ts_add_measurement_files');
+$app->post('/import', 'hn_ts_import_data_from_files');
+$app->post('/heartbeat', 'hn_ts_heartbeat');
+$app->put('/replicate', 'hn_ts_replicate'); // not reall a put or a post -- do we need to define a new verb for activation?
+$app->get('/timestream', 'hn_ts_ext_get_timestreams');
+$app->get('/timestream/:id', 'hn_ts_ext_get_timestream_data');	// id is the timestream id
+$app->get('/timestream/:name', 'hn_ts_int_get_timestream_data'); // name is the timestream table name
+$app->get('/timestream/head/:id', 'hn_ts_int_get_timestream_head');
+$app->put('/timestream/head/:id', 'hn_ts_int_update_timestream_head');
+$app->get('/time', 'hn_ts_ext_get_time');
+	 */
 	
 }
 /**
@@ -167,18 +232,6 @@ function hn_ts_list_mc_names() {
 	} catch(PDOException $e) {
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-}
-/**
- * Checks username password then creates a new measurement container.
- * @param array $args should have 11 parameters:
- * $username, $password, $measurementType, $minimumvalue, $maximumvalue,
- *	$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType,
- *	$missing_data_value
- * @return string XML-XPC response with either an error message as a param or the
- * name of the measurement container
- */
-function hn_ts_create_measurement_container(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_create_measurement_container"}}';
 }
 
 
@@ -218,9 +271,13 @@ function hn_ts_add_measurements(){
 	
 }
 
-function hn_ts_select_measurements(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_measurements"}}';
-	
+/**
+ * Selects measurements for a given measurement container id. Request parameters can
+ * cause it to return the count, first or latest value
+ * @param measurement container id with optional query parameters: first, latest, count
+ */
+function hn_ts_select_measurements($id){	
+	echo '{"error":{"text":"Function incomplete: hn_ts_select_measurements"}}<br/>';
 }
 
 /**
@@ -229,9 +286,9 @@ function hn_ts_select_measurements(){
  * $username, $password, measurement container name
  * @return string XML-XPC response with either an error message as a param or measurement data
  */
-function hn_ts_select_first_measurement(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_first_measurement"}}';
-	
+function hn_ts_select_first_measurement($id){
+	echo '{"error":{"text":"Function incomplete: hn_ts_select_first_measurement"}}<br/>';
+	echo $id;	
 }
 
 /**
@@ -240,7 +297,7 @@ function hn_ts_select_first_measurement(){
 * $username, $password, measurement container name
 * @return string XML-XPC response with either an error message as a param or measurement data
 */
-function hn_ts_select_latest_measurement(){
+function hn_ts_select_latest_measurement($id){
 	echo '{"error":{"text":"Function incomplete: hn_ts_select_latest_measurement"}}';
 	
 }
@@ -251,7 +308,7 @@ function hn_ts_select_latest_measurement(){
  * $username, $password, measurement container name
  * @return string XML-XPC response with either an error message as a param or count value
  */
-function hn_ts_count_measurements(){
+function hn_ts_count_measurements($id){
 	echo '{"error":{"text":"Function incomplete: hn_ts_count_measurements"}}';
 	
 }
@@ -278,6 +335,31 @@ function hn_ts_select_metadata_by_name(){
 function hn_ts_add_context(){
 	
 	echo '{"error":{"text":"Function incomplete: hn_ts_add_context"}}';
+}
+
+/**
+ * Checks username password then selects context records.
+ * @param array $args should have 2 parameters:
+ * $username, $password,
+ * $limit (optional), $offset (optional)
+ * @return string XML-XPC response with either an error message as a param or context records
+ */
+function hn_ts_select_context($id){
+	echo '{"error":{"text":"Function incomplete: hn_ts_select_context"}}<br/>';
+	echo "id: $id";
+	
+}
+
+/**
+ * Checks username password then selects context records.
+ * @param array $args should have 2 parameters:
+ * $username, $password,
+ * $limit (optional), $offset (optional)
+ * @return string XML-XPC response with either an error message as a param or context records
+ */
+function hn_ts_select_contexts(){
+	echo '{"error":{"text":"Function incomplete: hn_ts_select_contexts"}}';
+	
 }
 
 /**
@@ -323,9 +405,10 @@ function hn_ts_select_context_by_type_and_value(){
  * $limit (optional), $offset (optional)
  * @return string XML-XPC response with either an error message as a param or context records
  */
-function hn_ts_select_context_within_time_range(){
-	echo '{"error":{"text":"Function incomplete: hn_ts_select_context_within_time_range"}}';
-	
+function hn_ts_select_context_within_time_range($start,$end){
+	echo '{"error":{"text":"Function incomplete: hn_ts_select_context_within_time_range"}}<br/>';
+	echo "start:$start<br>";
+	echo "end:$end<br>";	
 }
 
 /**
@@ -390,7 +473,7 @@ function hn_ts_heartbeat(){
  * $username, $password, tablename, ipaddress
  * @return string XML-XPC response with either an error message or 1
  */
-function hn_ts_replication(){
+function hn_ts_replicate(){
 	echo '{"error":{"text":"Function incomplete: hn_ts_replication"}}';
 	
 }
@@ -425,7 +508,7 @@ function hn_ts_ext_get_timestreams(){
 	
 }
 
-function hn_ts_ext_get_timestream_metadata(){
+function hn_ts_ext_get_timestream_metadata($timestreamId){
 	echo '{"error":{"text":"Function incomplete: hn_ts_ext_get_timestream_metadata"}}';
 	
 }
