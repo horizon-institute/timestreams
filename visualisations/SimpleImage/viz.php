@@ -14,37 +14,35 @@
 			
 			wp_enqueue_script('timestream-image', '/wp-content/plugins/timestreams/visualisations/SimpleImage/timestream-image.js');
 			
-			?>
+			return "
 			
-			<script type="text/javascript">
+			<script type='text/javascript'>
 
 			if(window.addEventListener)
 			{
 		        window.addEventListener('load', function() {  
-		    		window["<?php echo $this->vizId;?>"] = new SimpleImage(
-							"<?php echo site_url(); ?>/xmlrpc.php",
-							<?php echo $this->timestreamId;?>,
-							"viz_<?php echo $this->vizId;?>",
-							"viz_<?php echo $this->vizId;?>_meta");
+		    		window['" . $this->vizId."'] = new SimpleImage(
+							'" . site_url() . "/xmlrpc.php',
+							" . $this->timestreamId . ",
+							'viz_" . $this->vizId . "',
+							'viz_" . $this->vizId . "_meta');
 		        }, false);
 		    }    
 			else if (window.attachEvent)
 			{
 				window.attachEvent('onload', function() {
-		    		window["<?php echo $this->vizId;?>"] = new SimpleText(
-							"<?php echo site_url(); ?>/xmlrpc.php",
-							<?php echo $this->timestreamId;?>,
-							"viz_<?php echo $this->vizId;?>",
-							"viz_<?php echo $this->vizId;?>_meta");
+		    		window['" . $this->vizId . "'] = new SimpleImage(
+							'" . site_url() . "/xmlrpc.php',
+							" . $this->timestreamId . ",
+							'viz_" . $this->vizId . "',
+							'viz_" . $this->vizId . "_meta');
 				});
 		    }
 
 			</script>
-			<p>
-			<img id="viz_<?php echo $this->vizId;?>"></div>
-			<div id="viz_<?php echo $this->vizId;?>_meta"></div>
-			</p>
-			<?php 
+			<div id='viz_" . $this->vizId . "'></div>
+			<div id='viz_" . $this->vizId . "_meta'></div>			
+			";
 		}
 	}
 ?>

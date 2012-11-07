@@ -16,32 +16,35 @@
 			wp_enqueue_script('gauge', '/wp-content/plugins/timestreams/visualisations/GaugeViz/gauge.js');
 			wp_enqueue_script('timestream-gauge', '/wp-content/plugins/timestreams/visualisations/GaugeViz/timestream-gauge.js');
 			
-			?>
+			return "
 			
-			<script type="text/javascript">
+			<script type='text/javascript'>
 
 			if(window.addEventListener)
 			{
 		        window.addEventListener('load', function() {  
-		    		window["<?php echo $this->vizId;?>"] = new TimestreamGauge(
-							"<?php echo site_url(); ?>/xmlrpc.php",
-							<?php echo $this->timestreamId;?>,
-							"viz_<?php echo $this->vizId;?>");
+		    		window['" . $this->vizId."'] = new TimestreamGauge(
+							'" . site_url() . "/xmlrpc.php',
+							" . $this->timestreamId . ",
+							'viz_" . $this->vizId . "',
+							'viz_" . $this->vizId . "_meta');
 		        }, false);
 		    }    
 			else if (window.attachEvent)
 			{
 				window.attachEvent('onload', function() {
-		    		window["<?php echo $this->vizId;?>"] = new TimestreamGauge(
-							"<?php echo site_url(); ?>/xmlrpc.php",
-							<?php echo $this->timestreamId;?>,
-							"viz_<?php echo $this->vizId;?>");
+		    		window['" . $this->vizId . "'] = new TimestreamGauge(
+							'" . site_url() . "/xmlrpc.php',
+							" . $this->timestreamId . ",
+							'viz_" . $this->vizId . "',
+							'viz_" . $this->vizId . "_meta');
 				});
 		    }
 
 			</script>
-			<div id="viz_<?php echo $this->vizId;?>"></div>
-			<?php 
+			<div id='viz_" . $this->vizId . "'></div>
+			<div id='viz_" . $this->vizId . "_meta'></div>			
+			";
 		}
 	}
 ?>

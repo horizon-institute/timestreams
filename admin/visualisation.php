@@ -18,7 +18,7 @@
 		
 		public function write()
 		{
-			echo $this->vizId . " " . $this->name . " " . $this->timestreamId;
+			return $this->vizId . " " . $this->name . " " . $this->timestreamId;
 		}
 		
 		public function describe()
@@ -45,14 +45,12 @@
 		
 			$vizId = $post->ID . "_" . $tsid . "_" . rand();
 			$vizInstance = new $viz($vizId, $viz, $tsid, $style);
-			$vizInstance->write();
+			return $vizInstance->write();
 		}
 		else
 		{
-			echo "Timestream or visualisation not found";
+			return "Timestream or visualisation not found";
 		}
-		
-		return "";
 	}
 	
 	function hn_ts_vizbuttons()

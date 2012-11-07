@@ -16,39 +16,35 @@
 			//wp_register_style( 'viz-style', plugins_url('timestreams/visualisations/EmbellishedText/viz.css') );
 			//wp_enqueue_style( 'viz-style' );
 			
-			?>
+					return "
 			
-			<script type="text/javascript">
+			<script type='text/javascript'>
 
 			if(window.addEventListener)
 			{
 		        window.addEventListener('load', function() {  
-		    		window["<?php echo $this->vizId;?>"] = new EmbellishedText(
-								"<?php echo site_url(); ?>/xmlrpc.php",
-								<?php echo $this->timestreamId;?>,
-								"viz_<?php echo $this->vizId;?>",
-								"viz_<?php echo $this->vizId;?>_meta",
-								"<?php echo $this->style;?>"
-							);
+		    		window['" . $this->vizId."'] = new EmbellishedText(
+							'" . site_url() . "/xmlrpc.php',
+							" . $this->timestreamId . ",
+							'viz_" . $this->vizId . "',
+							'viz_" . $this->vizId . "_meta');
 		        }, false);
 		    }    
 			else if (window.attachEvent)
 			{
 				window.attachEvent('onload', function() {
-		    		window["<?php echo $this->vizId;?>"] = new SimpleText(
-							"<?php echo site_url(); ?>/xmlrpc.php",
-							<?php echo $this->timestreamId;?>,
-							"viz_<?php echo $this->vizId;?>",
-							"viz_<?php echo $this->vizId;?>_meta");
+		    		window['" . $this->vizId . "'] = new EmbellishedText(
+							'" . site_url() . "/xmlrpc.php',
+							" . $this->timestreamId . ",
+							'viz_" . $this->vizId . "',
+							'viz_" . $this->vizId . "_meta');
 				});
 		    }
 
 			</script>
-			<p>
-			<div id="viz_<?php echo $this->vizId;?>"></div>
-			<div id="viz_<?php echo $this->vizId;?>_meta"></div>
-			</p>
-			<?php 
+			<div id='viz_" . $this->vizId . "'></div>
+			<div id='viz_" . $this->vizId . "_meta'></div>			
+			";
 		}
 	}
 ?>
