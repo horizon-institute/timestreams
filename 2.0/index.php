@@ -1,7 +1,7 @@
 <?php
 
 require 'Slim/Slim.php';
-
+$HN_TS_DEBUG = true;
 $app = new Slim();
 
 /** ROUTES (resource URIs to callback function mappings) *********************/
@@ -40,17 +40,26 @@ $app->post('/measurementContainer', function() use ($app) {
 		$unitSymbol, $device, $otherInformation, $datatype,
 		$missingDataValue, $siteId, $blogid, $userid);
 });
-$app->get('/measurementContainer/:id', 'hn_ts_select_measurements');
-$app->get('/measurement/:id', function($id) use ($app) {
+$app->get('/measurementContainer/:name', function($name) use ($app) {
+	if(!isset($name)){
+		$app->response()->status(404);
+		hn_ts_error_msg("Invalid measurement container: $name");
+		return;
+	}
+	$name = hn_ts_sanitise($name);
 	$paramValue = $app->request()->get('action');
+	
 	if(NULL == $paramValue){
-		hn_ts_select_measurements($id);
+		hn_ts_select_measurements($name);
 	}else if(!strcasecmp($paramValue, "first")){
-		hn_ts_select_first_measurement($id);
+		$sql="SELECT * FROM $name LIMIT 1";
+		echoJsonQuery($sql, $name);
 	}else if(!strcasecmp($paramValue, "latest")){
-		hn_ts_select_latest_measurement($id);
+		$sql = "SELECT * FROM $name WHERE id = ( SELECT MAX( id ) FROM $name ) ";
+		echoJsonQuery($sql, $name);
 	}else if(!strcasecmp($paramValue, "count")){
-		hn_ts_count_measurements($id);
+		$sql="SELECT COUNT(*) FROM $name;";
+		echoJsonQuery($sql, $name);
 	}
 });
 $app->post('/measurement/:id/add/', 'hn_ts_add_measurement');
@@ -119,7 +128,10 @@ $app->run();
  * @param $txt is the message to output
  */
 function hn_ts_error_msg($txt){
-	echo '{"error":{"message":"'.$txt.'"}}';
+	global $HN_TS_DEBUG;
+	if($HN_TS_DEBUG){
+		echo '{"error":{"message":"'.$txt.'"}}';
+	}
 }
 
 /**
@@ -170,10 +182,12 @@ function querySql($sql){
  * @param $sql is the query to execute
  * @param $root is the root item for the returned JSON
  */
-function echoJsonQuery($sql, $root){
+function echoJsonQuery($sql, $root, $error=404){
 	try {
 		echo '{"'.$root.'": ' . json_encode(querySql($sql)) . '}';
 	} catch(PDOException $e) {
+		global $app;
+		$app->response()->status($error);
 		hn_ts_error_msg($e->getMessage()); 
 	}	
 }
@@ -269,40 +283,23 @@ function describeAPI(){
 					</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../2.0/measurementContainer/1">./measurementContainer/id</a></td>
-					<td>Returns the data for the given measurement container.</td><td>GET</td>
-					<td>measurement container id</td><td>Measurements list</td><td>Incomplete.</td>
-				</tr>
-				<tr>
 					<td><ul>
-						<li><a href="../2.0/measurement/1">./measurement/1</a></li>
-						<li><a href="../2.0/measurement/1?first=true">./measurement/1?first=true</a></li>
-						<li><a href="../2.0/measurement/1?latest=true">./measurement/1?latest=true</a></li>
-						<li><a href="../2.0/measurement/1?count=true">./measurement/1?count=true</a></li>
+						<li><a href="../2.0/measurementContainer/wp_1_ts_Pressure_25">./measurementContainer/wp_1_ts_Pressure_25</a></li>
+						<li><a href="../2.0/measurementContainer/wp_1_ts_Pressure_25?action=first">./measurementContainer/wp_1_ts_Pressure_25?action=first</a></li>
+						<li><a href="../2.0/measurementContainer/wp_1_ts_Pressure_25?action=latest">./measurementContainer/wp_1_ts_Pressure_25?action=latest</a></li>
+						<li><a href="../2.0/measurementContainer/wp_1_ts_Pressure_25?action=count">./measurementContainer/wp_1_ts_Pressure_25?action=count</a></li>
 					</ul></td>
-					<td>Returns the first measurement from a measurement container.</td><td>GET</td>
-					<td>blog id ... </td><td>First measurement.</td><td>Incomplete.</td>
-				</tr>
-				<tr>
-					<td><a href="../2.0/measurement/latest:1">./measurement/latest:id</a></td>
-					<td>Returns the latest measurement from a measurement container.</td><td>GET</td>
-					<td>blog id ... </td><td>Latest measurement.</td><td>Incomplete.</td>
-				</tr>
-				<tr>
-					<td><a href="../2.0/measurement/count:1">./measurement/count:id</a></td>
-					<td>Returns the number of measurements in the given measurement container.</td><td>GET</td>
-					<td>blog id ... </td><td>Count of measurements.</td><td>Incomplete.</td>
-				</tr>				
-				<tr>
-					<td><a href="../2.0/measurement:1">./measurement:id</a></td>
-					<td>Returns the data for the given measurement container.</td><td>GET</td>
-					<td>measurement container id</td><td>Measurements list</td><td>Incomplete.</td>
-				</tr>
-				<tr>
-					<td><a href="../2.0/measurements:1">./measurements:id</a></td>
-					<td>Returns the data for the given measurement container.</td><td>GET</td>
-					<td>measurement container id</td><td>Measurements list</td><td>Incomplete.</td>
-				</tr>
+					<td><ul>
+						<li>(No parameter) Returns the data for the given measurement container. Replaces timestreams.select_measurements.</li>
+						<li>(action=first) Returns the first measurement from a measurement container. Replaces timestreams.select_first_measurement.</li>
+						<li>(action=latest) Returns the latest measurement from a measurement container. Replaces timestreams.select_latest_measurement.</li>
+						<li>(action=count) Returns the number of meaurements in the measurement container. Replaces timestreams.count_measurements.</li></ul>
+					</td><td>GET</td>
+					<td>action (optional)[first|latest|count]</td>
+					<td>
+						Measurements list, first measurement, latest measurement or count of measurements.
+					</td><td>Complete.</td>
+				</tr>	
 				<tr>
 					<td>./measurement/add:id
 						<form name="hn_ts_addMeaurement" action="../2.0/measurement/add:id" method="post">
@@ -544,8 +541,7 @@ function hn_ts_create_measurement_containerForBlog($measurementType,
  * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
  */
 function hn_ts_add_measurement(){
-	hn_ts_error_msg("hn_ts_add_measurement");
-	
+	hn_ts_error_msg("hn_ts_add_measurement");	
 }		
 
 /**
@@ -556,50 +552,58 @@ function hn_ts_add_measurement(){
  * number of insertions
  */
 function hn_ts_add_measurements(){
-	hn_ts_error_msg("hn_ts_add_measurements");
-	
+	hn_ts_error_msg("hn_ts_add_measurements");	
 }
 
 /**
- * Selects measurements for a given measurement container id. Request parameters can
- * cause it to return the count, first or latest value
- * @param measurement container id with optional query parameters: first, latest, count
+ * Retrieves records from a readings table of the form
+ * wp_[blog-id]_ts_[measurement-type]_[device-id]
+ * @param $args is an array in the expected format of:
+ * [2]table name
+ * [3]minimum timestamp
+ * [4]maximum timestamp
+ * [5]limit -- optional
+ * [6]offset -- optional
+ * [7]sort by column -- optional
+ * [8]descending boolean -- optional
+ * To do: Sanitise parameters
+ * @return the result of the select
  */
-function hn_ts_select_measurements($id){	
-	hn_ts_error_msg("hn_ts_select_measurements");
-}
+function hn_ts_select_measurements($name, $minTs, $maxTs, $limit, $offset, $sort, $desc){	
+	global $wpdb;
+	if(count($args) < 3){
+		return $this->missingcontainername;
+	}
+	$table=$args[2];
+	$minimumTime=$args[3];
+	$maximumTime=$args[4];
+	$where="WHERE ";
+	$limit=$this->hn_ts_getLimitStatement($args[5], $args[6]);
+	$sortcolumn=(count($args) > 7 ? $args[7] : "");
+	$descending=(count($args) > 8 ? $args[8] : "");
+	$sort = "";
+		
+	if($minimumTime){
+		$where=$where."valid_time >= '$minimumTime' ";
 
-/**
- * Checks username password then selects the first measurement from a measurement container.
- * @param array $args should have 3 parameters:
- * $username, $password, measurement container name
- * @return string XML-XPC response with either an error message as a param or measurement data
- */
-function hn_ts_select_first_measurement($id){
-	hn_ts_error_msg("hn_ts_select_first_measurement");
-	echo $id;	
-}
-
-/**
-* Checks username password then selects the latest measurement from a measurement container.
-* @param array $args should have 3 parameters:
-* $username, $password, measurement container name
-* @return string XML-XPC response with either an error message as a param or measurement data
-*/
-function hn_ts_select_latest_measurement($id){
-	hn_ts_error_msg("hn_ts_select_latest_measurement");
-	
-}
-
-/**
- * Checks username password then selects the latest measurement from a measurement container.
- * @param array $args should have 3 parameters:
- * $username, $password, measurement container name
- * @return string XML-XPC response with either an error message as a param or count value
- */
-function hn_ts_count_measurements($id){
-	hn_ts_error_msg("hn_ts_count_measurements");
-	
+		if($maximumTime){
+			$where=$where."AND valid_time <= '$maximumTime'";
+		}
+	}else if($maximumTime){
+		$where=$where."valid_time <= '$maximumTime'";
+	}
+		
+	if(0==strcmp($where,"WHERE ")){
+		$where="";
+	}
+		
+	if($sortcolumn) {
+		$sort = "ORDER BY " . $sortcolumn;
+		if($descending)
+			$sort .= " DESC";
+	}
+	return $wpdb->get_results( 	$wpdb->prepare(
+			"SELECT * FROM $table $where $sort $limit;" )	);
 }
 
 /**
