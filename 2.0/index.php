@@ -213,15 +213,15 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td>
-						<a href="../api/measurementContainerMetadata">./measurementContainerMetadata</a><br/>
-						<a href="../api/measurementContainerMetadata?tsid=1">./measurementContainerMetadata?tsid=1</a>
+						<a href="../2.0/measurementContainerMetadata">./measurementContainerMetadata</a><br/>
+						<a href="../2.0/measurementContainerMetadata?tsid=1">./measurementContainerMetadata?tsid=1</a>
 					</td>
 					<td>If no parameter is given then returns the metadata for all of the measurement container entries.
 					<br/>When used with id parameter returns the metadata record id for the given timestream id. Replaces timestreams.ext_get_timestream_metadata. </td><td>GET</td>
 					<td>tsid (optional): Id of a Timestream</td><td>Metadata list</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/measurementContainerMetadata/wp_1_ts_temperature_1">./measurementContainerMetadata/name</a></td>
+					<td><a href="../2.0/measurementContainerMetadata/wp_1_ts_temperature_1">./measurementContainerMetadata/name</a></td>
 					<td>Returns the metadata for the named measurement container. Replaces timestreams.select_metadata_by_name.</td><td>GET</td>
 					<td><ul>
 						<li>limit (optional): natural number for the maximum number of rows to return</li>	
@@ -229,7 +229,7 @@ function describeAPI(){
 					</ul></td><td>Metadata list</td><td>Complete.</td>
 				</tr>				
 				<tr>
-					<td><a href="../api/measurementContainer">./measurementContainer</a></td>
+					<td><a href="../2.0/measurementContainer">./measurementContainer</a></td>
 					<td>Returns the names of the measurement containers.</td><td>GET</td>
 					<td>None</td><td>Measurement container name list</td><td>Complete.</td>
 				</tr>
@@ -240,7 +240,7 @@ function describeAPI(){
 						"measuretype=temperature&minimumvalue=0&maximumvalue=100&
 						unit=text/x-data-C&unitsymbol=C&device=testDev&otherinfo=blah&
 						datatype=DECIMAL(5,2)&siteId=1&blogid=1&userid=1"
-						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/utilities/api/measurementContainer
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2.0/measurementContainer
 					</td>
 					<td>Creates a new measurement container owned by the given blog id. 
 					Replaces timestreams.hn_ts_create_measurements and 
@@ -269,43 +269,43 @@ function describeAPI(){
 					</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/measurementContainer/1">./measurementContainer/id</a></td>
+					<td><a href="../2.0/measurementContainer/1">./measurementContainer/id</a></td>
 					<td>Returns the data for the given measurement container.</td><td>GET</td>
 					<td>measurement container id</td><td>Measurements list</td><td>Incomplete.</td>
 				</tr>
 				<tr>
 					<td><ul>
-						<li><a href="../api/measurement/1">./measurement/1</a></li>
-						<li><a href="../api/measurement/1?first=true">./measurement/1?first=true</a></li>
-						<li><a href="../api/measurement/1?latest=true">./measurement/1?latest=true</a></li>
-						<li><a href="../api/measurement/1?count=true">./measurement/1?count=true</a></li>
+						<li><a href="../2.0/measurement/1">./measurement/1</a></li>
+						<li><a href="../2.0/measurement/1?first=true">./measurement/1?first=true</a></li>
+						<li><a href="../2.0/measurement/1?latest=true">./measurement/1?latest=true</a></li>
+						<li><a href="../2.0/measurement/1?count=true">./measurement/1?count=true</a></li>
 					</ul></td>
 					<td>Returns the first measurement from a measurement container.</td><td>GET</td>
 					<td>blog id ... </td><td>First measurement.</td><td>Incomplete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/measurement/latest:1">./measurement/latest:id</a></td>
+					<td><a href="../2.0/measurement/latest:1">./measurement/latest:id</a></td>
 					<td>Returns the latest measurement from a measurement container.</td><td>GET</td>
 					<td>blog id ... </td><td>Latest measurement.</td><td>Incomplete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/measurement/count:1">./measurement/count:id</a></td>
+					<td><a href="../2.0/measurement/count:1">./measurement/count:id</a></td>
 					<td>Returns the number of measurements in the given measurement container.</td><td>GET</td>
 					<td>blog id ... </td><td>Count of measurements.</td><td>Incomplete.</td>
 				</tr>				
 				<tr>
-					<td><a href="../api/measurement:1">./measurement:id</a></td>
+					<td><a href="../2.0/measurement:1">./measurement:id</a></td>
 					<td>Returns the data for the given measurement container.</td><td>GET</td>
 					<td>measurement container id</td><td>Measurements list</td><td>Incomplete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/measurements:1">./measurements:id</a></td>
+					<td><a href="../2.0/measurements:1">./measurements:id</a></td>
 					<td>Returns the data for the given measurement container.</td><td>GET</td>
 					<td>measurement container id</td><td>Measurements list</td><td>Incomplete.</td>
 				</tr>
 				<tr>
 					<td>./measurement/add:id
-						<form name="hn_ts_addMeaurement" action="../api/measurement/add:id" method="post">
+						<form name="hn_ts_addMeaurement" action="../2.0/measurement/add:id" method="post">
 							<input type="submit" value="Submit">
 						</form>
 					</td>
@@ -314,7 +314,7 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td>./measurements/add:id
-						<form name="hn_ts_addMeaurements" action="../api/measurements/add:id" method="post">
+						<form name="hn_ts_addMeaurements" action="../2.0/measurements/add:id" method="post">
 							<input type="submit" value="Submit">
 						</form></td>
 					<td>Adds new measurements to the given measurement container.</td><td>POST</td>
@@ -322,7 +322,7 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td>./measurementfile/1
-						<form name="hn_ts_addMeaurementFile" action="../api/measurementfile/1" method="post">
+						<form name="hn_ts_addMeaurementFile" action="../2.0/measurementfile/1" method="post">
 							<input type="submit" value="Submit">
 						</form>
 					</td>
@@ -331,7 +331,7 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td>./measurementfiles/1
-						<form name="hn_ts_addMeaurementFiles" action="../api/measurementfiles/1" method="post">
+						<form name="hn_ts_addMeaurementFiles" action="../2.0/measurementfiles/1" method="post">
 							<input type="submit" value="Submit">
 						</form></td>
 					<td>...</td><td>POST</td>
@@ -339,7 +339,7 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td>./context/add
-						<form name="hn_ts_addContext" action="../api/context/add" method="post">
+						<form name="hn_ts_addContext" action="../2.0/context/add" method="post">
 							<input type="submit" value="Submit">
 						</form></td>
 					<td>Adds new measurements to the given measurement container.</td><td>POST</td>
@@ -347,12 +347,12 @@ function describeAPI(){
 				</tr>		
 					
 				<tr>
-					<td><a href="../api/context">./context</a></td>
+					<td><a href="../2.0/context">./context</a></td>
 					<td>...</td><td>GET</td>
 					<td>...</td><td>...</td><td>Incomplete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/context/1">./context/1</a></td>
+					<td><a href="../2.0/context/1">./context/1</a></td>
 					<td>...</td><td>GET</td>
 					<td>...</td><td>...</td><td>Incomplete.</td>
 				</tr>
@@ -360,24 +360,24 @@ function describeAPI(){
 					<td>
 						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d<br/>
 						"..."<br/>
-						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/utilities/api/timestream/context/1
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2.0/timestream/context/1
 					</td>
 					<td>....</td><td>PUT</td>
 					<td>...</td>
 				</tr>				
 				<tr><td>*****************</td></tr>
 				<tr>
-					<td><a href="../api/timestream">./timestream</a></td>
+					<td><a href="../2.0/timestream">./timestream</a></td>
 					<td>Returns all of the Timestreams. Replaces timestreams.ext_get_timestreams.</td><td>GET</td>
 					<td>None </td><td>The list of timestreams</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/time">./time</a></td>
+					<td><a href="../2.0/time">./time</a></td>
 					<td>Returns the current timestamp. Replaces timestreams.ext_get_time</td><td>GET</td>
 					<td>None </td><td>The current timestamp</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/timestream/name/wp_1_ts_temperature_23">./timestream/name/wp_1_ts_temperature_23</a></td>
+					<td><a href="../2.0/timestream/name/wp_1_ts_temperature_23">./timestream/name/wp_1_ts_temperature_23</a></td>
 					<td>Returns timestream readings for a given measurement container name. Replaces timestreams.int_get_timestream_data.</td><td>GET</td>
 					<td>limit<br/>offset<br/>lastts </td><td>The readings.</td><td>Complete.</td>
 				</tr>
@@ -385,18 +385,18 @@ function describeAPI(){
 					<td>
 						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d<br/>
 						"curtime=1352315401&start=1352315401&end=1352315401&rate=2"<br/>
-						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/utilities/api/timestream/head/1
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2.0/timestream/head/1
 					</td>
 					<td>Updates a timestream head. Replaces timestreams.int_update_timestream_head.</td><td>PUT</td>
 					<td>limit<br/>offset<br/>lastts </td><td>The readings.</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/timestream/head/1">./timestream/head/1</a></td>
+					<td><a href="../2.0/timestream/head/1">./timestream/head/1</a></td>
 					<td>Updates and outputs the head for the given timestream id.<br>Replaces timestreams.hn_ts_int_get_timestream_head.</td><td>GET</td>
 					<td>None</td><td>The head data</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../api/timestream/id/1?limit=10&order=DESC">./api/timestream/id/1?limit=10&order=DESC</a></td>
+					<td><a href="../2.0/timestream/id/1?limit=10&order=DESC">./2.0/timestream/id/1?limit=10&order=DESC</a></td>
 					<td>Returns data corresponding to a given timestream since the last time 
 					the function was called. Replaces timestreams.ext_get_timestream_data.</td><td>GET</td>
 					<td><ul><li>last (optional): integer representing a php timestamp for last time a call was made</li><li>limit (optional): integer for the maximum number of rows to return</li><li>order (optional): string ["ASC"|"DESC"] sets the order of the returned results</li></ul></td><td>The timestream data</td><td>Complete.</td>
@@ -406,14 +406,14 @@ function describeAPI(){
 					<td>
 						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d<br/>
 						"..."<br/>
-						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/utilities/api/import
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2.0/import
 					</td>
 					<td>....</td><td>PUT</td>
 					<td>...</td>
 				</tr>
 				<tr>
 					<td>./heartbeat
-						<form name="hn_ts_heartbeat" action="../api/heartbeat" method="post">
+						<form name="hn_ts_heartbeat" action="../2.0/heartbeat" method="post">
 							<input type="submit" value="Submit">
 						</form></td>
 					<td>...</td><td>POST</td>
@@ -421,7 +421,7 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td>./replicate/
-						<form name="hn_tsreplicate" action="../api/replicate" method="post">
+						<form name="hn_tsreplicate" action="../2.0/replicate" method="post">
 							<input type="submit" value="Submit">
 						</form></td>
 					<td>...</td><td>POST</td>
