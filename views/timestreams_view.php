@@ -114,6 +114,16 @@
 			$head = $db->hn_ts_getReadHead($timestream->head_id);
 			$metadata = $db->hn_ts_getMetadata($timestream->metadata_id);
 			
+			if($metadata->min_value == null)
+			{
+				$metadata->min_value = 0;
+			}
+			
+			if($metadata->max_value == null)
+			{
+				$metadata->max_value = 1;
+			}
+			
 			if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
 			{
 				$timestream->endtime = "1970-01-01 00:00:00";
