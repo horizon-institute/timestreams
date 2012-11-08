@@ -62,7 +62,12 @@ $app->put('/import', 'hn_ts_import_data_from_files'); // not reall a put or a po
 $app->post('/heartbeat/:id', 'hn_ts_heartbeat');
 $app->put('/replicate', 'hn_ts_replicate'); // not reall a put or a post -- do we need to define a new verb for activation?
 $app->get('/timestream', 'hn_ts_ext_get_timestreams');
-$app->get('/timestream/id/:id', 'hn_ts_ext_get_timestream_data');	// id is the timestream id
+$app->get('/timestream/id/:id', function($id) use ($app) {
+	$lastAskTime = $app->request()->get('last');
+	$limit = $app->request()->get('limit');
+	$order = $app->request()->get('order');
+	hn_ts_ext_get_timestream_data($id, $lastAskTime, $limit, $order);
+});
 
 // name is the timestream table name
 $app->get('/timestream/name/:name', function() use ($app) {
@@ -141,11 +146,14 @@ function echoJsonQuery($sql, $root){
  * Describes this API
  */
 function describeAPI(){	
-	echo'<h1>Timestreams API</h1>';
+	echo'<h1>Timestreams API v. 2.0</h1>';
 	echo '	<table border="1">
 				<thead>
-					<tr><th>URL</th><th>Description</th><th>Method</th><th>Parameters</th><th>Output</th><th>Status</th></tr>
+					<tr><th>Example URL</th><th>Description</th><th>Method</th><th>Parameters</th><th>Output</th><th>Status</th></tr>
 				</thead>
+				<tfoot>
+					<tr><th>Example URL</th><th>Description</th><th>Method</th><th>Parameters</th><th>Output</th><th>Status</th></tr>
+				</tfoot>
 				<tbody>
 				<tr>
 					<td><a href="../api">./</a></td><td>Describes the Api</td><td>GET</td>
@@ -157,7 +165,7 @@ function describeAPI(){
 						<a href="../api/measurementContainerMetadata?tsid=1">./measurementContainerMetadata?tsid=1</a>
 					</td>
 					<td>If no parameter is given then returns the metadata for all of the measurement container entries.
-					<br/>When used with id parameter returns the metadata record id for the given timestream id. Relpaces timestreams.ext_get_timestream_metadata. </td><td>GET</td>
+					<br/>When used with id parameter returns the metadata record id for the given timestream id. Replaces timestreams.ext_get_timestream_metadata. </td><td>GET</td>
 					<td>(Optional)tsid: Id of a Timestream</td><td>Metadata list</td><td>Complete.</td>
 				</tr>
 				<tr>
@@ -242,7 +250,7 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td><a href="../api/time">./time</a></td>
-					<td>Returns the current timestamp.</td><td>GET</td>
+					<td>Returns the current timestamp. Replaces timestreams.ext_get_time</td><td>GET</td>
 					<td>None </td><td>The current timestamp</td><td>Complete.</td>
 				</tr>
 				<tr>
@@ -251,11 +259,25 @@ function describeAPI(){
 					<td>limit<br/>offset<br/>lastts </td><td>The readings.</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td>curl --noproxy 192.168.56.101 -i -X PUT http://192.168.56.101/wordpress/wp-content/plugins/timestreams/utilities/api/timestream/head/1</td>
-					<td>Returns timestream readings for a given measurement container name. Replaces timestreams.int_update_timestream_head.</td><td>GET</td>
+					<td>
+						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d<br/>
+						"curtime=1352315401&start=1352315401&end=1352315401&rate=2"<br/>
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/utilities/api/timestream/head/1
+					</td>
+					<td>Updates a timestream head. Replaces timestreams.int_update_timestream_head.</td><td>PUT</td>
 					<td>limit<br/>offset<br/>lastts </td><td>The readings.</td><td>Complete.</td>
 				</tr>
-				
+				<tr>
+					<td><a href="../api/timestream/head/1">./timestream/head/1</a></td>
+					<td>Updates and outputs the head for the given timestream id.<br>Replaces timestreams.hn_ts_int_get_timestream_head.</td><td>GET</td>
+					<td>None</td><td>The head data</td><td>Complete.</td>
+				</tr>
+				<tr>
+					<td><a href="../api/timestream/id/1?limit=10&order=DESC">./api/timestream/id/1?limit=10&order=DESC</a></td>
+					<td>Returns data corresponding to a given timestream since the last time 
+					the function was called. Replaces timestreams.ext_get_timestream_data.</td><td>GET</td>
+					<td><ul><li>last (optional): integer representing a php timestamp for last time a call was made</li><li>limit (optional): integer for the maximum number of rows to return</li><li>order (optional): string ["ASC"|"DESC"] sets the order of the returned results</li></ul></td><td>The timestream data</td><td>Complete.</td>
+				</tr>
 			</table>';
 	/*
 	 * 
@@ -266,15 +288,15 @@ $app->get('/timestream/head/:id', 'hn_ts_int_get_timestream_head');
 $app->put('/timestream/head/:id', 'hn_ts_int_update_timestream_head');
 
 			// internal interface
-			$methods['timestreams.int_get_timestream_head'] =  array(&$this, 'hn_ts_int_get_timestream_head');
+			*$methods['timestreams.int_get_timestream_head'] =  array(&$this, 'hn_ts_int_get_timestream_head');
 			*$methods['timestreams.int_get_timestream_data'] =  array(&$this, 'hn_ts_int_get_timestream_data');
-			$methods['timestreams.int_update_timestream_head'] =  array(&$this, 'hn_ts_int_update_timestream_head');
+			*$methods['timestreams.int_update_timestream_head'] =  array(&$this, 'hn_ts_int_update_timestream_head');
 			
 			// external api
 			*$methods['timestreams.ext_get_time'] =  array(&$this, 'hn_ts_ext_get_time');
 			*$methods['timestreams.ext_get_timestreams'] =  array(&$this, 'hn_ts_ext_get_timestreams');
 			*$methods['timestreams.ext_get_timestream_metadata'] =  array(&$this, 'hn_ts_ext_get_timestream_metadata');
-			$methods['timestreams.ext_get_timestream_data'] =  array(&$this, 'hn_ts_ext_get_timestream_data');
+			*$methods['timestreams.ext_get_timestream_data'] =  array(&$this, 'hn_ts_ext_get_timestream_data');
 	 */
 	
 }
@@ -541,10 +563,103 @@ function hn_ts_replicate(){
 
 //function hn_ts_siteinfo'] =  array(&$this, 'hn_ts_siteinfo');
 
+
+/**
+ * Returns rows for the given head id
+ * @param $headId is the id of the head to return rows for
+ */
+function hn_ts_getReadHead($headId)
+{
+	$sql = "SELECT * FROM wp_ts_head WHERE head_id = $headId";
+	return querySql($sql);
+}
+
 // internal interface
-function hn_ts_int_get_timestream_head(){
-	hn_ts_error_msg("hn_ts_int_get_timestream_head");
+
+/**
+ * Returns the databases current timestamp as a php timestamp
+ * @return timestamp or false 
+ */
+function hn_ts_getTimeNow(){
+	$sql = "SELECT CURRENT_TIMESTAMP";
+	$_now = querySql($sql);
+	return strtotime($_now[0]->CURRENT_TIMESTAMP);
+}
+
+/**
+ * Updates and outputs the head for the given timestream id 
+ * @param $timestreamId is an id for a timestream
+ */
+function hn_ts_int_get_timestream_head($timestreamId){	
+	$sql = "SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
+	$timestream = querySql($sql);
+	if($timestream==null) {
+		hn_ts_error_msg("Timestream not found.");
+		return;
+	}else{
+		$timestream=$timestream[0];
+	}
+	$head = hn_ts_getReadHead($timestream->head_id);
+		
+	if($head==null) {
+		hn_ts_error_msg("Head not found.");
+		return;
+	}else{
+		$head=$head[0];
+	}
+		
+	// TODO ratelimit?
+	// TODO rate should be a float
+		
+	// update/move read head based on timestream time
+		
+	// currenttime = time in data source frame
+	// lasttime = real time head last moved
+	// distance to move = (now - lasttime) * rate	
 	
+	$now = hn_ts_getTimeNow();
+		
+	$newcurrent = (($now - strtotime($head->lasttime)) * $head->rate) + strtotime($head->currenttime);
+
+	if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
+	{
+		$timestream->endtime = "1970-01-01 00:00:00";
+	}
+		
+	//if(strtotime($timestream->endtime) > 0)
+	//	error_log("blaj");
+
+	if(strtotime($timestream->endtime) > 0 && $newcurrent > strtotime($timestream->endtime))
+	{
+		//error_log("reset to starttime");
+		$currenttime = $timestream->starttime;
+	}
+	else
+	{
+		$currenttime = date ("Y-m-d H:i:s", $newcurrent);
+	}
+
+	$lasttime = date ("Y-m-d H:i:s", $now);
+	//echo "now " . $now . "\n";
+	//echo "newcur " . $newcurrent . "\n";
+
+	///$wpdb->update('wp_ts_head',
+	//		array(
+	//				'lasttime' => $lasttime,
+	//				'currenttime' => $currenttime,
+	//		),
+	//		array('head_id' => $timestream->head_id)
+	//);
+	$db = getConnection();
+	$sql = "UPDATE wp_ts_head SET currenttime='$currenttime', lasttime='$lasttime'
+	WHERE head_id = $timestream->head_id";
+	
+	$count0 = $db->exec($sql);
+	$db = null;
+
+	$head->lasttime = strtotime($lasttime);
+	$head->currenttime = strtotime($currenttime);
+	echo '{"head": ' . json_encode($head) .  '}';
 }
 
 /**
@@ -682,9 +797,185 @@ function hn_ts_ext_get_timestream_metadata($timestreamId){
 	echoJsonQuery($sql, "metadata_id");	
 }
 
-function hn_ts_ext_get_timestream_data(){
-	hn_ts_error_msg("hn_ts_ext_get_timestream_data");
+/**
+ * Updates the read head
+ * @param $timestream is a query row array for a timestream
+ * @uses triggered by viz getting data, update read head at given rate
+ * @return NULL on failure or the updated head row data as array
+ * @todo ratelimit?
+ * @todo rate should be a float
+ */
+function hn_ts_timestream_update($timestream)
+{	
+	if($timestream==null) {
+		hn_ts_error_msg("Timestream not found");
+		return;
+	}
+		
+	$head = hn_ts_getReadHead($timestream->head_id);	
 	
+	if($head==null) {		
+		hn_ts_error_msg("Head not found.");
+		return null;
+	} else{
+		$head = $head[0];
+	}
+		
+	// update/move read head based on timestream time
+		
+	// currenttime = time in data source frame
+	// lasttime = real time head last moved
+	// distance to move = (now - lasttime) * rate
+		
+	$now = hn_ts_getTimeNow();
+	
+	//echo "head->lasttime " . $head->lasttime . "\n";
+	//echo "head->lasttime ut " . strtotime($head->lasttime) . "\n";
+		
+	$newcurrent = (($now - strtotime($head->lasttime)) * $head->rate) + strtotime($head->currenttime);
+
+	if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0) {
+		$timestream->endtime = "1970-01-01 00:00:00";
+	}
+		
+	//if(strtotime($timestream->endtime) > 0)
+	//	error_log("blaj");
+
+	if(strtotime($timestream->endtime) > 0 && $newcurrent > strtotime($timestream->endtime)) {
+		//error_log("reset to starttime");
+		$currenttime = $timestream->starttime;
+	}
+	else {
+		$currenttime = date ("Y-m-d H:i:s", $newcurrent);
+	}
+
+	$lasttime = date ("Y-m-d H:i:s", $now);	
+	
+	//echo "now " . $now . "\n";
+	//echo "newcur " . $newcurrent . "\n";
+
+	//$wpdb->update('wp_ts_head',
+	//		array(
+	//				'lasttime' => $lasttime,
+	//				'currenttime' => $currenttime,
+	//		),
+	//		array('head_id' => $timestream->head_id)
+	//);
+	
+	$db = getConnection();
+	$sql = "UPDATE wp_ts_head SET currenttime='$currenttime', lasttime='$lasttime'
+	WHERE head_id = $timestream->head_id";	
+	$count0 = $db->exec($sql);
+	$db = null;
+
+	$head->lasttime = strtotime($lasttime);
+	$head->currenttime = strtotime($currenttime);
+	
+	return $head;
+}
+
+/**
+ * Returns a data row for a given metadataId
+ * @param $metadataId
+ */
+function hn_ts_getMetadata($metadataId)
+{		
+	$sql = "SELECT * FROM wp_ts_metadata WHERE metadata_id = $metadataId";
+	$meta = querySql($sql);
+	if($meta==null) {
+		hn_ts_error_msg("Metadata not found.");
+		return null;
+	} else{
+		$meta = $meta[0];
+	}
+	return $meta;
+}
+
+/**
+ * Returns data corresponding to a given timestream since the last time the function was called.
+ * @param $timestreamId is the id of a timestream
+ * @param $lastAskTime is the last time this function was called
+ * @param $limit is the maximum number of rows to output
+ * @param $order ["ASC"|"DESC"] to set the output ordering
+ * @todo Return current server time for initial request sync
+ * @
+ */
+function hn_ts_ext_get_timestream_data($timestreamId, $lastAskTime, $limit, $order="ASC"){	
+	// JMB added to allow user to choose the order (ASC or DESC) of the results
+	if(strcasecmp($order, "DESC")){
+		$order = "ASC";
+	}
+		
+	$sql = "SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
+	$timestream = querySql($sql);	
+	if($timestream==null) {
+		hn_ts_error_msg("Timestream not found");
+		return;
+	}else{
+		$timestream = $timestream[0];
+	}
+		
+	hn_ts_timestream_update($timestream);
+	
+	
+	$head = hn_ts_getReadHead($timestream->head_id);	
+	if($head==null) {
+		hn_ts_error_msg("Head not found.");
+		return null;
+	} else{
+		$head = $head[0];
+	}
+		
+	$metadata = hn_ts_getMetadata($timestream->metadata_id);		
+	if($metadata==null)	{
+		return;	// if it is null then hn_ts_getMetadata will emit a message
+	}
+		
+	// how much timestream has elapsed since last ask
+	if($head->rate==0)	{
+		// no data, stopped
+		hn_ts_error_msg("Data not found.");
+	}
+		
+	$now = hn_ts_getTimeNow();
+		
+	//echo "now " . $now . "\n";
+	//echo "lastask " . $lastAskTime . "\n";
+		
+	$elapsed = ($now - $lastAskTime) * $head->rate;
+		
+	//echo "head ct " . $head->currenttime . "\n";
+	//echo "elapsed since last ask " . $elapsed . "\n";
+		
+	// get data between head->currenttime and head->currenttime - elapsed
+	$maxdate = $head->currenttime;
+	$mindate = date ("Y-m-d H:i:s", strtotime($head->currenttime) - $elapsed);
+		
+	//echo "maxdate " . $maxdate . "\n";
+	//echo "mindate " . $mindate . "\n";
+	//echo $metadata->tablename . "\n";
+		
+	$limitstr = "";
+		
+	if($limit!=0)
+	{
+	//	if($order == "ASC"){
+	//		$count = $wpdb->get_row("SELECT COUNT FROM $metadata->tablename WHERE valid_time > $mindate AND valid_time <= $maxdate");
+	//		$lt = $count - $limit;
+	//		$limitstr = " LIMIT $lt , $limit";
+	//	}else{
+	//	
+		$limitstr = " LIMIT 0 , $limit";
+		//}
+	}
+		
+	$sql = "SELECT * FROM $metadata->tablename WHERE valid_time > '$mindate' AND 
+			valid_time <= '$maxdate' ORDER BY valid_time DESC $limitstr";
+	$ret = querySql($sql);
+	if(!strcmp($order,'ASC')){
+		$ret= array_reverse($ret);
+	}
+	echo '{"timestream": ' . json_encode($ret) . '}';
 }	
 
 
