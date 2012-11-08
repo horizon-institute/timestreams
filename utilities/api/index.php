@@ -15,9 +15,31 @@ $app->get('/measurementContainerMetadata', function() use ($app) {
 		hn_ts_ext_get_timestream_metadata($paramValue);
 	}
 });
-$app->get('/measurementContainerMetadata/:name', 'hn_ts_select_metadata_by_name');
+$app->get('/measurementContainerMetadata/:name', function($name) use ($app) {
+	$limit = $app->request()->get('limit');
+	$offset = $app->request()->get('offset');
+	
+	hn_ts_select_metadata_by_name($name, $limit, $offset);
+});
 $app->get('/measurementContainer', 'hn_ts_list_mc_names');
-$app->post('/measurementContainer', 'hn_ts_create_measurement_containerForBlog');
+$app->post('/measurementContainer', function() use ($app) {
+	$measuretype = $app->request()->post('measuretype');
+	$minimumvalue = $app->request()->post('minimumvalue');
+	$maximumvalue = $app->request()->post('maximumvalue');
+	$unit = $app->request()->post('unit');
+	$unitSymbol = $app->request()->post('unitsymbol');
+	$device = $app->request()->post('device');
+	$otherInformation = $app->request()->post('otherinfo');
+	$datatype = $app->request()->post('datatype');
+	$missingDataValue = $app->request()->post('missingdatavalue');
+	$siteId = $app->request()->post('siteId');
+	$blogid = $app->request()->post('blogid');
+	$userid = $app->request()->post('userid');
+	hn_ts_create_measurement_containerForBlog(
+		$measuretype, $minimumvalue, $maximumvalue, $unit,
+		$unitSymbol, $device, $otherInformation, $datatype,
+		$missingDataValue, $siteId, $blogid, $userid);
+});
 $app->get('/measurementContainer/:id', 'hn_ts_select_measurements');
 $app->get('/measurement/:id', function($id) use ($app) {
 	$paramValue = $app->request()->get('action');
@@ -56,9 +78,9 @@ $app->get('/context', function() use ($app) {
 });
 $app->get('/context/:id', 'hn_ts_select_context');
 $app->put('/context/:id', 'hn_ts_update_context');
-$app->post('/measurementFile/:id', 'hn_ts_add_measurement_file');
-$app->post('/measurementFiles/:id', 'hn_ts_add_measurement_files');
-$app->put('/import', 'hn_ts_import_data_from_files'); // not reall a put or a post -- do we need to define a new verb for activation?
+$app->post('/measurementfile/:id', 'hn_ts_add_measurement_file');
+$app->post('/measurementfiles/:id', 'hn_ts_add_measurement_files');
+$app->put('/import', 'hn_ts_import_data_from_files'); // not really a put or a post -- do we need to define a new verb for activation?
 $app->post('/heartbeat/:id', 'hn_ts_heartbeat');
 $app->put('/replicate', 'hn_ts_replicate'); // not reall a put or a post -- do we need to define a new verb for activation?
 $app->get('/timestream', 'hn_ts_ext_get_timestreams');
@@ -101,6 +123,21 @@ function hn_ts_error_msg($txt){
 }
 
 /**
+ * Checks if the given parameter is set and not null
+ * @param unknown_type $param
+ */
+function hn_ts_issetRequiredParameter($param, $paramName){
+	if(!isset($param)){
+		global $app;
+		$app->response()->status(400);
+		hn_ts_error_msg("Missing required parameter: $paramName");
+		return false;
+	}else{
+		return true;
+	}
+}
+
+/**
  * Handles database connection
  * To do get values from wp-config.php
  */
@@ -140,6 +177,21 @@ function echoJsonQuery($sql, $root){
 		hn_ts_error_msg($e->getMessage()); 
 	}	
 }
+
+/**
+ * Really simple sanitisation for input parameters.
+ * @param is a String to be sanitized $arg
+ * @return a String containing only -a-zA-Z0-9_ or NULL
+ * @todo Improve this to better sanitise the inputs
+ */
+function hn_ts_sanitise($arg){
+	if(isset($arg)){
+		return preg_replace('/[^-a-zA-Z0-9_]/', '_', $arg);
+	}else{
+		return null;
+	}	
+}
+
 /** API Callback functions ***************************************************/
 
 /**
@@ -166,18 +218,55 @@ function describeAPI(){
 					</td>
 					<td>If no parameter is given then returns the metadata for all of the measurement container entries.
 					<br/>When used with id parameter returns the metadata record id for the given timestream id. Replaces timestreams.ext_get_timestream_metadata. </td><td>GET</td>
-					<td>(Optional)tsid: Id of a Timestream</td><td>Metadata list</td><td>Complete.</td>
+					<td>tsid (optional): Id of a Timestream</td><td>Metadata list</td><td>Complete.</td>
 				</tr>
 				<tr>
 					<td><a href="../api/measurementContainerMetadata/wp_1_ts_temperature_1">./measurementContainerMetadata/name</a></td>
-					<td>Returns the metadata for the named measurement container.</td><td>GET</td>
-					<td>None</td><td>Metadata list</td><td>Incomplete.</td>
-				</tr>
-				
+					<td>Returns the metadata for the named measurement container. Replaces timestreams.select_metadata_by_name.</td><td>GET</td>
+					<td><ul>
+						<li>limit (optional): natural number for the maximum number of rows to return</li>	
+						<li>offset (optional): natural number to begin returning rows from</li>
+					</ul></td><td>Metadata list</td><td>Complete.</td>
+				</tr>				
 				<tr>
 					<td><a href="../api/measurementContainer">./measurementContainer</a></td>
 					<td>Returns the names of the measurement containers.</td><td>GET</td>
 					<td>None</td><td>Measurement container name list</td><td>Complete.</td>
+				</tr>
+				<tr>
+					<td>./measurementContainer
+						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" 
+						-X POST -d 
+						"measuretype=temperature&minimumvalue=0&maximumvalue=100&
+						unit=text/x-data-C&unitsymbol=C&device=testDev&otherinfo=blah&
+						datatype=DECIMAL(5,2)&siteId=1&blogid=1&userid=1"
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/utilities/api/measurementContainer
+					</td>
+					<td>Creates a new measurement container owned by the given blog id. 
+					Replaces timestreams.hn_ts_create_measurements and 
+					timestreams.hn_ts_create_measurementsForBlog</td><td>POST</td>
+					<td><ul>
+						<li>String $measurementType
+						</li><li>String (optional) $minimumvalue
+						</li><li>String (optional) $maximumvalue
+						</li><li>String MimeType $unit
+						</li><li>String (optional) $unitSymbol
+						</li><li>String $deviceDetails
+						</li><li>String (optional) $otherInformation
+						</li><li>String mySQL data type $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
+						</li><li>String (optional) $missing_data_value is a value of type $dataType which represents rows in the timeseries with unknown values.
+						</li><li>natural number (optional) $siteId site that owns the measurement container
+						</li><li>natural number (optional) $blogId blog that owns the measurement container
+						</li><li>natural number (optional) $userid user that owns the measurement container
+						</ul>
+					</td>
+					<td>
+						On success: {"measurementcontainer": "tablename"} <br/>
+						Failure messages:<ul>
+							<li>400 Bad Request - Missing required parameter</li>
+							<li>400 Bad Request - Invalid parameter(s)</li>
+						</ul>
+					</td><td>Complete.</td>
 				</tr>
 				<tr>
 					<td><a href="../api/measurementContainer/1">./measurementContainer/id</a></td>
@@ -185,15 +274,12 @@ function describeAPI(){
 					<td>measurement container id</td><td>Measurements list</td><td>Incomplete.</td>
 				</tr>
 				<tr>
-					<td>./api/measurementContainer/id
-						<form name="hn_ts_addMC" action="../api/measurementContainer/1" method="post">
-							<input type="submit" value="Submit">
-						</form></td>
-					<td>Creates a new measurement container owned by the given blog id.</td><td>POST</td>
-					<td>blog id ... </td><td>Success or failure message.</td><td>Incomplete.</td>
-				</tr>
-				<tr>
-					<td><a href="../api/measurement/:id:first">./measurement/:id:first</a></td>
+					<td><ul>
+						<li><a href="../api/measurement/1">./measurement/1</a></li>
+						<li><a href="../api/measurement/1?first=true">./measurement/1?first=true</a></li>
+						<li><a href="../api/measurement/1?latest=true">./measurement/1?latest=true</a></li>
+						<li><a href="../api/measurement/1?count=true">./measurement/1?count=true</a></li>
+					</ul></td>
 					<td>Returns the first measurement from a measurement container.</td><td>GET</td>
 					<td>blog id ... </td><td>First measurement.</td><td>Incomplete.</td>
 				</tr>
@@ -235,13 +321,50 @@ function describeAPI(){
 					<td>measurement container id ... </td><td>Success or failure message.</td><td>Incomplete.</td>
 				</tr>
 				<tr>
+					<td>./measurementfile/1
+						<form name="hn_ts_addMeaurementFile" action="../api/measurementfile/1" method="post">
+							<input type="submit" value="Submit">
+						</form>
+					</td>
+					<td>...</td><td>POST</td>
+					<td> ... </td><td>Success or failure message.</td><td>Incomplete.</td>
+				</tr>
+				<tr>
+					<td>./measurementfiles/1
+						<form name="hn_ts_addMeaurementFiles" action="../api/measurementfiles/1" method="post">
+							<input type="submit" value="Submit">
+						</form></td>
+					<td>...</td><td>POST</td>
+					<td> ... </td><td>Success or failure message.</td><td>Incomplete.</td>
+				</tr>
+				<tr>
 					<td>./context/add
 						<form name="hn_ts_addContext" action="../api/context/add" method="post">
 							<input type="submit" value="Submit">
 						</form></td>
 					<td>Adds new measurements to the given measurement container.</td><td>POST</td>
 					<td>... </td><td>Success or failure message.</td><td>Incomplete.</td>
+				</tr>		
+					
+				<tr>
+					<td><a href="../api/context">./context</a></td>
+					<td>...</td><td>GET</td>
+					<td>...</td><td>...</td><td>Incomplete.</td>
 				</tr>
+				<tr>
+					<td><a href="../api/context/1">./context/1</a></td>
+					<td>...</td><td>GET</td>
+					<td>...</td><td>...</td><td>Incomplete.</td>
+				</tr>
+				<tr>
+					<td>
+						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d<br/>
+						"..."<br/>
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/utilities/api/timestream/context/1
+					</td>
+					<td>....</td><td>PUT</td>
+					<td>...</td>
+				</tr>				
 				<tr><td>*****************</td></tr>
 				<tr>
 					<td><a href="../api/timestream">./timestream</a></td>
@@ -278,27 +401,34 @@ function describeAPI(){
 					the function was called. Replaces timestreams.ext_get_timestream_data.</td><td>GET</td>
 					<td><ul><li>last (optional): integer representing a php timestamp for last time a call was made</li><li>limit (optional): integer for the maximum number of rows to return</li><li>order (optional): string ["ASC"|"DESC"] sets the order of the returned results</li></ul></td><td>The timestream data</td><td>Complete.</td>
 				</tr>
+				<tr><td>*****************</td></tr>
+				<tr>
+					<td>
+						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d<br/>
+						"..."<br/>
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/utilities/api/import
+					</td>
+					<td>....</td><td>PUT</td>
+					<td>...</td>
+				</tr>
+				<tr>
+					<td>./heartbeat
+						<form name="hn_ts_heartbeat" action="../api/heartbeat" method="post">
+							<input type="submit" value="Submit">
+						</form></td>
+					<td>...</td><td>POST</td>
+					<td>... </td><td>Success or failure message.</td><td>Incomplete.</td>
+				</tr>
+				<tr>
+					<td>./replicate/
+						<form name="hn_tsreplicate" action="../api/replicate" method="post">
+							<input type="submit" value="Submit">
+						</form></td>
+					<td>...</td><td>POST</td>
+					<td>... </td><td>Success or failure message.</td><td>Incomplete.</td>
+				</tr>	
+				
 			</table>';
-	/*
-	 * 
-
-$app->get('/timestream/id/:id', 'hn_ts_ext_get_timestream_data');	// id is the timestream id
-$app->get('/timestream/name/:name', 'hn_ts_int_get_timestream_data'); // name is the timestream table name
-$app->get('/timestream/head/:id', 'hn_ts_int_get_timestream_head');
-$app->put('/timestream/head/:id', 'hn_ts_int_update_timestream_head');
-
-			// internal interface
-			*$methods['timestreams.int_get_timestream_head'] =  array(&$this, 'hn_ts_int_get_timestream_head');
-			*$methods['timestreams.int_get_timestream_data'] =  array(&$this, 'hn_ts_int_get_timestream_data');
-			*$methods['timestreams.int_update_timestream_head'] =  array(&$this, 'hn_ts_int_update_timestream_head');
-			
-			// external api
-			*$methods['timestreams.ext_get_time'] =  array(&$this, 'hn_ts_ext_get_time');
-			*$methods['timestreams.ext_get_timestreams'] =  array(&$this, 'hn_ts_ext_get_timestreams');
-			*$methods['timestreams.ext_get_timestream_metadata'] =  array(&$this, 'hn_ts_ext_get_timestream_metadata');
-			*$methods['timestreams.ext_get_timestream_data'] =  array(&$this, 'hn_ts_ext_get_timestream_data');
-	 */
-	
 }
 
 /**
@@ -317,18 +447,94 @@ function hn_ts_list_mc_names() {
 	echoJsonQuery($sql, "measurementContainers");
 }
 
-
 /**
- * Checks username password then creates a new measurement container.
- * @param array $args should have 13 parameters:
- * $username, $password, $measurementType, $minimumvalue, $maximumvalue,
- *	$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType,
- *	$missing_data_value, $siteId, $blogId
- * @return string XML-XPC response with either an error message as a param or the
- * name of the measurement container
+ * Creates a new measurement container.
+ * @param String $measurementType
+ * @param String (optional) $minimumvalue
+ * @param String (optional) $maximumvalue
+ * @param String MimeType $unit
+ * @param String (optional) $unitSymbol
+ * @param String $deviceDetails
+ * @param String (optional) $otherInformation
+ * @param String mySQL data type $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
+ * @param String (optional) $missing_data_value is a value of type $dataType which represents rows in the timeseries with unknown values.
+ * @param natural number (optional) $siteId site that owns the measurement container
+ * @param natural number (optional) $blogId blog that owns the measurement container
+ * @param natural number (optional) $userid user that owns the measurement container
+ * Outputs the number of rows added (0 on failure or 1 on success)
+ * @todo Sanitize inputs
  */
-function hn_ts_create_measurement_containerForBlog(){
-	hn_ts_error_msg("hn_ts_create_measurement_containerForBlog");
+function hn_ts_create_measurement_containerForBlog($measurementType, 
+	$minimumvalue, $maximumvalue, $unit, $unitSymbol, $deviceDetails, $otherInformation, 
+	$dataType,$missingDataValue, $siteId, $blogId, $userid){
+	if(!$blogId || $blogId < 1){
+		$blogId = 1;
+	}
+	
+	//Ensure that there aren't empty or null values going into mandatory fields.
+	if(		!hn_ts_issetRequiredParameter($measurementType, "measuretype") || 
+			!hn_ts_issetRequiredParameter($unit, "unit") ||
+			!hn_ts_issetRequiredParameter($deviceDetails, "device") ||
+			!hn_ts_issetRequiredParameter($dataType, "datatype")
+	){
+		return;
+	}
+	if(!$siteId || $siteId < 1){
+		$siteId = 1;
+	}
+	if(!$blogId || $blogId < 1){
+		$blogId = 1;
+	}
+	if(!$userid || $userid < 1){
+		$userid = 1;
+	}
+		
+	//Ensure that arguments have legal characters.
+	$measurementType = hn_ts_sanitise($measurementType);
+	$minimumvalue = hn_ts_sanitise($minimumvalue);
+	$maximumvalue = hn_ts_sanitise($maximumvalue);
+	$unit = hn_ts_sanitise($unit);
+	$unitSymbol = hn_ts_sanitise($unitSymbol);
+	$deviceDetails = hn_ts_sanitise($deviceDetails);
+	$otherInformation = hn_ts_sanitise($otherInformation);
+	$dataType = preg_replace('/[^-a-zA-Z0-9_(),]/', '_', $dataType);
+	$missingDataValue = hn_ts_sanitise($missingDataValue);
+	$siteId = hn_ts_sanitise($siteId);
+	$blogId = hn_ts_sanitise($blogId);
+	$userid = hn_ts_sanitise($userid);	
+	
+	$sql = "SHOW TABLE STATUS LIKE 'wp_ts_metadata';";
+	$nextdevice=querySql($sql);
+	$nextdevice=$nextdevice[0]->Auto_increment;
+	
+	$tablename = "wp_$blogId"."_ts_$measurementType"."_$nextdevice";
+	
+	$db = getConnection();
+	$sql = "INSERT INTO wp_ts_metadata (tablename, measurement_type, min_value,
+			max_value, unit, unit_symbol, device_details, other_info,
+			data_type, missing_data_value, producer_site_id, producer_blog_id,
+			producer_id) VALUES ('$tablename','$measurementType','$minimumvalue',
+			'$maximumvalue','$unit','$unitSymbol','$deviceDetails',
+			'$otherInformation','$dataType','$missingDataValue','$siteId',
+			'$blogId','$userid')";	
+	$count0 = $db->exec($sql);
+	if($count0 == 1){
+		$sql =
+		'CREATE TABLE IF NOT EXISTS '.$tablename.' (
+		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+		value '.$dataType.' DEFAULT NULL,
+		valid_time timestamp NULL,
+		transaction_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY  (id)
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';		
+		$count0 = $db->exec($sql);		
+		$db = null;
+		echo '{"measurementcontainer": ' . json_encode($tablename) .  '}';
+	}else{		
+		global $app;
+		$app->response()->status(400);
+		hn_ts_error_msg("Invalid parameter(s)");
+	}	
 }
 
 /**
@@ -397,16 +603,19 @@ function hn_ts_count_measurements($id){
 }
 
 /**
- * Checks username password then selects the metadata corresponding to the given measurement container.
- * @param array $args should have 3-5 parameters:
- * $username, $password, measurement container name,
- * $limit (optional), $offset (optional)
- * @return string XML-XPC response with either an error message as a param or the
- * metadata
+ * Echos the metadata corresponding to the given measurement container.
+ * @param $mcName is the measurement container table name,
+ * @param $limit (optional) is an integer for the maximum number of records to return
+ * @param $offset (optional) is an integer for the record offset to return
  */
-function hn_ts_select_metadata_by_name(){
-	hn_ts_error_msg("hn_ts_select_metadata_by_name");
-	
+function hn_ts_select_metadata_by_name($mcName, $limit, $offset){
+	if($mcName){
+		$limitstatement = hn_ts_getLimitStatement($limit, $offset);
+		$sql = "SELECT * FROM wp_ts_metadata WHERE tablename='$mcName' $limitstatement";
+		echoJsonQuery($sql, "metadata");		
+	}else{
+		hn_ts_error_msg("Missing measurement container name.");
+	}
 }
 
 /**
@@ -663,6 +872,42 @@ function hn_ts_int_get_timestream_head($timestreamId){
 }
 
 /**
+ * Utility function to build a SQL limit statement
+ * @param $limit (optionally NULL) is an integer for the number of records 
+ * @param $offset (optionally NULL) is the record retrieval offset
+ */
+function hn_ts_getLimitStatement($limit, $offset){
+	$limitStmt="";
+	//1844674407370955161 is the upper limit of an 8 byte unsigned long integer
+	$MAXRECORDS = "1844674407370955161";	
+	if($limit){		
+		if($limit < 1){
+			$limit = 1;
+		}else if($limit > $MAXRECORDS){
+			$limit = $MAXRECORDS;
+		}
+		if($offset){			
+			if($offset < 1){
+				$offset = 1;
+			}else if($offset > $MAXRECORDS-1){
+				$offset = $MAXRECORDS-1;
+			}
+			$limitStmt = "LIMIT $offset,$limit";
+		}else{
+			$limitStmt = "LIMIT 1,$limit";
+		}
+	}else if($offset){	
+		if($offset < 1){
+			$offset = 1;
+		}else if($offset > $MAXRECORDS){
+			$offset = $MAXRECORDS;
+		}
+		$limitStmt = "LIMIT $offset,$MAXRECORDS";
+	}
+	return $limitStmt;
+}
+
+/**
  * Get readings for a given measurement container table
  * @param $tablename is the table name for the measurement container
  * @param $limit is the number of rows to return
@@ -678,16 +923,7 @@ function hn_ts_int_get_timestream_data($tablename, $limit, $offset, $lastTimesta
 		$where = "WHERE valid_time > \"$timeStr\"";
 	}
 	
-	$limitStmt="";
-	if($limit){
-		if($offset){
-			$limitStmt = "LIMIT $offset,$limit";			
-		}else{
-			$limitStmt = "LIMIT 1,$limit";			
-		}
-	}else if($offset){
-			$limitStmt = "LIMIT $offset,1844674407370955161";				
-	}
+	$limitStmt = hn_ts_getLimitStatement($limit, $offset);
 	
 	$sql = "SELECT id,value,valid_time AS timestamp,transaction_time 
 			FROM (SELECT * FROM $tablename $where ORDER BY valid_time DESC $limitStmt)
