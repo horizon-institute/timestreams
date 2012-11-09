@@ -2,7 +2,7 @@
 
 require 'Slim/Slim.php';
 
-define(HN_TS_DEBUG, false);
+define(HN_TS_DEBUG, true);
 
 $app = new Slim();
 if(HN_TS_DEBUG){
@@ -82,8 +82,10 @@ $app->post('/measurement/:id', function($name) use ($app) {
 	$timestamp = $app->request()->post('ts');
 	hn_ts_add_measurement($name, $value, $timestamp); 
 });
-	
-$app->post('/measurements/:id', 'hn_ts_add_measurements');
+$app->post('/measurements/:id', function($name) use ($app) {
+	$measurements = $app->request()->post('measurements');
+	hn_ts_add_measurements($name, $measurements);
+});
 $app->post('/context/add', 'hn_ts_add_context');
 $app->get('/context', function() use ($app) {
 	if(NULL == $app->request()->get()){
@@ -148,7 +150,6 @@ $app->run();
  * @param $txt is the message to output
  */
 function hn_ts_error_msg($txt){
-	$txt = __($txt);
 	echo '{"error":{"message":"'.$txt.'"}}';
 }
 
@@ -172,7 +173,7 @@ function hn_ts_issetRequiredParameter($param, $paramName){
  * To do get values from wp-config.php
  */
 function getConnection() {
-	$dbhost="127.0.0.1";
+	$dbhost="127.0.0.2";
 	$dbuser="root";
 	$dbpass="tow4mfN";
 	$dbname="wordpress";
@@ -345,11 +346,14 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td>./measurements/wp_1_ts_Pressure_25
-						<form name="hn_ts_addMeaurements" action="../2/measurements/wp_1_ts_Pressure_25" method="post">
-							<input type="submit" value="Submit">
-						</form></td>
+						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X 
+						POST -d "measurements={\"measurements\":[{\"v\":1,\"t\":\"2012-11-09 12:10:23\"},
+						{\"v\":2,\"t\":\"2012-07-21 17:10:23\"}]}" 
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurements/wp_1_ts_Pressure_25
+					</td>
 					<td>Adds new measurements to the given measurement container. Replaces timestreams.hn_ts_add_measurements</td><td>POST</td>
-					<td>measurement container id ... </td><td>Success or failure message.</td><td>Incomplete.</td>
+					<td>measurements in the format: {"measurements":[{"v":1,"t":"2012-11-09 12:10:23"},{"r":2,"t":"2012-07-21 17:10:23"} </td>
+					<td><ul><li>On success: {"insertresult": "1 rows inserted"}</li></ul></td><td>Complete.</td>
 				</tr>
 				<tr>
 					<td>./measurementfile/1
@@ -577,14 +581,18 @@ function hn_ts_create_measurement_containerForBlog($measurementType,
 function hn_ts_add_measurement($name, $value, $timestamp){	
 	$name = hn_ts_sanitise($name);
 	if(!$name){
+		global $app;
 		$app->response()->status(400);
 		hn_ts_error_msg("Missing measurement container name.");
+		return;
 	}
 	
 	$value = hn_ts_sanitise($value);	
 	if(!$value){
+		global $app;
 		$app->response()->status(400);
 		hn_ts_error_msg("Missing parameter: value");
+		return;
 	}
 	
 	$timestamp = hn_ts_sanitise($timestamp);
@@ -612,14 +620,60 @@ function hn_ts_add_measurement($name, $value, $timestamp){
 }	
 
 /**
- * Checks username password then adds measurements to a measurement container.
- * @param array $args should have at least 5 parameters:
- * $username, $password, measurement container name, array containing [measurement value, timestamp]
- * @return string XML-XPC response with either an error message as a param or the
- * number of insertions
+ * Adds measurements to a measurement container.
+ * @param String $name in the form  wp_[blog-id]_ts_[measurement-type]_[device-id]
+ * @param String $measurements in the format: {"measurements":[{"v":1,"t":"2012-11-09 12:10:23"},{"r":2,"t":"2012-07-21 17:10:23"}]}
  */
-function hn_ts_add_measurements($id){
-	hn_ts_error_msg("hn_ts_add_measurements");	
+function hn_ts_add_measurements($name, $measurements){	
+	$name = hn_ts_sanitise($name);
+	if(!$name){
+		global $app;
+		$app->response()->status(400);
+		hn_ts_error_msg("Missing measurement container name.");
+	}
+	$sql = "INSERT INTO $name (value, valid_time) VALUES ";
+	$sql2 = $sql;
+	$measurements = json_decode($measurements, true);
+	if(!isset($measurements)){
+		global $app;
+		$app->response()->status(400);
+		hn_ts_error_msg("Missing required parameter: measurements");	
+		return;
+	}
+	$v = NULL;
+	
+	foreach($measurements as $m){
+		foreach($m as $m1){		
+			$v = hn_ts_sanitise($m1['v']);
+			if(isset($v)){
+				$sql=$sql."('".$v."', '".hn_ts_sanitise($m1['t'])."'),";
+			}
+		
+		}
+	}
+	
+	if(!strcmp($sql, $sql2)){		
+		$app->response()->status(400);
+		hn_ts_error_msg("Missing required parameter: measurements");
+		return;
+	}else{
+		$sql = rtrim($sql, ",").";";
+	}
+	
+	try {
+		$db = getConnection();
+		$count0 = $db->exec($sql);
+		$db = null;
+		echo '{"insertresult": ' . json_encode("$count0 rows inserted") .  '}';
+	} catch(PDOException $e) {
+		global $app;
+		$app->response()->status($error);
+		if(HN_TS_DEBUG){
+			hn_ts_error_msg($e->getMessage());
+		}else{
+			hn_ts_error_msg("Error accessing the database.");
+		}
+	}
 }
 
 /**
@@ -717,8 +771,9 @@ function hn_ts_select_context($id){
  * $limit (optional), $offset (optional)
  * @return string XML-XPC response with either an error message as a param or context records
  */
-function hn_ts_select_contexts(){
-	hn_ts_error_msg("hn_ts_select_contexts");
+function hn_ts_select_contexts(){	
+	$sql = "select * FROM wp_ts_context";
+	echoJsonQuery($sql, "contexts");
 	
 }
 
