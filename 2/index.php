@@ -86,29 +86,24 @@ $app->post('/measurements/:id', function($name) use ($app) {
 	$measurements = $app->request()->post('measurements');
 	hn_ts_add_measurements($name, $measurements);
 });
-$app->post('/context/add', 'hn_ts_add_context');
+$app->post('/context/', 'hn_ts_add_context');
 $app->get('/context', function() use ($app) {
-	if(NULL == $app->request()->get()){
-		hn_ts_select_contexts();
-	}
 	$typeParam = $app->request()->get('type');
 	$valueParam = $app->request()->get('value');
 	$startParam = $app->request()->get('start');
 	$endParam = $app->request()->get('end');
-	if($typeParam){
-		if(NULL == $valueParam){
-			hn_ts_select_context_by_type();
-		}else{
-			hn_ts_select_context_by_type_and_value();			
-		}
-	}else if($valueParam){
-		hn_ts_select_context_by_value();
-	}else if($startParam || $endParam){
-		hn_ts_select_context_within_time_range($startParam,$endParam);
-	}
+	$limit = $app->request()->get('limit');
+	$offset = $app->request()->get('offset');
+	hn_ts_select_contexts($typeParam, $valueParam, $startParam, $endParam, $limit, $offset);
 });
-$app->get('/context/:id', 'hn_ts_select_context');
-$app->put('/context/:id', 'hn_ts_update_context');
+$app->put('/context', function() use ($app) {
+	$context_id = $app->request()->put('id');
+	$context_type = $app->request()->put('type');
+	$context_value = $app->request()->put('value');
+	$start_time = $app->request()->put('start');
+	$end_time = $app->request()->put('end');
+	hn_ts_update_context($context_id, $context_type, $context_value, $start_time, $end_time);
+});
 $app->post('/measurementfile/:id', 'hn_ts_add_measurement_file');
 $app->post('/measurementfiles/:id', 'hn_ts_add_measurement_files');
 $app->put('/import', 'hn_ts_import_data_from_files'); // not really a put or a post -- do we need to define a new verb for activation?
@@ -373,8 +368,8 @@ function describeAPI(){
 					<td> ... </td><td>Success or failure message.</td><td>Incomplete.</td>
 				</tr>
 				<tr>
-					<td>./context/add
-						<form name="hn_ts_addContext" action="../2/context/add" method="post">
+					<td>./context
+						<form name="hn_ts_addContext" action="../2/context" method="post">
 							<input type="submit" value="Submit">
 						</form></td>
 					<td>Adds new measurements to the given measurement container.</td><td>POST</td>
@@ -383,22 +378,35 @@ function describeAPI(){
 					
 				<tr>
 					<td><a href="../2/context">./context</a></td>
-					<td>...</td><td>GET</td>
-					<td>...</td><td>...</td><td>Incomplete.</td>
-				</tr>
-				<tr>
-					<td><a href="../2/context/1">./context/1</a></td>
-					<td>...</td><td>GET</td>
-					<td>...</td><td>...</td><td>Incomplete.</td>
+				<td>Replaces timestreams.select_context_by_type, 
+					timestreams.select_context_by_value,
+					timestreams.select_context_by_type_and_value and
+					timestreams.select_context_within_time_range
+				</td><td>GET</td>
+					<td><ul>
+						<li>type</li>
+						<li>value</li>
+						<li>start</li>
+						<li>end</li>
+						<li>limit</li>
+						<li>offset</li>
+					</ul></td><td>List of contexts</td><td>Complete.</td>
 				</tr>
 				<tr>
 					<td>
-						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d<br/>
-						"..."<br/>
-						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/timestream/context/1
+						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X 
+						PUT -d "type=a&start=2012-05-22 13:36:11&end=2012-05-22 13:36:11" 
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 					</td>
-					<td>....</td><td>PUT</td>
-					<td>...</td>
+					<td>Updates the end time of the context records matching the given values. Replaces timestreams.update_context.</td>
+					<td><ul>
+						<li>id</li>
+						<li>type</li>
+						<li>value</li>
+						<li>start</li>
+						<li>end</li>
+					</ul></td><td>PUT</td>
+					<td><ul><li>On success: {"updateresult": "Updated 1 row(s)."}</li></ul></td><td>Complete</td>
 				</tr>				
 				<tr><td>*****************</td></tr>
 				<tr>
@@ -470,7 +478,7 @@ function describeAPI(){
  * Returns wp_ts_metadata entries
  */
 function measurementContainerMetadata() {
-	$sql = "select * FROM wp_ts_metadata ORDER BY tablename";
+	$sql = "SELECT * FROM wp_ts_metadata ORDER BY tablename";
 	echoJsonQuery($sql, "measurementContainerMetadata");
 }
 
@@ -478,7 +486,7 @@ function measurementContainerMetadata() {
  * Returns the names of the measurement containers.
  */
 function hn_ts_list_mc_names() {
-	$sql = "select metadata_id AS id, tablename AS name FROM wp_ts_metadata ORDER BY id";
+	$sql = "SELECT metadata_id AS id, tablename AS name FROM wp_ts_metadata ORDER BY id";
 	echoJsonQuery($sql, "measurementContainers");
 }
 
@@ -765,76 +773,113 @@ function hn_ts_select_context($id){
 }
 
 /**
+ * Builds a SQL where statement given params
+ * @param $params if the format: $params = array(
+			array("name"=>"context_type","param"=>$typeParam),
+			array("name"=>"value","param"=>$valueParam),
+			array("name"=>"start_time","param"=>$startParam),
+			array("name"=>"end_time","param"=>$endParam)
+	);
+ * @return string with the WHERE statement
+ */
+function buildWhere($params){
+	$where = "";
+	$prevParams=0;
+	foreach($params as $param){
+		if(isset($param['param'])){
+			if(!strcmp($where, "")){
+				$where = "WHERE ";
+			}else if($prevParams > 0){
+				$where = $where." AND ";
+			}
+			$where = $where.$param['name']."="."'".$param['param']."'";
+			$prevParams++;
+		}
+	}
+	return $where;
+}
+
+/**
  * Checks username password then selects context records.
  * @param array $args should have 2 parameters:
  * $username, $password,
  * $limit (optional), $offset (optional)
  * @return string XML-XPC response with either an error message as a param or context records
  */
-function hn_ts_select_contexts(){	
-	$sql = "select * FROM wp_ts_context";
-	echoJsonQuery($sql, "contexts");
+function hn_ts_select_contexts($typeParam, $valueParam, $startParam, $endParam, $limit, $offset){
+	$typeParam = hn_ts_sanitise($typeParam);
+	$valueParam = hn_ts_sanitise($valueParam);	
+	$startParam = hn_ts_sanitise($startParam);
+	$endParam = hn_ts_sanitise($endParam);
+	$limit = hn_ts_sanitise($limit);
+	$offset = hn_ts_sanitise($offset);
 	
+	$sql = "SELECT * FROM wp_ts_context ";
+	$params = array(
+			array("name"=>"context_type","param"=>$typeParam), 
+			array("name"=>"value","param"=>$valueParam), 
+			array("name"=>"start_time","param"=>$startParam), 
+			array("name"=>"end_time","param"=>$endParam)			
+	);
+	$where = buildWhere($params);
+	$limit=hn_ts_getLimitStatement($limit, $offset);
+	echoJsonQuery($sql.$where.$limit, "contexts");	
 }
 
 /**
- * Checks username password then selects context records matching the given type.
- * @param array $args should have 3-5 parameters:
- * $username, $password, context type,
- * $limit (optional), $offset (optional)
- * @return string XML-XPC response with either an error message as a param or context records
+ * Updates the end time of the context records matching the given values.
+ * @param string $context_type
+ * @param string $context_value
+ * @param timestamp $start_time
+ * @param timestamp $end_time
+ * @todo Make it so that only the context owners can update their own contexts
  */
-function hn_ts_select_context_by_type(){
-	hn_ts_error_msg("hn_ts_select_context_by_type");
+function hn_ts_update_context($context_id, $context_type, $context_value, $start_time, $end_time){
+	if(!isset($end_time)){
+		global $app;
+		$app->response()->status(400);
+		hn_ts_error_msg("Missing parameter: end");
+		return;		
+	}
 	
-}
-
-/**
- * Checks username password then selects context records matching the given value.
- * @param array $args should have 3-5 parameters:
- * $username, $password, context value,
- * $limit (optional), $offset (optional)
- * @return string XML-XPC response with either an error message as a param or context records
- */
-function hn_ts_select_context_by_value(){
-	hn_ts_error_msg("hn_ts_select_context_by_value");
+	$context_id = hn_ts_sanitise($context_id);
+	$context_type = hn_ts_sanitise($context_type);
+	$context_value = hn_ts_sanitise($context_value);	
+	$start_time = hn_ts_sanitise($start_time);
+	$end_time = hn_ts_sanitise($end_time);
 	
-}
-
-/**
- * Checks username password then selects context records matching the given value.
- * @param array $args should have 4-6 parameters:
- * $username, $password, context type, context value,
- * $limit (optional), $offset (optional)
- * @return string XML-XPC response with either an error message as a param or context records
- */
-function hn_ts_select_context_by_type_and_value(){
-	hn_ts_error_msg("hn_ts_select_context_by_type_and_value");
+	$params = array(
+			array("name"=>"context_id","param"=>$context_id),
+			array("name"=>"context_type","param"=>$context_type),
+			array("name"=>"context_value","param"=>$context_value),
+			array("name"=>"start_time","param"=>$start_time)
+	);
 	
-}
-
-/**
- * Checks username password then selects context records matching the given time values.
- * @param array $args should have 4-6 parameters:
- * $username, $password, context type, start time (optional -- use NULL if not desired), End time (optional -- use NULL if not desired),
- * $limit (optional), $offset (optional)
- * @return string XML-XPC response with either an error message as a param or context records
- */
-function hn_ts_select_context_within_time_range($start,$end){
-	hn_ts_error_msg("hn_ts_select_context_within_time_range");
-	echo "start:$start<br>";
-	echo "end:$end<br>";	
-}
-
-/**
- * Checks username password then updates the end time of the context records matching the given values.
- * @param array $args should have 6 parameters:
- * $username, $password, context type, context value, start time (optional -- use NULL if not desired), End time (this is the new end time)
- * @return string XML-XPC response with either an error message as a param or number of updated records
- */
-function hn_ts_update_context(){
-	hn_ts_error_msg("hn_ts_update_context");
+	$where=buildWhere($params);
 	
+	if(!strcmp($where,"")){
+		global $app;
+		$app->response()->status(400);
+		hn_ts_error_msg("Missing parameters.");
+		return;		
+	}
+	
+	try {
+		$db = getConnection();
+		$sql = "UPDATE wp_ts_context SET end_time='$end_time' $where";
+		$count0 = $db->exec($sql);
+		$db = null;
+		echo $sql;
+		echo '{"updateresult": ' . json_encode("Updated $count0 row(s).") . '}';
+	} catch(PDOException $e) {
+		global $app;
+		$app->response()->status($error);
+		if(HN_TS_DEBUG){
+			hn_ts_error_msg($e->getMessage());
+		}else{
+			hn_ts_error_msg("Error accessing the database.");
+		}
+	}	
 }
 
 /**
