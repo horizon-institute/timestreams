@@ -1,8 +1,16 @@
 <?php
 
 require 'Slim/Slim.php';
-$HN_TS_DEBUG = true;
+
+define(HN_TS_DEBUG, false);
+
 $app = new Slim();
+if(HN_TS_DEBUG){
+	$app->getLog()->setEnabled(true);
+}
+else{
+	$app->getLog()->setEnabled(false);
+}
 
 /** ROUTES (resource URIs to callback function mappings) *********************/
 
@@ -47,23 +55,35 @@ $app->get('/measurementContainer/:name', function($name) use ($app) {
 		return;
 	}
 	$name = hn_ts_sanitise($name);
-	$paramValue = $app->request()->get('action');
+	$actionValue = $app->request()->get('action');
 	
-	if(NULL == $paramValue){
-		hn_ts_select_measurements($name);
-	}else if(!strcasecmp($paramValue, "first")){
+	if(NULL == $actionValue){
+		$minValue = $app->request()->get('min');
+		$maxValue = $app->request()->get('max');
+		$limitValue = $app->request()->get('limit');
+		$offsetValue = $app->request()->get('offset');
+		$sortValue = $app->request()->get('sort');
+		$descValue = $app->request()->get('desc');
+		hn_ts_select_measurements($name,$minValue, $maxValue, $limitValue,
+				$offsetValue,$sortValue,$descValue);
+	}else if(!strcasecmp($actionValue, "first")){
 		$sql="SELECT * FROM $name LIMIT 1";
 		echoJsonQuery($sql, $name);
-	}else if(!strcasecmp($paramValue, "latest")){
+	}else if(!strcasecmp($actionValue, "latest")){
 		$sql = "SELECT * FROM $name WHERE id = ( SELECT MAX( id ) FROM $name ) ";
 		echoJsonQuery($sql, $name);
-	}else if(!strcasecmp($paramValue, "count")){
+	}else if(!strcasecmp($actionValue, "count")){
 		$sql="SELECT COUNT(*) FROM $name;";
 		echoJsonQuery($sql, $name);
 	}
 });
-$app->post('/measurement/:id/add/', 'hn_ts_add_measurement');
-$app->post('/measurements/:id/add', 'hn_ts_add_measurements');
+$app->post('/measurement/:id', function($name) use ($app) {	
+	$value = $app->request()->post('value');
+	$timestamp = $app->request()->post('ts');
+	hn_ts_add_measurement($name, $value, $timestamp); 
+});
+	
+$app->post('/measurements/:id', 'hn_ts_add_measurements');
 $app->post('/context/add', 'hn_ts_add_context');
 $app->get('/context', function() use ($app) {
 	if(NULL == $app->request()->get()){
@@ -128,10 +148,8 @@ $app->run();
  * @param $txt is the message to output
  */
 function hn_ts_error_msg($txt){
-	global $HN_TS_DEBUG;
-	if($HN_TS_DEBUG){
-		echo '{"error":{"message":"'.$txt.'"}}';
-	}
+	$txt = __($txt);
+	echo '{"error":{"message":"'.$txt.'"}}';
 }
 
 /**
@@ -188,7 +206,11 @@ function echoJsonQuery($sql, $root, $error=404){
 	} catch(PDOException $e) {
 		global $app;
 		$app->response()->status($error);
-		hn_ts_error_msg($e->getMessage()); 
+		if(HN_TS_DEBUG){
+			hn_ts_error_msg($e->getMessage());
+		}else{
+			hn_ts_error_msg("Error accessing the database.");
+		}
 	}	
 }
 
@@ -200,7 +222,7 @@ function echoJsonQuery($sql, $root, $error=404){
  */
 function hn_ts_sanitise($arg){
 	if(isset($arg)){
-		return preg_replace('/[^-a-zA-Z0-9_]/', '_', $arg);
+		return preg_replace('/[^-a-zA-Z0-9_\s]/', '_', $arg);
 	}else{
 		return null;
 	}	
@@ -212,7 +234,7 @@ function hn_ts_sanitise($arg){
  * Describes this API
  */
 function describeAPI(){	
-	echo'<h1>Timestreams API v. 2.0</h1>';
+	echo'<h1>Timestreams API v. 2.0.0-Alpha</h1>';
 	echo '	<table border="1">
 				<thead>
 					<tr><th>Example URL</th><th>Description</th><th>Method</th><th>Parameters</th><th>Output</th><th>Status</th></tr>
@@ -227,15 +249,15 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td>
-						<a href="../2.0/measurementContainerMetadata">./measurementContainerMetadata</a><br/>
-						<a href="../2.0/measurementContainerMetadata?tsid=1">./measurementContainerMetadata?tsid=1</a>
+						<a href="../2/measurementContainerMetadata">./measurementContainerMetadata</a><br/>
+						<a href="../2/measurementContainerMetadata?tsid=1">./measurementContainerMetadata?tsid=1</a>
 					</td>
 					<td>If no parameter is given then returns the metadata for all of the measurement container entries.
 					<br/>When used with id parameter returns the metadata record id for the given timestream id. Replaces timestreams.ext_get_timestream_metadata. </td><td>GET</td>
 					<td>tsid (optional): Id of a Timestream</td><td>Metadata list</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../2.0/measurementContainerMetadata/wp_1_ts_temperature_1">./measurementContainerMetadata/name</a></td>
+					<td><a href="../2/measurementContainerMetadata/wp_1_ts_temperature_1">./measurementContainerMetadata/wp_1_ts_temperature_1</a></td>
 					<td>Returns the metadata for the named measurement container. Replaces timestreams.select_metadata_by_name.</td><td>GET</td>
 					<td><ul>
 						<li>limit (optional): natural number for the maximum number of rows to return</li>	
@@ -243,7 +265,7 @@ function describeAPI(){
 					</ul></td><td>Metadata list</td><td>Complete.</td>
 				</tr>				
 				<tr>
-					<td><a href="../2.0/measurementContainer">./measurementContainer</a></td>
+					<td><a href="../2/measurementContainer">./measurementContainer</a></td>
 					<td>Returns the names of the measurement containers.</td><td>GET</td>
 					<td>None</td><td>Measurement container name list</td><td>Complete.</td>
 				</tr>
@@ -254,7 +276,7 @@ function describeAPI(){
 						"measuretype=temperature&minimumvalue=0&maximumvalue=100&
 						unit=text/x-data-C&unitsymbol=C&device=testDev&otherinfo=blah&
 						datatype=DECIMAL(5,2)&siteId=1&blogid=1&userid=1"
-						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2.0/measurementContainer
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurementContainer
 					</td>
 					<td>Creates a new measurement container owned by the given blog id. 
 					Replaces timestreams.hn_ts_create_measurements and 
@@ -284,10 +306,10 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td><ul>
-						<li><a href="../2.0/measurementContainer/wp_1_ts_Pressure_25">./measurementContainer/wp_1_ts_Pressure_25</a></li>
-						<li><a href="../2.0/measurementContainer/wp_1_ts_Pressure_25?action=first">./measurementContainer/wp_1_ts_Pressure_25?action=first</a></li>
-						<li><a href="../2.0/measurementContainer/wp_1_ts_Pressure_25?action=latest">./measurementContainer/wp_1_ts_Pressure_25?action=latest</a></li>
-						<li><a href="../2.0/measurementContainer/wp_1_ts_Pressure_25?action=count">./measurementContainer/wp_1_ts_Pressure_25?action=count</a></li>
+						<li><a href="../2/measurementContainer/wp_1_ts_Pressure_25">./measurementContainer/wp_1_ts_Pressure_25</a></li>
+						<li><a href="../2/measurementContainer/wp_1_ts_Pressure_25?action=first">./measurementContainer/wp_1_ts_Pressure_25?action=first</a></li>
+						<li><a href="../2/measurementContainer/wp_1_ts_Pressure_25?action=latest">./measurementContainer/wp_1_ts_Pressure_25?action=latest</a></li>
+						<li><a href="../2/measurementContainer/wp_1_ts_Pressure_25?action=count">./measurementContainer/wp_1_ts_Pressure_25?action=count</a></li>
 					</ul></td>
 					<td><ul>
 						<li>(No parameter) Returns the data for the given measurement container. Replaces timestreams.select_measurements.</li>
@@ -295,31 +317,43 @@ function describeAPI(){
 						<li>(action=latest) Returns the latest measurement from a measurement container. Replaces timestreams.select_latest_measurement.</li>
 						<li>(action=count) Returns the number of meaurements in the measurement container. Replaces timestreams.count_measurements.</li></ul>
 					</td><td>GET</td>
-					<td>action (optional)[first|latest|count]</td>
+					<td><ul>
+						<li>action (optional)[first|latest|count]: If this parameter is set to one of these values then the other parameters are ignored.</li>
+						<li>min (optional) <timestamp> Sets the minimum time to return measurements for.</li>
+						<li>max (optional) <timestamp> Sets the maximum time to return measurements for.</li>
+						<li>limit (optional) <natural number> Maximum number of measurements to return.</li>
+						<li>offset (optional) <natural number> Starting record.</li>
+						<li>sort (optional) <column name> Column that the records should be sorted by.</li>
+						<li>desc (optional) [true] If set then the sort order will be descending </li>
+					</ul></td>
 					<td>
 						Measurements list, first measurement, latest measurement or count of measurements.
 					</td><td>Complete.</td>
 				</tr>	
 				<tr>
-					<td>./measurement/add:id
-						<form name="hn_ts_addMeaurement" action="../2.0/measurement/add:id" method="post">
-							<input type="submit" value="Submit">
-						</form>
+					<td>./measurement/wp_1_ts_Pressure_25
+						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" 
+						-X POST -d 
+						"value=1"
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement/wp_1_ts_Pressure_25
 					</td>
-					<td>Adds a new measurement to the given measurement container.</td><td>POST</td>
-					<td>blog id ... </td><td>Success or failure message.</td><td>Incomplete.</td>
+					<td>Adds a new measurement to the given measurement container. Replaces timestreams.hn_ts_add_measurement</td><td>POST</td>
+					<td><ul>
+						<li>value</li>
+						<li>ts (optional) the timestamp that the measurement was taken. If excluded then uses the server\'s current time.</li>
+					</ul></td><td><ul><li>On success: {"insertresult": "1 rows inserted"}</li></ul></td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td>./measurements/add:id
-						<form name="hn_ts_addMeaurements" action="../2.0/measurements/add:id" method="post">
+					<td>./measurements/wp_1_ts_Pressure_25
+						<form name="hn_ts_addMeaurements" action="../2/measurements/wp_1_ts_Pressure_25" method="post">
 							<input type="submit" value="Submit">
 						</form></td>
-					<td>Adds new measurements to the given measurement container.</td><td>POST</td>
+					<td>Adds new measurements to the given measurement container. Replaces timestreams.hn_ts_add_measurements</td><td>POST</td>
 					<td>measurement container id ... </td><td>Success or failure message.</td><td>Incomplete.</td>
 				</tr>
 				<tr>
 					<td>./measurementfile/1
-						<form name="hn_ts_addMeaurementFile" action="../2.0/measurementfile/1" method="post">
+						<form name="hn_ts_addMeaurementFile" action="../2/measurementfile/1" method="post">
 							<input type="submit" value="Submit">
 						</form>
 					</td>
@@ -328,7 +362,7 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td>./measurementfiles/1
-						<form name="hn_ts_addMeaurementFiles" action="../2.0/measurementfiles/1" method="post">
+						<form name="hn_ts_addMeaurementFiles" action="../2/measurementfiles/1" method="post">
 							<input type="submit" value="Submit">
 						</form></td>
 					<td>...</td><td>POST</td>
@@ -336,7 +370,7 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td>./context/add
-						<form name="hn_ts_addContext" action="../2.0/context/add" method="post">
+						<form name="hn_ts_addContext" action="../2/context/add" method="post">
 							<input type="submit" value="Submit">
 						</form></td>
 					<td>Adds new measurements to the given measurement container.</td><td>POST</td>
@@ -344,12 +378,12 @@ function describeAPI(){
 				</tr>		
 					
 				<tr>
-					<td><a href="../2.0/context">./context</a></td>
+					<td><a href="../2/context">./context</a></td>
 					<td>...</td><td>GET</td>
 					<td>...</td><td>...</td><td>Incomplete.</td>
 				</tr>
 				<tr>
-					<td><a href="../2.0/context/1">./context/1</a></td>
+					<td><a href="../2/context/1">./context/1</a></td>
 					<td>...</td><td>GET</td>
 					<td>...</td><td>...</td><td>Incomplete.</td>
 				</tr>
@@ -357,24 +391,24 @@ function describeAPI(){
 					<td>
 						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d<br/>
 						"..."<br/>
-						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2.0/timestream/context/1
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/timestream/context/1
 					</td>
 					<td>....</td><td>PUT</td>
 					<td>...</td>
 				</tr>				
 				<tr><td>*****************</td></tr>
 				<tr>
-					<td><a href="../2.0/timestream">./timestream</a></td>
+					<td><a href="../2/timestream">./timestream</a></td>
 					<td>Returns all of the Timestreams. Replaces timestreams.ext_get_timestreams.</td><td>GET</td>
 					<td>None </td><td>The list of timestreams</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../2.0/time">./time</a></td>
+					<td><a href="../2/time">./time</a></td>
 					<td>Returns the current timestamp. Replaces timestreams.ext_get_time</td><td>GET</td>
 					<td>None </td><td>The current timestamp</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../2.0/timestream/name/wp_1_ts_temperature_23">./timestream/name/wp_1_ts_temperature_23</a></td>
+					<td><a href="../2/timestream/name/wp_1_ts_temperature_23">./timestream/name/wp_1_ts_temperature_23</a></td>
 					<td>Returns timestream readings for a given measurement container name. Replaces timestreams.int_get_timestream_data.</td><td>GET</td>
 					<td>limit<br/>offset<br/>lastts </td><td>The readings.</td><td>Complete.</td>
 				</tr>
@@ -382,18 +416,18 @@ function describeAPI(){
 					<td>
 						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d<br/>
 						"curtime=1352315401&start=1352315401&end=1352315401&rate=2"<br/>
-						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2.0/timestream/head/1
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/timestream/head/1
 					</td>
 					<td>Updates a timestream head. Replaces timestreams.int_update_timestream_head.</td><td>PUT</td>
 					<td>limit<br/>offset<br/>lastts </td><td>The readings.</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../2.0/timestream/head/1">./timestream/head/1</a></td>
+					<td><a href="../2/timestream/head/1">./timestream/head/1</a></td>
 					<td>Updates and outputs the head for the given timestream id.<br>Replaces timestreams.hn_ts_int_get_timestream_head.</td><td>GET</td>
 					<td>None</td><td>The head data</td><td>Complete.</td>
 				</tr>
 				<tr>
-					<td><a href="../2.0/timestream/id/1?limit=10&order=DESC">./2.0/timestream/id/1?limit=10&order=DESC</a></td>
+					<td><a href="../2/timestream/id/1?limit=10&order=DESC">./2/timestream/id/1?limit=10&order=DESC</a></td>
 					<td>Returns data corresponding to a given timestream since the last time 
 					the function was called. Replaces timestreams.ext_get_timestream_data.</td><td>GET</td>
 					<td><ul><li>last (optional): integer representing a php timestamp for last time a call was made</li><li>limit (optional): integer for the maximum number of rows to return</li><li>order (optional): string ["ASC"|"DESC"] sets the order of the returned results</li></ul></td><td>The timestream data</td><td>Complete.</td>
@@ -403,14 +437,14 @@ function describeAPI(){
 					<td>
 						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d<br/>
 						"..."<br/>
-						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2.0/import
+						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/import
 					</td>
 					<td>....</td><td>PUT</td>
 					<td>...</td>
 				</tr>
 				<tr>
 					<td>./heartbeat
-						<form name="hn_ts_heartbeat" action="../2.0/heartbeat" method="post">
+						<form name="hn_ts_heartbeat" action="../2/heartbeat" method="post">
 							<input type="submit" value="Submit">
 						</form></td>
 					<td>...</td><td>POST</td>
@@ -418,7 +452,7 @@ function describeAPI(){
 				</tr>
 				<tr>
 					<td>./replicate/
-						<form name="hn_tsreplicate" action="../2.0/replicate" method="post">
+						<form name="hn_tsreplicate" action="../2/replicate" method="post">
 							<input type="submit" value="Submit">
 						</form></td>
 					<td>...</td><td>POST</td>
@@ -504,9 +538,8 @@ function hn_ts_create_measurement_containerForBlog($measurementType,
 	$nextdevice=querySql($sql);
 	$nextdevice=$nextdevice[0]->Auto_increment;
 	
-	$tablename = "wp_$blogId"."_ts_$measurementType"."_$nextdevice";
+	$tablename = "wp_$blogId"."_ts_$measurementType"."_$nextdevice";	
 	
-	$db = getConnection();
 	$sql = "INSERT INTO wp_ts_metadata (tablename, measurement_type, min_value,
 			max_value, unit, unit_symbol, device_details, other_info,
 			data_type, missing_data_value, producer_site_id, producer_blog_id,
@@ -514,6 +547,7 @@ function hn_ts_create_measurement_containerForBlog($measurementType,
 			'$maximumvalue','$unit','$unitSymbol','$deviceDetails',
 			'$otherInformation','$dataType','$missingDataValue','$siteId',
 			'$blogId','$userid')";	
+	$db = getConnection();
 	$count0 = $db->exec($sql);
 	if($count0 == 1){
 		$sql =
@@ -535,14 +569,47 @@ function hn_ts_create_measurement_containerForBlog($measurementType,
 }
 
 /**
- * Checks username password then adds a measurement to a measurement container.
- * @param array $args should have 4 or 5 parameters:
- * $username, $password, measurement container name, measurement value, timestamp
- * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
+ * Adds a measurement to a measurement container.
+ * @param String of the form  wp_[blog-id]_ts_[measurement-type]_[device-id] $name
+ * @param String $value
+ * @param String of the form 2012-07-21 00:05:23 $timestamp
  */
-function hn_ts_add_measurement(){
-	hn_ts_error_msg("hn_ts_add_measurement");	
-}		
+function hn_ts_add_measurement($name, $value, $timestamp){	
+	$name = hn_ts_sanitise($name);
+	if(!$name){
+		$app->response()->status(400);
+		hn_ts_error_msg("Missing measurement container name.");
+	}
+	
+	$value = hn_ts_sanitise($value);	
+	if(!$value){
+		$app->response()->status(400);
+		hn_ts_error_msg("Missing parameter: value");
+	}
+	
+	$timestamp = hn_ts_sanitise($timestamp);
+	if(!isset($timestamp)){
+		$sql = "SELECT CURRENT_TIMESTAMP";
+		$_now = querySql($sql);
+		$timestamp = $_now[0]->CURRENT_TIMESTAMP;
+	}
+		
+	$sql = "INSERT INTO $name (value, valid_time) VALUES ('$value', '$timestamp');";
+	try {		
+			$db = getConnection();
+			$count0 = $db->exec($sql);
+			$db = null;		
+			echo '{"insertresult": ' . json_encode("$count0 rows inserted") .  '}';
+	} catch(PDOException $e) {
+		global $app;
+		$app->response()->status($error);
+		if(HN_TS_DEBUG){
+			hn_ts_error_msg($e->getMessage());
+		}else{
+			hn_ts_error_msg("Error accessing the database.");
+		}
+	}
+}	
 
 /**
  * Checks username password then adds measurements to a measurement container.
@@ -551,36 +618,32 @@ function hn_ts_add_measurement(){
  * @return string XML-XPC response with either an error message as a param or the
  * number of insertions
  */
-function hn_ts_add_measurements(){
+function hn_ts_add_measurements($id){
 	hn_ts_error_msg("hn_ts_add_measurements");	
 }
 
 /**
- * Retrieves records from a readings table of the form
- * wp_[blog-id]_ts_[measurement-type]_[device-id]
- * @param $args is an array in the expected format of:
- * [2]table name
- * [3]minimum timestamp
- * [4]maximum timestamp
- * [5]limit -- optional
- * [6]offset -- optional
- * [7]sort by column -- optional
- * [8]descending boolean -- optional
- * To do: Sanitise parameters
- * @return the result of the select
+ * Retrieves records from a measurement container
+ * @param String of the form  wp_[blog-id]_ts_[measurement-type]_[device-id] $table
+ * @param String of the form 2012-07-21 00:05:23 $minimumTime is minimum timestamp
+ * @param String of the form 2012-07-21 00:05:23 $maximumTime is maximum timestamp
+ * @param Natural number $limit
+ * @param Natural number $offset
+ * @param String $sortcolumn is the column to sort by
+ * @param String $descending is whether to sort descending
  */
-function hn_ts_select_measurements($name, $minTs, $maxTs, $limit, $offset, $sort, $desc){	
-	global $wpdb;
-	if(count($args) < 3){
-		return $this->missingcontainername;
-	}
-	$table=$args[2];
-	$minimumTime=$args[3];
-	$maximumTime=$args[4];
+function hn_ts_select_measurements($table, $minimumTime, $maximumTime, $limit, 
+									$offset, $sortcolumn, $descending){	
+	$table = hn_ts_sanitise($table);
+	$minimumTime = hn_ts_sanitise($minimumTime);
+	$maximumTime = hn_ts_sanitise($maximumTime);
+	$limit = hn_ts_sanitise($limit);
+	$offset = hn_ts_sanitise($offset);
+	$sortcolumn = hn_ts_sanitise($sortcolumn);
+	$descending = hn_ts_sanitise($descending);	
+	
 	$where="WHERE ";
-	$limit=$this->hn_ts_getLimitStatement($args[5], $args[6]);
-	$sortcolumn=(count($args) > 7 ? $args[7] : "");
-	$descending=(count($args) > 8 ? $args[8] : "");
+	$limit=hn_ts_getLimitStatement($limit, $offset);
 	$sort = "";
 		
 	if($minimumTime){
@@ -602,8 +665,9 @@ function hn_ts_select_measurements($name, $minTs, $maxTs, $limit, $offset, $sort
 		if($descending)
 			$sort .= " DESC";
 	}
-	return $wpdb->get_results( 	$wpdb->prepare(
-			"SELECT * FROM $table $where $sort $limit;" )	);
+	
+	$sql = "SELECT * FROM $table $where $sort $limit;";
+	echoJsonQuery($sql, "measurementContainerMetadata");
 }
 
 /**
