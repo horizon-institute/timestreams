@@ -1,9 +1,26 @@
 <?php
+/* Timestreams API v. 2.0.
+ Authors  Jesse Blum (JMB) an Martin Flintham (MDF)
+ Produced for the Relate Project, Horizon Digital Economy Institute, University of Nottingham
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 require 'Slim/Slim.php';
 
 define(HN_TS_DEBUG, true);
-
+define (HN_TS_VERSION, "v. 2.0.0-Alpha-0.1");
 $app = new Slim();
 if(HN_TS_DEBUG){
 	$app->getLog()->setEnabled(true);
@@ -13,6 +30,8 @@ else{
 }
 
 /** ROUTES (resource URIs to callback function mappings) *********************/
+//@todo Make it so that the urls can have / appended to their ends and return correctly. 
+//At the moment they are 404ing
 
 $app->get('/', 'describeAPI');
 $app->get('/measurementContainerMetadata', function() use ($app) {
@@ -86,7 +105,6 @@ $app->post('/measurements/:id', function($name) use ($app) {
 	$measurements = $app->request()->post('measurements');
 	hn_ts_add_measurements($name, $measurements);
 });
-$app->post('/context/', 'hn_ts_add_context');
 $app->get('/context', function() use ($app) {
 	$typeParam = $app->request()->get('type');
 	$valueParam = $app->request()->get('value');
@@ -95,6 +113,14 @@ $app->get('/context', function() use ($app) {
 	$limit = $app->request()->get('limit');
 	$offset = $app->request()->get('offset');
 	hn_ts_select_contexts($typeParam, $valueParam, $startParam, $endParam, $limit, $offset);
+});
+$app->post('/context', function() use ($app) {
+	$context_type = $app->request()->post('type');
+	$value = $app->request()->post('value');
+	$start = $app->request()->post('start');
+	$end = $app->request()->post('end');
+	$user_id = $app->request()->post('user');
+	hn_ts_add_context($context_type, $value, $start, $end, $user_id);
 });
 $app->put('/context', function() use ($app) {
 	$context_id = $app->request()->put('id');
@@ -179,7 +205,7 @@ function getConnection() {
 }
 
 /**
- * Makes a SQL database call given a SQL string
+ * Makes a SQL database call given a SQL string -- usually a SELECT or SHOW
  * @param $sql is a SQL string
  * returns the recordset;
  */
@@ -189,6 +215,30 @@ function querySql($sql){
 		$recordset = $stmt->fetchAll(PDO::FETCH_OBJ);
 		$db = null;	
 		return $recordset;
+}
+
+/**
+ * INSERT SQL
+ * @param $sql is the String with the insertion command
+ */
+function sqlInsert($sql){
+	if(!isset($sql)){
+		return;
+	}
+	try {
+		$db = getConnection();
+		$count0 = $db->exec($sql);
+		$db = null;
+		echo '{"insertresult": ' . json_encode("$count0 rows inserted") .  '}';
+	} catch(PDOException $e) {
+		global $app;
+		$app->response()->status($error);
+		if(HN_TS_DEBUG){
+			hn_ts_error_msg($e->getMessage());
+		}else{
+			hn_ts_error_msg("Error accessing the database.");
+		}
+	}
 }
 
 /**
@@ -230,7 +280,17 @@ function hn_ts_sanitise($arg){
  * Describes this API
  */
 function describeAPI(){	
-	echo'<h1>Timestreams API v. 2.0.0-Alpha</h1>';
+	echo '<!DOCTYPE html>
+			<html lang="en">
+			<head>
+			    <title>Timestreams API '. HN_TS_VERSION . '</title>
+			    <meta charset="utf-8">
+			    <meta name="description" content="Timestreams API '. HN_TS_VERSION . '">
+			    <meta name="keywords" content="timestreams">
+			    <meta itemprop="name" content="Timestreams API '. HN_TS_VERSION . '">
+			</head>
+			<body>';
+	echo'<h1>Timestreams API '. HN_TS_VERSION . '</h1>';
 	echo '	<table border="1">
 				<thead>
 					<tr><th>Example URL</th><th>Description</th><th>Method</th><th>Parameters</th><th>Output</th><th>Status</th></tr>
@@ -366,15 +426,7 @@ function describeAPI(){
 						</form></td>
 					<td>...</td><td>POST</td>
 					<td> ... </td><td>Success or failure message.</td><td>Incomplete.</td>
-				</tr>
-				<tr>
-					<td>./context
-						<form name="hn_ts_addContext" action="../2/context" method="post">
-							<input type="submit" value="Submit">
-						</form></td>
-					<td>Adds new measurements to the given measurement container.</td><td>POST</td>
-					<td>... </td><td>Success or failure message.</td><td>Incomplete.</td>
-				</tr>		
+				</tr>	
 					
 				<tr>
 					<td><a href="../2/context">./context</a></td>
@@ -393,19 +445,37 @@ function describeAPI(){
 					</ul></td><td>List of contexts</td><td>Complete.</td>
 				</tr>
 				<tr>
+					<td>curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X POST -d 
+					"type=place&value=Nottingam&start=2012-11-12 10:10:23&end=2012-11-12 10:20:23&user=1"
+					 http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
+					<td>Adds new contexts. Replaces timestreams.add_context.</td>
+					<td>POST</td>
+					<td><ul>
+						<li>type</li>
+						<li>value</li>
+						<li>start</li>
+						<li>end</li>
+						<li>user</li>
+					</ul></td>
+					<td>
+						<ul><li>On success: {"insertresult": "1 rows inserted"}</li></ul>
+					</td><td>Complete.</td>
+				</tr>	
+				<tr>
 					<td>
 						curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X 
 						PUT -d "type=a&start=2012-05-22 13:36:11&end=2012-05-22 13:36:11" 
 						http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 					</td>
 					<td>Updates the end time of the context records matching the given values. Replaces timestreams.update_context.</td>
+					</td><td>PUT</td>
 					<td><ul>
 						<li>id</li>
 						<li>type</li>
 						<li>value</li>
 						<li>start</li>
 						<li>end</li>
-					</ul></td><td>PUT</td>
+					</ul>
 					<td><ul><li>On success: {"updateresult": "Updated 1 row(s)."}</li></ul></td><td>Complete</td>
 				</tr>				
 				<tr><td>*****************</td></tr>
@@ -611,20 +681,7 @@ function hn_ts_add_measurement($name, $value, $timestamp){
 	}
 		
 	$sql = "INSERT INTO $name (value, valid_time) VALUES ('$value', '$timestamp');";
-	try {		
-			$db = getConnection();
-			$count0 = $db->exec($sql);
-			$db = null;		
-			echo '{"insertresult": ' . json_encode("$count0 rows inserted") .  '}';
-	} catch(PDOException $e) {
-		global $app;
-		$app->response()->status($error);
-		if(HN_TS_DEBUG){
-			hn_ts_error_msg($e->getMessage());
-		}else{
-			hn_ts_error_msg("Error accessing the database.");
-		}
-	}
+	sqlInsert($sql);
 }	
 
 /**
@@ -668,20 +725,7 @@ function hn_ts_add_measurements($name, $measurements){
 		$sql = rtrim($sql, ",").";";
 	}
 	
-	try {
-		$db = getConnection();
-		$count0 = $db->exec($sql);
-		$db = null;
-		echo '{"insertresult": ' . json_encode("$count0 rows inserted") .  '}';
-	} catch(PDOException $e) {
-		global $app;
-		$app->response()->status($error);
-		if(HN_TS_DEBUG){
-			hn_ts_error_msg($e->getMessage());
-		}else{
-			hn_ts_error_msg("Error accessing the database.");
-		}
-	}
+	sqlInsert($sql);
 }
 
 /**
@@ -749,14 +793,23 @@ function hn_ts_select_metadata_by_name($mcName, $limit, $offset){
 }
 
 /**
- * Checks username password then adds a context record to the context container.
- * @param array $args should have 6 parameters:
- * $username, $password, context_type, context_value, start time (optional), end time(optional)
+ * Adds a context record.
+ * @param context_type, context_value, start time (optional), end time(optional)
  * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
  */
-function hn_ts_add_context(){
+function hn_ts_add_context($context_type, $value, $start, $end, $user_id){
+	$context_type = hn_ts_sanitise($context_type);
+	$value = hn_ts_sanitise($value);
+	$start = hn_ts_sanitise($start);
+	$end = hn_ts_sanitise($end);
+	$user_id = hn_ts_sanitise($user_id);
+	if(!isset($user_id)){
+		$user_id = 0;
+	}
 	
-	hn_ts_error_msg("hn_ts_add_context");
+	$sql = "INSERT INTO wp_ts_context (context_type, value, start_time, end_time, user_id) VALUES 
+		('$context_type', '$value', '$start', '$end', '$user_id');";
+	sqlInsert($sql);	
 }
 
 /**
