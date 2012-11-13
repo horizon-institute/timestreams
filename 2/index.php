@@ -48,8 +48,9 @@ $app->get('/measurementContainerMetadata/:name', function($name) use ($app) {
 
 	hn_ts_select_metadata_by_name($name, $limit, $offset);
 });
-$app->get('/measurementContainer', 'hn_ts_list_mc_names');
-$app->post('/measurementContainer', function() use ($app) {
+$app->get('/measurement_container', 'hn_ts_list_mc_names');
+$app->post('/measurement_container', function() use ($app) {
+	$friendlyName = $app->request()->post('name');
 	$measuretype = $app->request()->post('measuretype');
 	$minimumvalue = $app->request()->post('minimumvalue');
 	$maximumvalue = $app->request()->post('maximumvalue');
@@ -65,9 +66,9 @@ $app->post('/measurementContainer', function() use ($app) {
 	hn_ts_create_measurement_containerForBlog(
 			$measuretype, $minimumvalue, $maximumvalue, $unit,
 			$unitSymbol, $device, $otherInformation, $datatype,
-			$missingDataValue, $siteId, $blogid, $userid);
+			$missingDataValue, $siteId, $blogid, $userid, $friendlyName);
 });
-$app->get('/measurementContainer/:name', function($name) use ($app) {
+$app->get('/measurement_container/:name', function($name) use ($app) {
 	if(!isset($name)){
 		$app->response()->status(404);
 		hn_ts_error_msg("Invalid measurement container: $name");
@@ -130,7 +131,7 @@ $app->put('/context', function() use ($app) {
 	$end_time = $app->request()->put('end');
 	hn_ts_update_context($context_id, $context_type, $context_value, $start_time, $end_time);
 });
-$app->put('/replicate', 'hn_ts_replicate'); // not really a put or a post -- do we need to define a new verb for activation?
+//$app->put('/replicate', 'hn_ts_replicate'); // not really a put or a post -- do we need to define a new verb for activation?
 $app->get('/timestream', 'hn_ts_ext_get_timestreams');
 $app->get('/timestream/id/:id', function($id) use ($app) {
 	$lastAskTime = $app->request()->get('last');
@@ -287,7 +288,7 @@ function echoJsonQuery($sql, $root, $error=404){
  */
 function hn_ts_sanitise($arg){
 	if(isset($arg)){
-		return preg_replace('/[^-a-zA-Z0-9_\s://]/', '_', $arg);
+		return preg_replace('/[^-a-zA-Z0-9_\s:\/]/', '_', (string)$arg);
 	}else{
 		return null;
 	}
@@ -340,35 +341,36 @@ function describeAPI(){
 	</ul></td><td>Metadata list</td><td>Complete.</td>
 	</tr>
 	<tr>
-	<td><a href="../2/measurementContainer">./measurementContainer</a></td>
+	<td><a href="../2/measurement_container">./measurement_container</a></td>
 	<td>Returns the names of the measurement containers.</td><td>GET</td>
-	<td>None</td><td>Measurement container name list</td><td>Complete.</td>
+	<td>None</td><td>List of measurement container names and friendly namest</td><td>Complete.</td>
 	</tr>
 	<tr>
-	<td>./measurementContainer
+	<td>./measurement_container
 	curl --noproxy 192.168.56.101 -i -H "Accept: application/json"
 	-X POST -d
-	"measuretype=temperature&minimumvalue=0&maximumvalue=100&
+	"name=myContainer&measuretype=temperature&minimumvalue=0&maximumvalue=100&
 	unit=text/x-data-C&unitsymbol=C&device=testDev&otherinfo=blah&
 	datatype=DECIMAL(5,2)&siteId=1&blogid=1&userid=1"
-	http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurementContainer
+	http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement_container
 	</td>
 	<td>Creates a new measurement container owned by the given blog id.
 	Replaces timestreams.hn_ts_create_measurements and
 	timestreams.hn_ts_create_measurementsForBlog</td><td>POST</td>
 	<td><ul>
-	<li>String $measurementType
-	</li><li>String (optional) $minimumvalue
-	</li><li>String (optional) $maximumvalue
-	</li><li>String MimeType $unit
-	</li><li>String (optional) $unitSymbol
-	</li><li>String $deviceDetails
-	</li><li>String (optional) $otherInformation
-	</li><li>String mySQL data type $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
-	</li><li>String (optional) $missing_data_value is a value of type $dataType which represents rows in the timeseries with unknown values.
-	</li><li>natural number (optional) $siteId site that owns the measurement container
-	</li><li>natural number (optional) $blogId blog that owns the measurement container
-	</li><li>natural number (optional) $userid user that owns the measurement container
+	<li>String (up to 45 chars) name is a unique friendly name for the measurement container
+	<li>String measurementType
+	</li><li>String (optional) minimumvalue
+	</li><li>String (optional) maximumvalue
+	</li><li>String MimeType unit
+	</li><li>String (optional) unitSymbol
+	</li><li>String deviceDetails
+	</li><li>String (optional) otherInformation
+	</li><li>String mySQL data type dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
+	</li><li>String (optional) missing_data_value is a value of type dataType which represents rows in the timeseries with unknown values.
+	</li><li>natural number (optional) siteId site that owns the measurement container
+	</li><li>natural number (optional) blogId blog that owns the measurement container
+	</li><li>natural number (optional) userid user that owns the measurement container
 	</ul>
 	</td>
 	<td>
@@ -376,15 +378,17 @@ function describeAPI(){
 	Failure messages:<ul>
 	<li>400 Bad Request - Missing required parameter</li>
 	<li>400 Bad Request - Invalid parameter(s)</li>
+	<li>400 Bad Request - Invalid parameter(s)</li>
+	<li>400 Bad Request - The name ***** is already used.</li>
 	</ul>
 	</td><td>Complete.</td>
 	</tr>
 	<tr>
 	<td><ul>
-	<li><a href="../2/measurementContainer/wp_1_ts_Pressure_25">./measurementContainer/wp_1_ts_Pressure_25</a></li>
-	<li><a href="../2/measurementContainer/wp_1_ts_Pressure_25?action=first">./measurementContainer/wp_1_ts_Pressure_25?action=first</a></li>
-	<li><a href="../2/measurementContainer/wp_1_ts_Pressure_25?action=latest">./measurementContainer/wp_1_ts_Pressure_25?action=latest</a></li>
-	<li><a href="../2/measurementContainer/wp_1_ts_Pressure_25?action=count">./measurementContainer/wp_1_ts_Pressure_25?action=count</a></li>
+	<li><a href="../2/measurement_container/wp_1_ts_Pressure_25">./measurement_container/wp_1_ts_Pressure_25</a></li>
+	<li><a href="../2/measurement_container/wp_1_ts_Pressure_25?action=first">./measurement_container/wp_1_ts_Pressure_25?action=first</a></li>
+	<li><a href="../2/measurement_container/wp_1_ts_Pressure_25?action=latest">./measurement_container/wp_1_ts_Pressure_25?action=latest</a></li>
+	<li><a href="../2/measurement_container/wp_1_ts_Pressure_25?action=count">./measurement_container/wp_1_ts_Pressure_25?action=count</a></li>
 	</ul></td>
 	<td><ul>
 	<li>(No parameter) Returns the data for the given measurement container. Replaces timestreams.select_measurements.</li>
@@ -556,10 +560,14 @@ function measurementContainerMetadata() {
 }
 
 /**
- * Returns the names of the measurement containers.
+ * Returns the names and friendly names of the measurement containers.
  */
-function hn_ts_list_mc_names() {
-	$sql = "SELECT metadata_id AS id, tablename AS name FROM wp_ts_metadata ORDER BY id";
+function hn_ts_list_mc_names(){
+	$sql = "SELECT wp_ts_metadata.metadata_id AS id, 
+				wp_ts_metadata.tablename AS name, wp_ts_metadatafriendlynames.friendlyname
+	FROM  wp_ts_metadatafriendlynames 
+	RIGHT JOIN wp_ts_metadata
+	ON wp_ts_metadatafriendlynames.metadata_id=wp_ts_metadata.metadata_id";	
 	echoJsonQuery($sql, "measurementContainers");
 }
 
@@ -582,9 +590,22 @@ function hn_ts_list_mc_names() {
  */
 function hn_ts_create_measurement_containerForBlog($measurementType,
 $minimumvalue, $maximumvalue, $unit, $unitSymbol, $deviceDetails, $otherInformation,
-$dataType,$missingDataValue, $siteId, $blogId, $userid){
-	if(!$blogId || $blogId < 1){
-		$blogId = 1;
+$dataType,$missingDataValue, $siteId, $blogId, $userid, $friendlyName){
+	/* Ensure that the parameters are valid **********/
+	
+	//  Ensure friendly name is unique
+	if(	hn_ts_issetRequiredParameter($friendlyName, "name")){
+		$friendlyName = hn_ts_sanitise($friendlyName);
+		$sql = "SELECT * FROM wp_ts_metadatafriendlynames WHERE friendlyname = '$friendlyName'";
+		$results = querySql($sql);
+		if(count($results)){
+			global $app;
+			$app->response()->status(400);
+			hn_ts_error_msg("The name $friendlyName is already used.");
+			return;
+		}
+	}else{
+		return;
 	}
 
 	//Ensure that there aren't empty or null values going into mandatory fields.
@@ -593,8 +614,13 @@ $dataType,$missingDataValue, $siteId, $blogId, $userid){
 			!hn_ts_issetRequiredParameter($deviceDetails, "device") ||
 			!hn_ts_issetRequiredParameter($dataType, "datatype")
 	){
+		global $app;
+		$app->response()->status(400);
+		hn_ts_error_msg("Missing required parameter(s)");
 		return;
 	}
+	
+	// Ensure that the site, blog and user ids are valid
 	if(!$siteId || $siteId < 1){
 		$siteId = 1;
 	}
@@ -618,38 +644,52 @@ $dataType,$missingDataValue, $siteId, $blogId, $userid){
 	$siteId = hn_ts_sanitise($siteId);
 	$blogId = hn_ts_sanitise($blogId);
 	$userid = hn_ts_sanitise($userid);
-
-	$sql = "SHOW TABLE STATUS LIKE 'wp_ts_metadata';";
-	$nextdevice=querySql($sql);
-	$nextdevice=$nextdevice[0]->Auto_increment;
-
-	$tablename = "wp_$blogId"."_ts_$measurementType"."_$nextdevice";
-
-	$sql = "INSERT INTO wp_ts_metadata (tablename, measurement_type, min_value,
-	max_value, unit, unit_symbol, device_details, other_info,
-	data_type, missing_data_value, producer_site_id, producer_blog_id,
-	producer_id) VALUES ('$tablename','$measurementType','$minimumvalue',
-	'$maximumvalue','$unit','$unitSymbol','$deviceDetails',
-	'$otherInformation','$dataType','$missingDataValue','$siteId',
-	'$blogId','$userid')";
-	$db = getConnection();
-	$count0 = $db->exec($sql);
-	if($count0 == 1){
-		$sql =
-		'CREATE TABLE IF NOT EXISTS '.$tablename.' (
-		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-		value '.$dataType.' DEFAULT NULL,
-		valid_time timestamp NULL,
-		transaction_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-		PRIMARY KEY  (id)
-		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
+		
+	try {	
+		/** Insert record into metadata, create table, and add friendly name record */
+	
+		$sql = "SHOW TABLE STATUS LIKE 'wp_ts_metadata';";
+		$nextdevice=querySql($sql);
+		$nextdevice=$nextdevice[0]->Auto_increment;
+	
+		$tablename = "wp_$blogId"."_ts_$measurementType"."_$nextdevice";
+	
+		$sql = "INSERT INTO wp_ts_metadata (tablename, measurement_type, min_value,
+		max_value, unit, unit_symbol, device_details, other_info,
+		data_type, missing_data_value, producer_site_id, producer_blog_id,
+		producer_id) VALUES ('$tablename','$measurementType','$minimumvalue',
+		'$maximumvalue','$unit','$unitSymbol','$deviceDetails',
+		'$otherInformation','$dataType','$missingDataValue','$siteId',
+		'$blogId','$userid')";
+		$db = getConnection();
 		$count0 = $db->exec($sql);
-		$db = null;
-		echo '{"measurementcontainer": ' . json_encode($tablename) .  '}';
-	}else{
+		if($count0 == 1){
+			$sql = 'CREATE TABLE IF NOT EXISTS '.$tablename.' (
+				id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				value '.$dataType.' DEFAULT NULL,
+				valid_time timestamp NULL,
+				transaction_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+				PRIMARY KEY  (id)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
+			$count0 = $db->exec($sql);
+			$sql = "INSERT INTO  wp_ts_metadatafriendlynames (metadata_id, friendlyname)
+						VALUES ('$nextdevice', '$friendlyName');";
+			$db->exec($sql);
+			$db = null;
+			echo '{"measurementcontainer": ' . json_encode($tablename) .  '}';
+		}else{
+			global $app;
+			$app->response()->status(400);
+			hn_ts_error_msg("Invalid parameter(s)");
+		}
+	} catch(PDOException $e) {
 		global $app;
-		$app->response()->status(400);
-		hn_ts_error_msg("Invalid parameter(s)");
+		$app->response()->status($error);
+		if(HN_TS_DEBUG){
+			hn_ts_error_msg($e->getMessage());
+		}else{
+			hn_ts_error_msg("Error accessing the database.");
+		}
 	}
 }
 

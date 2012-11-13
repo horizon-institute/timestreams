@@ -62,7 +62,7 @@
 		 * @param array $args should have 11 parameters:
 		 * $username, $password, $measurementType, $minimumvalue, $maximumvalue,
 		 *	$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType, 
-		 *	$missing_data_value
+		 *	$missing_data_value, $friendlyname
 		 * @return string XML-XPC response with either an error message as a param or the
 		 * name of the measurement container
 		 */
@@ -70,9 +70,9 @@
 			if(count($args) < 11){
 				return new IXR_Error(403, __('Incorrect number of parameters.',HN_TS_NAME));
 			}
-			/*(blog_id='', $$measurementType, $minimumvalue, $maximumvalue,
-			$unit, $unitSymbol, $deviceDetails, $otherInformation, $dataType, 
-			$missing_data_value)*/
+			/*$username, $password,$blog_id='', $measurementType, $minimumvalue, $maximumvalue,
+			$unit, $unitSymbol, $deviceDetails, $otherInformation, 
+			$dataType,$missingDataValue,$siteId=1,$friendlyname*/
 			
 			if(!$this->hn_ts_check_user_pass($args)){
 				$err = $this->loginError;
@@ -84,8 +84,20 @@
 				}
 			}
 			else{
-				return $this->tsdb->hn_ts_addMetadataRecord("",$args[2],$args[3],$args[4],
+				if(count($args) == 11){
+					return $this->tsdb->hn_ts_addMetadataRecord($args[2],$args[3],$args[4],
 						$args[5],$args[6],$args[7],$args[8],$args[9],$args[10]);
+				}else if(count($args) == 12){
+					return $this->tsdb->hn_ts_addMetadataRecord($args[2],$args[3],$args[4],
+							$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11]);
+				}else if(count($args) == 13){
+					return $this->tsdb->hn_ts_addMetadataRecord($args[2],$args[3],$args[4],
+							$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11],$args[12]);
+				}else if(count($args) == 14){
+					return $this->tsdb->hn_ts_addMetadataRecord2($args[2],$args[3],$args[4],
+							$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11],
+							$args[12],$args[13]);
+				}
 			}
 		}
 		
