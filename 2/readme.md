@@ -1,7 +1,7 @@
-# Timestreams API (PHP Version) #
+# Timestreams API (v. 2.0.0-Alpha-0.1) #
 
 	    
-The Timestreams API is documented [here](https://github.com/pszjmb1/Timestreams/wiki/Timestreams-API-Documentation).
+The Timestreams API is documented [here](http://timestreams.wp.horizon.ac.uk/wp-content/plugins/timestreams/2).
 
 This API:
 
@@ -12,7 +12,7 @@ Set Up
 -------
 
 1. Install and activate Timestreams plugin in Wordpress
-2. Ensure the api/index.php connection parameters match the database configuration. 
+2. Ensure the api/index.php getConnection() function variables match the database configuration. 
 3. Ensure the main.js rootURL variable matches the deployment configuration.
 4. Test the functions using your browser or curl.
 
