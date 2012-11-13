@@ -9,6 +9,7 @@
 		
 		public function write()
 		{
+			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script('timestreams-api', '/wp-content/plugins/timestreams/js/timestreams-api.js');
 			wp_enqueue_script('rpc', '/wp-content/plugins/timestreams/js/rpc.js');
 			
@@ -22,7 +23,7 @@
 			{
 		        window.addEventListener('load', function() {  
 		    		window['" . $this->vizId."'] = new SimpleText(
-							'" . site_url() . "/xmlrpc.php',
+							'" . site_url() . "/wp-content/plugins/timestreams/2/',
 							" . $this->timestreamId . ",
 							'viz_" . $this->vizId . "',
 							'viz_" . $this->vizId . "_meta');
@@ -32,7 +33,7 @@
 			{
 				window.attachEvent('onload', function() {
 		    		window['" . $this->vizId . "'] = new SimpleText(
-							'" . site_url() . "/xmlrpc.php',
+							'" . site_url() . "/wp-content/plugins/timestreams/2/',
 							" . $this->timestreamId . ",
 							'viz_" . $this->vizId . "',
 							'viz_" . $this->vizId . "_meta');

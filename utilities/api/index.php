@@ -674,6 +674,8 @@ function hn_ts_int_get_timestream_head($timestreamId){
 function hn_ts_int_get_timestream_data($tablename, $limit, $offset, $lastTimestamp){
 	$where = "";
 		
+	error_log("what");
+	
 	if($lastTimestamp)
 	{
 		$timeStr = date ("Y-m-d H:i:s", $lastTimestamp);
@@ -712,6 +714,7 @@ function hn_ts_int_get_timestream_data($tablename, $limit, $offset, $lastTimesta
 	}
 	
 	echo '{"measurements": ' . json_encode($readings) .  '}';
+	
 }
 
 /**

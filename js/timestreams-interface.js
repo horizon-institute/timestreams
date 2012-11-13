@@ -17,8 +17,38 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	now = new Date().getTime() / 1000;
 	this.offset = now - serverTs;
 
-	this.end = (end+this.offset)*1000;	
-	this.start = (start+this.offset)*1000;
+	_start = new Date(start*1000);
+	_startoffset = _start.getTimezoneOffset();
+
+	_end = new Date(end*1000);
+	_endoffset = _end.getTimezoneOffset();
+	
+	/*
+	console.log(this.offset);
+	_n = new Date();
+	_s = new Date(serverTs*1000);
+	console.log(_n);
+	console.log(_s);
+	console.log(now);
+	console.log(serverTs);
+	
+	_st = new Date(start*1000);
+	o = _st.getTimezoneOffset();
+	console.log(o); // minutes
+	_n = new Date();
+	//o = _n.getTimezoneOffset();
+	console.log(o);
+	//_en = new Date(end*1000);
+
+	console.log(start);
+	console.log(end);
+	console.log(new Date(start*1000));
+	console.log(new Date(end*1000));*/
+
+	
+	
+	this.end = (end+this.offset+(_startoffset*60))*1000;	
+	this.start = (start+this.offset+(_endoffset*60))*1000;
 	this.startEndEnabled = true;
 	
 	this.data = [];
@@ -40,6 +70,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	this.dataLatest = true;
 	this.initialised = false;
 	
+	/*
 	this.remote_service = new rpc.ServiceProxy(this.remote_url, {
 		asynchronous: true,
 		sanitize: true,
@@ -47,7 +78,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 			'timestreams.int_get_timestream_data',
 			'timestreams.int_update_timestream_head'],
 		protocol: 'XML-RPC',
-	});
+	});*/
 
 
 	this.init = function()
@@ -175,29 +206,33 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		}
 		
 		var _rate = document.getElementById("timestream_"+this.timestreamId+"_rate").value;
-		
-		_this.remote_service.timestreams.int_update_timestream_head({
-			params:  [_this.remote_username, _this.remote_password, _this.timestreamId, _head, _start, _end, _rate],
-				onSuccess:function(successObj){ _this.saveRpcSuccess.call(_this, successObj) },
-				onException:function(errorObj){ _this.saveRpcError.call(_this, errorObj) },
-				onComplete:function(){ _this.saveRpcComplete.call(_this) }
-		});
+				
+		jQuery.ajax({
+		    url: this.remote_url + "/timestream/head/"+this.timestreamId,
+		    type: 'PUT',
+		    data: 'curtime='+_head+'&start='+_start+'&end='+_end+'&rate='+_rate,
+		    success: function(data, textStatus, jqXHR){_this.saveRpcSuccess.call(_this, data, textStatus, jqXHR)},
+		    complete: function(jqXHR, textStatus){ _this.saveRpcComplete.call(_this, jqXHR, textStatus) },
+		    error: function(jqXHR, textStatus, errorThrown){ _this.saveRpcError.call(_this, jqXHR, textStatus, errorThrown) },
+		});	
+
 	}
 	
-	this.saveRpcComplete = function()
+
+	this.saveRpcSuccess = function(data, textStatus, jqXHR)
 	{
-		
+		console.log("saveRpcSuccess" + data + " " + textStatus + " " + jqXHR);
 	}
-	
-	this.saveRpcError = function(errorObj)
+
+	this.saveRpcError = function(jqXHR, textStatus, errorThrown)
 	{
-		
-	}
-	
-	this.saveRpcSuccess = function(message)
+		console.log("saveRpcError: " + jqXHR + " " + textStatus + " " + errorThrown);
+	}	
+
+	this.saveRpcComplete = function(jqXHR, textStatus)
 	{
-		
-	}
+		console.log("saveRpcComplete: " + jqXHR + " "  + textStatus);
+	}	
 	
 	this.setInteractionMode = function(mode)
 	{
@@ -236,7 +271,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 			ctx.fillRect(center_x - bar_width / 2, p.canvasy, bar_width, y_bottom - p.canvasy);
 		    ctx.strokeRect(center_x - bar_width / 2, p.canvasy, bar_width, y_bottom - p.canvasy);
 		}
-		
+			
 		ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
 		var xs = e.dygraph.toDomXCoord(this.start);
 		var xe = e.dygraph.toDomXCoord(this.end);
@@ -322,32 +357,38 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 
 	}
 	
-	this.headRpcSuccess = function(message)
+	this.headRpcSuccess = function(data, textStatus, jqXHR)
 	{
+		var obj = jQuery.parseJSON(data);
+		var head = obj.head;
+				
 		if(this.initialised == false)
 		{
 			return;
 		}
 		
-		var newhead = (message["currenttime"]+this.offset)*1000;
+		var newhead = (head["currenttime"]+this.offset)*1000;
 		
 		this.head = newhead;
 		this.redraw();
 	}
 
-	this.headRpcComplete = function()
+	this.headRpcComplete = function(jqXHR, textStatus)
 	{
-		
+		console.log("headRpcComplete: " + jqXHR + " "  + textStatus);
 	}
 
-	this.headRpcError = function(errorObj)
+	this.headRpcError = function(jqXHR, textStatus, errorThrown)
 	{
-		
+		console.log("headRpcError: " + jqXHR + " " + textStatus + " " + errorThrown);
 	}
 	
-	this.dataRpcSuccess = function(message)
+	this.dataRpcSuccess = function(data, textStatus, jqXHR)
 	{
-		if(message.length==0)
+		var obj = jQuery.parseJSON(data);
+		var readings = obj.measurements;
+		
+		if(readings.length==0)
 		{
 			return;
 		}
@@ -358,9 +399,9 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 			this.data = [];
 		}
 		
-		for(property in message)
+		for(property in readings)
 		{
-			var reading = message[property];
+			var reading = readings[property];
 			_ts = (reading.timestamp+this.offset)*1000;
 			
 			switch(this.isMedia)
@@ -411,26 +452,27 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		}
 	}
 	
-	this.dataRpcComplete = function()
+	this.dataRpcComplete = function(jqXHR, textStatus)
 	{
-		
+		//console.log("dataRpcComplete: " + jqXHR + " "  + textStatus);
 	}
 	
-	this.dataRpcError = function(errorObj)
+	this.dataRpcError = function(jqXHR, textStatus, errorThrown)
 	{
-		
+		console.log("dataRpcError: " + jqXHR + " " + textStatus + " " + errorThrown);
 	}
 	
 	this.doHeadRpc = function()
 	{
 		var _this = this;
 		
-		_this.remote_service.timestreams.int_get_timestream_head({
-			params:  [_this.remote_username, _this.remote_password, _this.timestreamId],
-				onSuccess:function(successObj){ _this.headRpcSuccess.call(_this, successObj) },
-				onException:function(errorObj){ _this.headRpcError.call(_this, errorObj) },
-				onComplete:function(){ _this.headRpcComplete.call(_this) }
-		});
+		jQuery.ajax({
+		    url: this.remote_url + "/timestream/head/"+this.timestreamId,
+		    type: 'GET',
+		    success: function(data, textStatus, jqXHR){_this.headRpcSuccess.call(_this, data, textStatus, jqXHR)},
+		    complete: function(jqXHR, textStatus){ _this.headRpcComplete.call(_this, jqXHR, textStatus) },
+		    error: function(jqXHR, textStatus, errorThrown){ _this.headRpcError.call(_this, jqXHR, textStatus, errorThrown) },
+		});	
 		
 		setTimeout(function(){ _this.doHeadRpc.call(_this)}, _this.remote_pollingRate);
 	}
@@ -438,14 +480,15 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	this.doDataRpc = function()
 	{	
 		var _this = this;
-
-		_this.remote_service.timestreams.int_get_timestream_data({
-			params:  [_this.remote_username, _this.remote_password, _this.dataSource, _this.dataLimit, _this.dataOffset, _this.dataLastTs],
-				onSuccess:function(successObj){ _this.dataRpcSuccess.call(_this, successObj) },
-				onException:function(errorObj){ _this.dataRpcError.call(_this, errorObj) },
-				onComplete:function(){ _this.dataRpcComplete.call(_this) }
-		});
 		
+		jQuery.ajax({
+		    url: this.remote_url + "/timestream/name/"+_this.dataSource+"?limit="+_this.dataLimit+"&offset="+_this.dataOffset+"&lastts="+_this.dataLastTs,
+		    type: 'GET',
+		    success: function(data, textStatus, jqXHR){_this.dataRpcSuccess.call(_this, data, textStatus, jqXHR)},
+		    complete: function(jqXHR, textStatus){ _this.dataRpcComplete.call(_this, jqXHR, textStatus) },
+		    error: function(jqXHR, textStatus, errorThrown){ _this.dataRpcError.call(_this, jqXHR, textStatus, errorThrown) },
+		});	
+
 		// poll for latest
 		if(_this.dataLatest==true)
 		{
