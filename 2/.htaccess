@@ -4,7 +4,7 @@ RewriteEngine On
 # If you need to use the `RewriteBase` directive, it should be the
 # absolute physical path to the directory that contains this htaccess file.
 #
-# RewriteBase /
+#RewriteBase /Users/martin/Sites/relatedev2/wp-content/plugins/Timestreams/utilities/api/
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ index.php [QSA,L]

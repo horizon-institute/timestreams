@@ -24,7 +24,7 @@
 			{
 		        window.addEventListener('load', function() {  
 		    		window['" . $this->vizId."'] = new TimestreamGauge(
-							'" . site_url() . "/xmlrpc.php',
+							'" . site_url() . "/wp-content/plugins/timestreams/2/',
 							" . $this->timestreamId . ",
 							'viz_" . $this->vizId . "',
 							'viz_" . $this->vizId . "_meta');
@@ -34,7 +34,7 @@
 			{
 				window.attachEvent('onload', function() {
 		    		window['" . $this->vizId . "'] = new TimestreamGauge(
-							'" . site_url() . "/xmlrpc.php',
+							'" . site_url() . "/wp-content/plugins/timestreams/2/',
 							" . $this->timestreamId . ",
 							'viz_" . $this->vizId . "',
 							'viz_" . $this->vizId . "_meta');

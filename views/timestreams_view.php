@@ -190,7 +190,7 @@
 			<script type="text/javascript">
 
 				timestreams[<?php echo $timestream->timestream_id; ?>] = new Timestream(
-						"<?php echo site_url(); ?>/xmlrpc.php",
+						"<?php echo site_url(); ?>/wp-content/plugins/timestreams/2/",
 						<?php echo $timestream->timestream_id; ?>,
 						"<?php echo $metadata->tablename; ?>",
 						<?php echo $db->hn_ts_ext_get_time(); ?>,

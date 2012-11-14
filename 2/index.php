@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'Slim/Slim.php';
 
-define(HN_TS_DEBUG, true);
-define (HN_TS_VERSION, "v. 2.0.0-Alpha-0.1");
+define('HN_TS_DEBUG', false);
+define('HN_TS_VERSION', "v. 2.0.0-Alpha-0.1");
 $app = new Slim();
 if(HN_TS_DEBUG){
 	$app->getLog()->setEnabled(true);
@@ -191,12 +191,12 @@ function hn_ts_issetRequiredParameter($param, $paramName){
  * To do get values from wp-config.php
  */
 function getConnection() {
-	$dbhost="127.0.0.2";
-	$dbuser="root";
-	$dbpass="tow4mfN";
-	$dbname="wordpress";
+	$dbhost="127.0.0.1";
+	$dbuser="wpuser";
+	$dbpass="wordpress";
+	$dbname="wp";
 	//$dbname="cellar";
-	$dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);
+	$dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);	
 	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	return $dbh;
 }
@@ -897,24 +897,27 @@ function hn_ts_int_get_timestream_data($tablename, $limit, $offset, $lastTimesta
 
 	$limitStmt = hn_ts_getLimitStatement($limit, $offset);
 
+	/*
 	$sql = "SELECT id,value,valid_time AS timestamp,transaction_time
 	FROM (SELECT * FROM $tablename $where ORDER BY valid_time DESC $limitStmt)
 	AS T1 ORDER BY timestamp ASC";
 
 	echoJsonQuery($sql, "measurements");
-	/*
-	 $sql = "SELECT * FROM (SELECT * FROM $tablename $where ORDER BY valid_time DESC $limitStmt)
-	AS T1 ORDER BY valid_time ASC";
-
+	*/
+	
+	// mdf - interface expects a unix timestamp
+	$sql = "SELECT * FROM (SELECT * FROM $tablename $where ORDER BY valid_time DESC $limitStmt) 
+			 AS T1 ORDER BY valid_time ASC";
+		
 	$readings = querySql($sql);
-
+		
 	for($i = 0; $i < count($readings); $i++)
 	{
-	$newts = strtotime($readings[$i]->valid_time);
-	$readings[$i]->timestamp = $newts;
+		$newts = strtotime($readings[$i]->valid_time);
+		$readings[$i]->timestamp = $newts;
 	}
-
-	return $readings;*/
+	
+	echo '{"measurements": ' . json_encode($readings) .  '}';
 }
 
 /**
@@ -986,7 +989,10 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 // external api
 function hn_ts_ext_get_time(){
 	$sql = "SELECT CURRENT_TIMESTAMP";
-	echoJsonQuery($sql, "timestamp");
+	// need to return a unix timestamp due to js date parsing issues
+	$res = querySql($sql);
+	$res[0]->CURRENT_TIMESTAMP = strtotime($res[0]->CURRENT_TIMESTAMP);
+	echo '{"timestamp": ' . json_encode($res) . '}';
 }
 
 /**
@@ -998,12 +1004,29 @@ function hn_ts_ext_get_timestreams(){
 }
 
 /**
- * Returns the measurement table's metadata row id for the given timestream id
+ * Returns the measurement table's metadata row for the given timestream id
  * @param $timestreamId is the id of the timestream to return the metadata id for
  */
 function hn_ts_ext_get_timestream_metadata($timestreamId){
+	// mdf - this api call should return the metadata itself, not just the id.
 	$sql = "SELECT metadata_id FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
-	echoJsonQuery($sql, "metadata_id");
+	$timestream = querySql($sql);
+	
+	if($timestream==null) {
+		hn_ts_error_msg("Timestream not found.");
+		return;
+	} else{
+		$timestream = $timestream[0];
+	}
+	
+	$metadata = hn_ts_getMetadata($timestream->metadata_id);
+	
+	if($metadata==null) {
+		hn_ts_error_msg("Metadata not found.");
+		return;		
+	} else {
+		echo '{"metadata": ' . json_encode($metadata) . '}';		
+	}
 }
 
 /**

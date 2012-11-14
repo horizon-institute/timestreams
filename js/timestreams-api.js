@@ -17,16 +17,6 @@ function TimestreamAPI(remoteUrl, timestreamId, pollRate, count, dataCallback, m
 	this.dataCallback = dataCallback;
 	this.metaCallback = metaCallback;
 	
-	this.remote_service = new rpc.ServiceProxy(this.remote_url, {
-		asynchronous: true,
-		sanitize: true,
-		methods: ['timestreams.ext_get_timestream_data',
-			'timestreams.ext_get_time',
-			'timestreams.ext_get_timestreams',
-			'timestreams.ext_get_timestream_metadata'],
-		protocol: 'XML-RPC',
-	});
-	
 	this.init = function()
 	{
 		this.syncClock();
@@ -36,59 +26,65 @@ function TimestreamAPI(remoteUrl, timestreamId, pollRate, count, dataCallback, m
 	this.syncClock = function()
 	{
 		var _this = this;
-			
-		_this.remote_service.timestreams.ext_get_time({
-			params:  [_this.remote_username, _this.remote_password],
-				onSuccess:function(successObj){ _this.syncClockSuccess.call(_this, successObj) },
-				onException:function(errorObj){ _this.syncClockError.call(_this, errorObj) },
-				onComplete:function(){ _this.syncClockComplete.call(_this) }
-		});		
+		
+		jQuery.ajax({
+		    url: this.remote_url + "/time",
+		    type: 'GET',
+		    success: function(data, textStatus, jqXHR){_this.syncClockSuccess.call(_this, data, textStatus, jqXHR)},
+		    complete: function(jqXHR, textStatus){ _this.syncClockComplete.call(_this, jqXHR, textStatus) },
+		    error: function(jqXHR, textStatus, errorThrown){ _this.syncClockError.call(_this, jqXHR, textStatus, errorThrown) },
+		});	
 	}
 	
-	this.syncClockSuccess = function(message)
+	this.syncClockSuccess = function(data, textStatus, jqXHR)
 	{
+		var obj = jQuery.parseJSON(data);
+		var timestamp = obj['timestamp'][0]['CURRENT_TIMESTAMP'];
 		now = new Date().getTime() / 1000;
-		this.clockOffset = now - message;
+		this.clockOffset = now - timestamp;
 	}
 
-	this.syncClockError = function(message)
+	this.syncClockError = function(jqXHR, textStatus, errorThrown)
 	{
-		console.log("syncClockError: " + message);
+		console.log("syncClockError: " + jqXHR + " " + textStatus + " " + errorThrown);
 	}	
 
-	this.syncClockComplete = function()
+	this.syncClockComplete = function(jqXHR, textStatus)
 	{
+		console.log("syncClockComplete: " + jqXHR + " "  + textStatus);
 		this.getData();
 	}
 	
 	this.metaData = function()
 	{
 		var _this = this;
-			
-		_this.remote_service.timestreams.ext_get_timestream_metadata({
-			params:  [_this.remote_username, _this.remote_password, _this.timestreamId],
-				onSuccess:function(successObj){ _this.metaDataSuccess.call(_this, successObj) },
-				onException:function(errorObj){ _this.metaDataError.call(_this, errorObj) },
-				onComplete:function(){ _this.metaDataComplete.call(_this) }
-		});		
+		
+		jQuery.ajax({
+		    url: this.remote_url + "/measurementContainerMetadata?tsid="+this.timestreamId,
+		    type: 'GET',
+		    success: function(data, textStatus, jqXHR){_this.metaDataSuccess.call(_this, data, textStatus, jqXHR)},
+		    complete: function(jqXHR, textStatus){ _this.metaDataComplete.call(_this, jqXHR, textStatus) },
+		    error: function(jqXHR, textStatus, errorThrown){ _this.metaDataError.call(_this, jqXHR, textStatus, errorThrown) },
+		});	
 	}
 	
-	this.metaDataSuccess = function(message)
+	this.metaDataSuccess = function(data, textStatus, jqXHR)
 	{
 		if(this.metaCallback!=null)
 		{
-			this.metaCallback(message);
+			var obj = jQuery.parseJSON(data);
+			this.metaCallback(obj.metadata);
 		}
 	}
 
-	this.metaDataError = function(message)
+	this.metaDataError = function(jqXHR, textStatus, errorThrown)
 	{
-		console.log("metaDataError: " + message);
+		console.log("metaDataError: " + jqXHR + " " + textStatus + " " + errorThrown);
 	}	
 
-	this.metaDataComplete = function()
+	this.metaDataComplete = function(jqXHR, textStatus)
 	{
-
+		console.log("metaDataComplete: " + jqXHR + " "  + textStatus);
 	}
 	
 	this.getData = function()
@@ -97,33 +93,37 @@ function TimestreamAPI(remoteUrl, timestreamId, pollRate, count, dataCallback, m
 		
 		setTimeout(function(){ _this.getData.call(_this) }, _this.remote_pollingRate);
 		
-		_this.remote_service.timestreams.ext_get_timestream_data({
-			params:  [_this.remote_username, _this.remote_password, _this.timestreamId, _this.lastAsk, _this.count],
-				onSuccess:function(successObj){ _this.getDataSuccess.call(_this, successObj) },
-				onException:function(errorObj){ _this.getDataError.call(_this, errorObj) },
-				onComplete:function(){ _this.getDataComplete.call(_this) }
-		});
+		jQuery.ajax({
+		    url: this.remote_url + "/timestream/id/"+this.timestreamId+"?last="+_this.lastAsk+"&limit="+_this.count,
+		    type: 'GET',
+		    success: function(data, textStatus, jqXHR){_this.getDataSuccess.call(_this, data, textStatus, jqXHR)},
+		    complete: function(jqXHR, textStatus){ _this.getDataComplete.call(_this, jqXHR, textStatus) },
+		    error: function(jqXHR, textStatus, errorThrown){ _this.getDataError.call(_this, jqXHR, textStatus, errorThrown) },
+		});	
 			
 		_this.lastAsk = (new Date().getTime() / 1000) - _this.clockOffset;
 	}
 	
-	this.getDataSuccess = function(message)
+	this.getDataSuccess = function(data, textStatus, jqXHR)
 	{
-		for(property in message)
+		var obj = jQuery.parseJSON(data);
+		readings = obj.timestream;
+
+		for(property in readings)
 		{
-			var reading = message[property];
+			var reading = readings[property];
 			this.dataCallback(reading);
 		}
 	}
 
-	this.getDataError = function(message)
+	this.getDataError = function(jqXHR, textStatus, errorThrown)
 	{
-		console.log("getDataError: " + message);
+		console.log("getDataError: " + jqXHR + " " + textStatus + " " + errorThrown);
 	}	
 
-	this.getDataComplete = function()
+	this.getDataComplete = function(jqXHR, textStatus)
 	{
-	
+		//console.log("getDataComplete: " + jqXHR + " "  + textStatus);
 	}	
 	
 	this.init();
