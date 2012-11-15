@@ -482,7 +482,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		var _this = this;
 		
 		jQuery.ajax({
-		    url: this.remote_url + "/timestream/name/"+_this.dataSource+"?limit="+_this.dataLimit+"&offset="+_this.dataOffset+"&lastts="+_this.dataLastTs,
+		    url: this.remote_url + "/timestream/name/"+_this.dataSource+"?limit="+_this.dataLimit+"&offset="+_this.dataOffset+"&last="+_this.dataLastTs,
 		    type: 'GET',
 		    success: function(data, textStatus, jqXHR){_this.dataRpcSuccess.call(_this, data, textStatus, jqXHR)},
 		    complete: function(jqXHR, textStatus){ _this.dataRpcComplete.call(_this, jqXHR, textStatus) },
