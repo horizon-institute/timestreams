@@ -60,7 +60,7 @@ function TimestreamAPI(remoteUrl, timestreamId, pollRate, count, dataCallback, m
 		var _this = this;
 		
 		jQuery.ajax({
-		    url: this.remote_url + "/measurementContainerMetadata?tsid="+this.timestreamId,
+		    url: this.remote_url + "metadata?tsid="+this.timestreamId,
 		    type: 'GET',
 		    success: function(data, textStatus, jqXHR){_this.metaDataSuccess.call(_this, data, textStatus, jqXHR)},
 		    complete: function(jqXHR, textStatus){ _this.metaDataComplete.call(_this, jqXHR, textStatus) },
