@@ -48,6 +48,10 @@ $app->get('/metadata/:name', function($name) use ($app) {
 
 	hn_ts_select_metadata_by_name($name, $limit, $offset);
 });
+$app->put('/metadata/heartbeat/:name', function($name) use ($app) {
+	$ipaddress = $app->request()->put('ip');
+	hn_ts_heartbeat($name, $ipaddress);
+});
 $app->get('/measurement_containers', 'hn_ts_list_mc_names');
 $app->post('/measurement_container', function() use ($app) {
 	$friendlyName = $app->request()->post('name');
@@ -132,7 +136,7 @@ $app->put('/context', function() use ($app) {
 	hn_ts_update_context($context_id, $context_type, $context_value, $start_time, $end_time);
 });
 //$app->put('/replicate', 'hn_ts_replicate'); // not really a put or a post -- do we need to define a new verb for activation?
-$app->get('/timestream', 'hn_ts_ext_get_timestreams');
+$app->get('/timestreams', 'hn_ts_ext_get_timestreams');
 $app->get('/timestream/id/:id', function($id) use ($app) {
 	$lastAskTime = $app->request()->get('last');
 	$limit = $app->request()->get('limit');
@@ -145,7 +149,7 @@ $app->get('/timestream/name/:name', function() use ($app) {
 	$args=func_get_args();
 	$limit = $app->request()->get('limit');
 	$offset = $app->request()->get('offset');
-	$lastTimestamp = $app->request()->get('lastts');
+	$lastTimestamp = $app->request()->get('last');
 	hn_ts_int_get_timestream_data($args[0], $limit, $offset, $lastTimestamp);
 });
 $app->get('/timestream/head/:id', 'hn_ts_int_get_timestream_head');
@@ -158,6 +162,7 @@ $app->put('/timestream/head/:id', function() use ($app) {
 	hn_ts_int_update_timestream_head($args[0], $newHead, $newStart, $newEnd, $newRate);
 });
 $app->get('/time', 'hn_ts_ext_get_time');
+
 
 $app->run();
 
@@ -192,9 +197,9 @@ function hn_ts_issetRequiredParameter($param, $paramName){
  */
 function getConnection() {
 	$dbhost="127.0.0.1";
-	$dbuser="wpuser";
-	$dbpass="wordpress";
-	$dbname="wp";
+	$dbuser="root";
+	$dbpass="tow4mfN";
+	$dbname="wordpress";
 	//$dbname="cellar";
 	$dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);	
 	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -248,7 +253,7 @@ function hn_ts_sqlUpdate($sql){
 		$db = getConnection();
 		$count0 = $db->exec($sql);
 		$db = null;
-		echo $sql;
+		//echo $sql;
 		echo '{"updateresult": ' . json_encode("Updated $count0 row(s).") . '}';
 	} catch(PDOException $e) {
 		global $app;
@@ -1208,7 +1213,7 @@ function hn_ts_ext_get_timestream_data($timestreamId, $lastAskTime, $limit, $ord
 	if(!strcmp($order,'ASC')){
 		$ret= array_reverse($ret);
 	}
-	echo '{"timestream": ' . json_encode($ret) . '}';
+	echo '{"measurements": ' . json_encode($ret) . '}';
 }
 
 /** Documentation Functions **************************************************/
@@ -1224,6 +1229,7 @@ function describeAPI(){
 			<meta name="description" content="Timestreams API '. HN_TS_VERSION . '">
 			<meta name="keywords" content="timestreams">
 			<meta itemprop="name" content="Timestreams API '. HN_TS_VERSION . '">
+			<link rel="stylesheet" type="text/css" href="./documentation.css">
 		</head>
 		<body>';
 			echo
@@ -1257,6 +1263,7 @@ function describeAPI(){
 									<li><a href="#service-metadata-get-mc-entries">Get Measurement Container Metadata </a></li>
 									<li><a href="#service-metadata-get-mc-id">Get Metadata Id for Container Id</a></li>
 									<li><a href="#service-metadata-for-mc">Get Metadata for Container</a></li>									
+									<li><a href="#service-metadata-update-heartbeat">Update Heartbeat</a></li>
 								</ol>
 							</li>
 							<li><a href="#service-container">Measurement Container Services</a>
@@ -1281,6 +1288,15 @@ function describeAPI(){
 									<li><a href="#service-context-add">Add Context</a></li>
 									<li><a href="#service-context-update">Update Context</a></li>
 								</ol>
+							</li>
+							<li><a href="#service-timestream">Timestream</a>
+								<ol>
+									<li><a href="#service-timestream-get-timestreams">Get Timestreams</a></li>
+									<li><a href="#service-timestream-get-timestream-by-id">Get Timestream By Id</a></li>
+									<li><a href="#service-timestream-get-timestream-by-name">Get Timestream By Name</a></li>
+									<li><a href="#service-timestream-get-time">Get Time</a></li>
+									<li><a href="#service-timestream-get-playhead">Get Playhead</a></li>
+								</ol>								
 							</li>
 						</ol>
 					</li>
@@ -1344,7 +1360,7 @@ function describeAPI(){
 						Any additional info is included in the body of the return call, JSON-formatted.
 						Error codes not listed here are in the REST API methods listed below.</p>
 						The following table describes the error codes that may be encountered:
-						<p><table border="1">
+						<p><table>
 							<tr>
 								<th>Response Code</th><th>Description</th>
 							</tr>
@@ -1366,10 +1382,12 @@ function describeAPI(){
 			<div id="services">
 				<h2>Services</h2>
 				<p>The following services are implemented in this API.</p><ul>';
-	hn_ts_describe_metadata();
-	hn_ts_describe_mc();
+	hn_ts_document_metadata();
+	hn_ts_document_mc();
 	hn_ts_document_measurements();
-	hn_ts_describe_context();
+	hn_ts_document_context();
+	hn_ts_document_timestream();
+	hn_ts_document_heartbeat();
 	echo '</ul></div></body></html>';
 
 	/**
@@ -1389,7 +1407,7 @@ function describeAPI(){
 /**
  * Describes the metadata service
  */
-function hn_ts_describe_metadata(){
+function hn_ts_document_metadata(){
 	echo '
 		<li class="service" id="service-metadata">
 			<h3>Metadata Services</h3>		
@@ -1470,7 +1488,7 @@ function hn_ts_describe_metadata(){
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.ext_get_timestream_metadata</pre></dd>			
 				    <dt>Parameters</dt>		
 				    <dd><br/>
-				    	<table border="1">
+				    	<table>
 				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
 				    		<th>Type</th><th>Affect</th></tr>
 				    		<tr><td>tsid</td><td>Id of a Timestream</td><td>Optional</td>
@@ -1514,7 +1532,7 @@ function hn_ts_describe_metadata(){
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.ext_get_timestream_metadata</pre></dd>			
 				    <dt>Parameters</dt>		
 				    <dd><br/>
-				    	<table border="1">
+				    	<table>
 				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
 				    		<th>Type</th><th>Affect</th></tr>
 				    		<tr><td>tsid</td><td>Id of a Timestream</td><td>Optional</td>
@@ -1565,13 +1583,59 @@ function hn_ts_describe_metadata(){
 				    </dd>
 				</dl>
 				</li>
+				<li>
+				<h4 class="service-method" id="service-metadata-update-heartbeat">Update Heartbeat</h4>		
+				<dl>
+				    <dt>Method</dt>
+				    <dd>
+				        <p>PUT</p>
+				    </dd>
+				    <dt>Description</dt>
+				    <dd>
+				        <p>Updates the measurement container with the source device\'s current ip address. 
+				        This is useful for reporting that the device is still alive when no new data is 
+				        being captured for a long period of time.</p>
+				    </dd>			
+				    <dt class="url-label">Put Structure</dt><dd>
+				        <pre>
+curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d "ip=192.168.56.101"
+http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/metadata/heartbeat/wp_1_ts_temperature_1
+				        </pre>
+				    </dd>			
+				    <dt>Version 1 API replacement</dt>	
+				    <dd>
+				    	<pre>timestreams.heartbeat</pre>
+				    </dd>		
+				    <dt>Parameters</dt>		
+				    <dd><br/>
+				    	<table>
+				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
+				    		<th>Type</th><th>Affect</th></tr>
+				    		<tr>
+				    			<td>ip</td><td>IP address</td><td>Required</td>
+					    		<td>String IP Address</td>
+					    		<td>Updates the measurement container with the device\s current 
+					    		IP address.</td>
+				        	</tr>
+				    	</table><br/><p>Note that one of the optional parameters must be used.</p>
+				    </dd>
+				    <dt>Response</dt>
+				    <dd>
+				        <p>Update result</p>
+				        <p><strong>Sample response</strong></p>
+				        <pre>
+{"updateresult": "Updated 1 row(s)."}
+	        			</pre>
+				    </dd>
+				</dl>
+				</li>
 			</ul>
 		</li>	
 	';
 }
 
 
-function hn_ts_describe_mc(){
+function hn_ts_document_mc(){
 	echo '	
 			<li class="service" id="service-container">
 			<h3>Measurement Container Services</h3>		
@@ -1624,7 +1688,7 @@ function hn_ts_describe_mc(){
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.select_measurements</pre></dd>		
 				    <dt>Parameters</dt>		
 				    <dd><br/>
-				    	<table border="1">
+				    	<table>
 				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
 				    		<th>Type</th><th>Affect</th></tr>
 				    		<tr>
@@ -1686,7 +1750,7 @@ function hn_ts_describe_mc(){
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.select_first_measurement</pre></dd>		
 				    <dt>Parameters</dt>		
 				    <dd><br/>
-				    	<table border="1">
+				    	<table>
 				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
 				    		<th>Type</th><th>Affect</th></tr>
 				    		<tr>
@@ -1724,7 +1788,7 @@ function hn_ts_describe_mc(){
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.select_latest_measurement</pre></dd>		
 				    <dt>Parameters</dt>		
 				    <dd><br/>
-				    	<table border="1">
+				    	<table>
 				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
 				    		<th>Type</th><th>Affect</th></tr>
 				    		<tr>
@@ -1762,7 +1826,7 @@ function hn_ts_describe_mc(){
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.count_measurements</pre></dd>		
 				    <dt>Parameters</dt>		
 				    <dd><br/>
-				    	<table border="1">
+				    	<table>
 				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
 				    		<th>Type</th><th>Affect</th></tr>
 				    		<tr>
@@ -1807,7 +1871,7 @@ timestreams.hn_ts_create_measurements</pre></li>
 <li><pre>timestreams.hn_ts_create_measurementsForBlog</pre></li></ul></dd>		
 				    <dt>Parameters</dt>		
 				    <dd><br/>
-				    	<table border="1">
+				    	<table>
 				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
 				    		<th>Type</th><th>Affect</th></tr>
 				    		<tr>
@@ -1936,7 +2000,7 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement/wp_
 				    </dd>		
 				    <dt>Parameters</dt>		
 				    <dd><br/>
-				    	<table border="1">
+				    	<table>
 				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
 				    		<th>Type</th><th>Affect</th></tr>
 				    		<tr>
@@ -1984,7 +2048,7 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurements/wp
 				    </dd>		
 				    <dt>Parameters</dt>		
 				    <dd><br/>
-				    	<table border="1">
+				    	<table>
 				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
 				    		<th>Type</th><th>Affect</th></tr>
 				    		<tr>
@@ -2009,7 +2073,7 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurements/wp
 	';	
 }
 
-function hn_ts_describe_context(){
+function hn_ts_document_context(){
 	echo '
 	<li class="service" id="service-context">
 			<h3>Context Services</h3>		
@@ -2017,7 +2081,7 @@ function hn_ts_describe_context(){
 				Context records describe a range of time points. 
 				They are user defined key,value pairs that can help annotate the data. 
 				Examples of keys include place, activity or session.<br/><br/>
-				<table border="1">
+				<table>
 				    <tr>
 				        <th>Attribute</th><th>Description</th>
 				    </tr>
@@ -2066,7 +2130,7 @@ function hn_ts_describe_context(){
 				    </dd>		
 				    <dt>Parameters</dt>		
 				    <dd><br/>
-				    	<table border="1">
+				    	<table>
 				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
 				    		<th>Type</th><th>Affect</th></tr>
 				    		<tr>
@@ -2133,7 +2197,7 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				    </dd>		
 				    <dt>Parameters</dt>		
 				    <dd><br/>
-				    	<table border="1">
+				    	<table>
 				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
 				    		<th>Type</th><th>Affect</th></tr>
 				    		<tr>
@@ -2196,7 +2260,7 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				    </dd>		
 				    <dt>Parameters</dt>		
 				    <dd><br/>
-				    	<table border="1">
+				    	<table>
 				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
 				    		<th>Type</th><th>Affect</th></tr>
 				    		<tr>
@@ -2232,6 +2296,272 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				        <p><strong>Sample response</strong></p>
 				        <pre>
 {"updateresult": "Updated 1 row(s)."}
+	        			</pre>
+				    </dd>
+				</dl>
+				</li>
+			</ul>
+		</li>
+	';
+}
+
+function hn_ts_document_timestream(){
+	echo '
+	<li class="service" id="service-timestream">
+			<h3>Timestream Services</h3>		
+			<div class="service-description">
+				Timestreams are series of data that can be played back. 
+			</div><ul><li>
+				<h4 class="service-method" id="service-timestream-get-timestreams">Get Timestreams</h4>		
+				<dl>
+				    <dt>Method</dt>
+				    <dd>
+				        <p>GET</p>
+				    </dd>
+				    <dt>Description</dt>
+				    <dd>
+				        <p>Selects timestream records.</p>
+				    </dd>			
+				    <dt class="url-label">URL Structure</dt>
+				    <dd>
+				        <pre><a href="./timestreams" title="Get Timestreams">/timestreams</a></pre>
+				    </dd>	
+				    <dt>Version 1 API replacement</dt>
+				    <dd>
+				    	<p>timestreams.ext_get_timestreams</p>
+				    </dd>		
+				    <dt>Parameters</dt>		
+				    <dd><p>None.</p></dd>
+				    <dt>Response</dt>
+				    <dd>
+				        <p>The list of timestreams</p>
+				        <p><strong>Sample response</strong></p>
+				        <pre>
+{"timestreams": [{"timestream_id":"1","user_id":"1","name":"test1","head_id":"1",
+"metadata_id":"30","starttime":"2012-11-08 11:28:24","endtime":"2012-11-07 19:10:01"},
+{"timestream_id":"6","user_id":"1","name":"fgdsfg","head_id":"0","metadata_id":"9",
+"starttime":"2012-11-01 16:58:56","endtime":"0000-00-00 00:00:00"},
+{"timestream_id":"7","user_id":"1","name":"jkjjghjhgh","head_id":"0",
+"metadata_id":"23","starttime":"2012-07-21 01:25:24","endtime":"2012-07-21 11:37:16"}]}
+	        			</pre>
+				    </dd>
+				</dl>
+				</li><li>
+				<h4 class="service-method" id="service-timestream-get-timestream-by-id">Get Timestream By Id</h4>
+				<dl>
+				    <dt>Method</dt>
+				    <dd>
+				        <p>GET</p>
+				    </dd>
+				    <dt>Description</dt>
+				    <dd>
+				        <p>Returns data corresponding to a given timestream since the last time the function was called.</p>
+				    </dd>			
+				    <dt class="url-label">URL Structure</dt>
+				    <dd>
+				        <pre><a href="./timestream/id/1" title="Get Timestream">/timestream/id/[id]</a></pre>
+				    </dd>	
+				    <dt>Version 1 API replacement</dt>
+				    <dd>
+				    	<p>timestreams.ext_get_timestream_data</p>
+				    </dd>		
+				    <dt>Parameters</dt>		
+				    <dd><br/>
+				    	<table>
+				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
+				    		<th>Type</th><th>Affect</th></tr>
+				    		<tr>
+				    			<td>last</td><td>Last time a call was made</td><td>Optional</td>
+					    		<td>Timestamp</td>
+					    		<td>Limits the returned data to after this time</td>
+				        	</tr>
+				    		<tr>
+				    			<td>limit</td><td>Record set limit</td><td>Optional</td>
+					    		<td>Counting number</td><td>Restricts the number of returned contexts</td>
+				        	</tr>
+				    		<tr>
+				    			<td>order</td><td>Result ordering</td><td>Optional</td>
+					    		<td>String ["ASC"|"DESC"]</td><td>Sets the order of the returned results</td>
+				        	</tr>
+				    	</table><br/>
+				    </dd>
+				    <dt>Response</dt>
+				    <dd>
+				        <p>Timestream data for the given id</p>
+				        <p><strong>Sample response</strong></p>
+				        <pre>
+{"measurements": [{"id":"1","value":"33.0","valid_time":"2012-07-21 00:00:23",
+"transaction_time":"2012-07-12 18:28:14"},
+{"id":"207","value":"33.0","valid_time":"2012-07-21 17:10:23",
+"transaction_time":"2012-07-12 18:28:15"}]}
+	        			</pre>
+				    </dd>
+				</dl>
+				</li><li>
+				<h4 class="service-method" id="service-timestream-get-timestream-by-name">Get Timestream By Name</h4>		
+				<dl>
+				    <dt>Method</dt>
+				    <dd>
+				        <p>GET</p>
+				    </dd>
+				    <dt>Description</dt>
+				    <dd>
+				        <p>Returns data corresponding to a given timestream since the last time the function was called.</p>
+				    </dd>			
+				    <dt class="url-label">URL Structure</dt>
+				    <dd>
+				        <pre><a href="./timestream/name/wp_1_ts_temperature_23" title="Get Timestream">/timestream/name/[name]</a></pre>
+				    </dd>	
+				    <dt>Version 1 API replacement</dt>
+				    <dd>
+				    	<p>timestreams.int_get_timestream_data</p>
+				    </dd>		
+				    <dt>Parameters</dt>		
+				    <dd><br/>
+				    	<table>
+				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
+				    		<th>Type</th><th>Affect</th></tr>
+				    		<tr>
+				    			<td>last</td><td>Last time a call was made</td><td>Optional</td>
+					    		<td>Timestamp</td>
+					    		<td>Limits the returned data to after this time</td>
+				        	</tr>
+				    		<tr>
+				    			<td>limit</td><td>Record set limit</td><td>Optional</td>
+					    		<td>Counting number</td><td>Restricts the number of returned contexts</td>
+				        	</tr>
+				    		<tr>
+				    			<td>offset</td><td>Record set offset.</td><td>Optional</td>
+					    		<td>Counting number</td><td>Sets the starting record.</td>
+				        	</tr>
+				    	</table><br/>
+				    </dd>
+				    <dt>Response</dt>
+				    <dd>
+				        <p>Timestream data for the given id</p>
+				        <p><strong>Sample response</strong></p>
+				        <pre>
+{"measurements": [{"id":"1","value":"33.0","valid_time":"2012-07-21 00:00:23",
+"transaction_time":"2012-07-12 18:28:14"},
+{"id":"207","value":"33.0","valid_time":"2012-07-21 17:10:23",
+"transaction_time":"2012-07-12 18:28:15"}]}
+	        			</pre>
+				    </dd>
+				</dl>
+				</li><li>
+				<h4 class="service-method" id="service-timestream-get-time">Get Time</h4>		
+				<dl>
+				    <dt>Method</dt>
+				    <dd>
+				        <p>GET</p>
+				    </dd>
+				    <dt>Description</dt>
+				    <dd>
+				        <p>Returns the current timestamp.</p>
+				    </dd>			
+				    <dt class="url-label">URL Structure</dt>
+				    <dd>
+				        <pre><a href="./time" title="Get time">/time</a></pre>
+				    </dd>	
+				    <dt>Version 1 API replacement</dt>
+				    <dd>
+				    	<p>timestreams.ext_get_time</p>
+				    </dd>		
+				    <dt>Parameters</dt>		
+				    <dd><p>None.</p>
+				    </dd>
+				    <dt>Response</dt>
+				    <dd>
+				        <p>The current timestamp</p>
+				        <p><strong>Sample response</strong></p>
+				        <pre>
+{"timestamp": [{"CURRENT_TIMESTAMP":1352977614}]}
+	        			</pre>
+				    </dd>
+				</dl>
+				</li><li>
+				<h4 class="service-method" id="service-timestream-get-playhead">Get Playhead</h4>		
+				<dl>
+				    <dt>Method</dt>
+				    <dd>
+				        <p>GET</p>
+				    </dd>
+				    <dt>Description</dt>
+				    <dd>
+				        <p>Updates and outputs the head for the given timestream id.</p>
+				    </dd>			
+				    <dt class="url-label">URL Structure</dt>
+				    <dd>
+				        <pre><a href="./timestream/head/1" title="Get time">/timestream/head/[id]</a></pre>
+				    </dd>	
+				    <dt>Version 1 API replacement</dt>
+				    <dd>
+				    	<p>timestreams.hn_ts_int_get_timestream_head</p>
+				    </dd>		
+				    <dt>Parameters</dt>		
+				    <dd><p>None.</p>
+				    </dd>
+				    <dt>Response</dt>
+				    <dd>
+				        <p>The playhead data</p>
+				        <p><strong>Sample response</strong></p>
+				        <pre>
+{"head": {"head_id":"1","currenttime":1343518988,"lasttime":1352978016,"rate":"1"}}
+	        			</pre>
+				    </dd>
+				</dl>
+				</li><li>
+				<h4 class="service-method" id="service-timestream-update-playhead">Update Playhead</h4>		
+				<dl>
+				    <dt>Method</dt>
+				    <dd>
+				        <p>PUT</p>
+				    </dd>
+				    <dt>Description</dt>
+				    <dd>
+				        <p>Updates a timestream playhead.</p>
+				    </dd>			
+				    <dt class="url-label">Put Structure</dt><dd>
+				        <pre>
+curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d
+"curtime=1352315401&start=1352315401&end=1352315401&rate=2"
+http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/timestream/head/1
+				        </pre>
+				    </dd>			
+				    <dt>Version 1 API replacement</dt>	
+				    <dd>
+				    	<pre>timestreams.int_update_timestream_head</pre>
+				    </dd>		
+				    <dt>Parameters</dt>		
+				    <dd><br/>
+				    	<table>
+				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
+				    		<th>Type</th><th>Affect</th></tr>
+				    		<tr>
+				    			<td>curtime</td><td>Current time</td><td>Required</td>
+					    		<td>Timestamp</td>
+					    		<td>Sets the head time to this timestamp</td>
+				        	</tr>
+				    		<tr>
+				    			<td>start</td><td>Start time</td><td>Required</td>
+					    		<td>Timestamp</td><td>Sets the playhead start time</td>
+				        	</tr>
+				    		<tr>
+				    			<td>end</td><td>End time</td><td>Required</td>
+					    		<td>Timestamp</td><td>Sets the playhead end time</td>
+				        	</tr>
+				    		<tr>
+				    			<td>rate</td><td>Record set offset.</td><td>Required</td>
+					    		<td>Real number</td><td>Sets the playback rate</td>
+				        	</tr>
+				    	</table><br/>
+				    </dd>
+				    <dt>Response</dt>
+				    <dd>
+				        <p>Update result</p>
+				        <p><strong>Sample response</strong></p>
+				        <pre>
+{"head": {"head_id":"1","currenttime":1343519665,"lasttime":1352978693,"rate":"1"}}
 	        			</pre>
 				    </dd>
 				</dl>
