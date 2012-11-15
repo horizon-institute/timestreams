@@ -235,7 +235,7 @@ function sqlInsert($sql){
 		echo '{"insertresult": ' . json_encode("$count0 rows inserted") .  '}';
 	} catch(PDOException $e) {
 		global $app;
-		$app->response()->status($e);
+		$app->response()->status(400);
 		if(HN_TS_DEBUG){
 			hn_ts_error_msg($e->getMessage());
 		}else{
@@ -257,7 +257,7 @@ function hn_ts_sqlUpdate($sql){
 		echo '{"updateresult": ' . json_encode("Updated $count0 row(s).") . '}';
 	} catch(PDOException $e) {
 		global $app;
-		$app->response()->status($e);
+		$app->response()->status(400);
 		if(HN_TS_DEBUG){
 			hn_ts_error_msg($e->getMessage());
 		}else{
@@ -276,7 +276,7 @@ function echoJsonQuery($sql, $root, $error=404){
 		echo '{"'.$root.'": ' . json_encode(querySql($sql)) . '}';
 	} catch(PDOException $e) {
 		global $app;
-		$app->response()->status($e);
+		$app->response()->status($error);
 		if(HN_TS_DEBUG){
 			hn_ts_error_msg($e->getMessage());
 		}else{
@@ -437,7 +437,7 @@ $dataType,$missingDataValue, $siteId, $blogId, $userid, $friendlyName){
 		}
 	} catch(PDOException $e) {
 		global $app;
-		$app->response()->status($e);
+		$app->response()->status(400);
 		if(HN_TS_DEBUG){
 			hn_ts_error_msg($e->getMessage());
 		}else{
