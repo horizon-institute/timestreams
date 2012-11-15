@@ -107,7 +107,7 @@ function TimestreamAPI(remoteUrl, timestreamId, pollRate, count, dataCallback, m
 	this.getDataSuccess = function(data, textStatus, jqXHR)
 	{
 		var obj = jQuery.parseJSON(data);
-		readings = obj.timestream;
+		readings = obj.measurements;
 
 		for(property in readings)
 		{
