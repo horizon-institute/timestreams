@@ -293,7 +293,7 @@ function echoJsonQuery($sql, $root, $error=404){
  */
 function hn_ts_sanitise($arg){
 	if(isset($arg)){
-		return preg_replace('/[^-a-zA-Z0-9_\s:\/]/', '_', (string)$arg);
+		return preg_replace('/[^-a-zA-Z0-9_\s:\/.]/', '_', (string)$arg);
 	}else{
 		return null;
 	}
