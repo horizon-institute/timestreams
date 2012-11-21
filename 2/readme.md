@@ -13,8 +13,7 @@ Set Up
 
 1. Install and activate Timestreams plugin in Wordpress
 2. Ensure the api/index.php getConnection() function variables match the database configuration. 
-3. Ensure the main.js rootURL variable matches the deployment configuration.
-4. Test the functions using your browser or curl.
+3. Test the functions using your browser or curl.
 
 To Do:
 ------
