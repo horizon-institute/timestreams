@@ -462,7 +462,7 @@ function hn_ts_add_measurement($name, $value, $timestamp){
 	}
 
 	$value = hn_ts_sanitise($value);
-	if(!$value){
+	if(!isset($value)){
 		global $app;
 		$app->response()->status(400);
 		hn_ts_error_msg("Missing parameter: value");
@@ -1860,9 +1860,9 @@ function hn_ts_document_mc(){
 				    <dd>
 				        <pre>
 curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X POST 
--d "name=myContainer&measuretype=temperature&min=0&max=100&
-unit=text/x-data-C&symbol=C&device=testDev&otherinfo=blah&
-datatype=DECIMAL(5,2)&siteid=1&blogid=1&userid=1"
+-d "name=myContainer&amp;measuretype=temperature&amp;min=0&amp;max=100&amp;
+unit=text/x-data-C&amp;symbol=C&amp;device=testDev&amp;otherinfo=blah&amp;
+datatype=DECIMAL(5,2)&amp;siteid=1&amp;blogid=1&amp;userid=1"
 http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement_container
 				        </pre>
 				    </dd>			
@@ -2187,7 +2187,7 @@ function hn_ts_document_context(){
 				    <dt class="url-label">Post Structure</dt><dd>
 				        <pre>
 curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X POST -d 
-"type=place&value=Nottingam&start=2012-11-12 10:10:23&end=2012-11-12 10:20:23&user=1" 
+"type=place&amp;value=Nottingam&amp;start=2012-11-12 10:10:23&amp;end=2012-11-12 10:20:23&amp;user=1" 
 http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				        </pre>
 				    </dd>			
@@ -2250,7 +2250,7 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				    <dt class="url-label">Put Structure</dt><dd>
 				        <pre>
 curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d 
-"type=a&start=2012-05-22 13:36:11&end=2012-05-22 13:36:11" 
+"type=a&amp;start=2012-05-22 13:36:11&amp;end=2012-05-22 13:36:11" 
 http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				        </pre>
 				    </dd>			
@@ -2524,7 +2524,7 @@ function hn_ts_document_timestream(){
 				    <dt class="url-label">Put Structure</dt><dd>
 				        <pre>
 curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d
-"curtime=1352315401&start=1352315401&end=1352315401&rate=2"
+"curtime=1352315401&amp;start=1352315401&amp;end=1352315401&amp;rate=2"
 http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/timestream/head/1
 				        </pre>
 				    </dd>			
