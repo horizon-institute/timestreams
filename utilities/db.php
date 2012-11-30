@@ -124,6 +124,16 @@ class Hn_TS_Database {
 		) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT=\'Associates friendly names to metadata rows. Legacy data work\';';
 		$wpdb->query($sql);
 		
+		$sql = "CREATE TABLE IF NOT EXISTS  `'.$wpdb->prefix.'ts_apikeys` (
+		  `publickey` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+		  `privatekey` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+		  `userid` bigint(20) NOT NULL,
+		  `creation_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		  `revoked` tinyint(1) NOT NULL DEFAULT '0',
+		  PRIMARY KEY (`publickey`)
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+		$wpdb->query($sql);
+		
 		//For some reason dbDelta wasn't working for all of the tables :(
 	}
 	/**
@@ -1549,6 +1559,38 @@ class Hn_TS_Database {
 		return $wpdb->get_results( 
 				$wpdb->prepare( "SELECT blog_id, site_id, domain, path FROM wp_blogs WHERE (blog_id <> $blogId OR site_id <> $siteId) AND deleted = '0' AND spam = '0' AND archived = '0' ORDER BY site_id, blog_id" ) 
 		);
+	}
+	
+	/**
+	 * Generates new public and private keys and adds them to the database
+	 */
+	function hn_ts_addNewAPIKeys(){
+		global $wpdb;
+		$table = $wpdb->prefix.'ts_apikeys';
+		global $current_user;
+		get_currentuserinfo();
+		
+		$wpdb->insert(
+				$table,
+				array( 	'publickey' => substr(MD5(microtime()), 0, 10),
+						'privatekey' => MD5(microtime()),
+						'userid' => $current_user->ID),
+				array( '%s', '%s', '%s')
+		);
+		echo '<h4>Added new keys.</h4>';
+	}
+	
+	/**
+	 * Retrieves API Key information
+	 */
+	function hn_ts_select_apiKeys(){
+		global $current_user;
+		global $wpdb;
+		get_currentuserinfo();
+		$sql = "SELECT publickey, userid, creation_date FROM `wp_ts_apikeys` 
+		WHERE userid='$current_user->ID' AND revoked=0 
+		ORDER BY creation_date DESC;";
+		return $wpdb->get_results($wpdb->prepare($sql));
 	}
 }
 ?>

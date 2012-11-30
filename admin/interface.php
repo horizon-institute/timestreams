@@ -21,6 +21,8 @@
 				__FILE__.'visualisations','hn_ts_visualisations_admin_page');				
 		add_submenu_page(__FILE__, 'Context', __('Context',HN_TS_NAME), 'manage_options',
 				__FILE__.'context','hn_ts_context_admin_page');
+		add_submenu_page(__FILE__, 'Api Keys', __('Api Keys',HN_TS_NAME), 'manage_options',
+				__FILE__.'apikeys','hn_ts_api_admin_page');
 		global $hn_ts_admin_page_repl;
 		$hn_ts_admin_page_repl = add_submenu_page(__FILE__, 'Replication', __('Replication',HN_TS_NAME), 'manage_options',
 				__FILE__.'replication','hn_ts_replication_admin_page');
@@ -84,6 +86,25 @@
 		<?php
 			hn_ts_addContextRecord();
 			hn_ts_showContextTable();
+		?>
+		</div>
+		<?php
+	}
+	
+	/**
+	 * Displays timestreams API keys admin page
+	 */
+	function hn_ts_api_admin_page(){
+		?>
+		<div class="wrap">
+			<div id="icon-edit-pages" class="icon32"></div>
+			<h2><?php _e('Timestreams - API Keys',HN_TS_NAME); ?></h2>
+			<h3><?php _e('Description',HN_TS_NAME); ?></h3>
+			<p><?php _e('Authenticate your external apps with an API key generated on this page.',HN_TS_NAME); ?></p>
+			<hr />
+		<?php
+			hn_ts_generateKeys();
+			hn_ts_showApiKeys();
 		?>
 		</div>
 		<?php
