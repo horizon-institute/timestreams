@@ -1,7 +1,7 @@
 Timestreams
 =============
 
-WordPress plugin to store and review sensor data. Developed as part of the [Relate project](http://horizab1.miniserver.com/relate/)
+WordPress plugin to store and review sensor data. Developed as part of the [Relate project](http://horizab1.miniserver.com/relate/).
 
 Installation
 -----------
@@ -9,19 +9,6 @@ Installation
 1. Install Timestreams by uploading the files to your server
 2. Activate the Timestreams
 3. That's it. You're ready to go!
-
-
-Usage
------
-
-    To be completed...
-
-
-Testing
--------
-
-    To be completed...
-
 
 Contributing
 ------------
