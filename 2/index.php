@@ -31,6 +31,8 @@ else{
 
 /**
  * Handles authentication
+ * Scheme based on http://www.thebuzzmedia.com/designing-a-secure-rest-api-without-oauth-authentication/
+ * and https://s3.amazonaws.com/doc/s3-developer-guide/RESTAuthentication.html
  */
 function hn_ts_authenticate($app) {
 	//echo "Athentication called!";
@@ -66,7 +68,8 @@ function hn_ts_authenticate($app) {
 		hn_ts_error_msg("Invalid pubkey parameter.");
 		exit();		
 	}
-	$toHash = "";	
+	$toHash = "";
+	sort($_REQUEST,SORT_STRING);
 	foreach ( $_REQUEST as $param){
 		if($param == $hmac){
 			continue;
@@ -76,7 +79,7 @@ function hn_ts_authenticate($app) {
 	}
 	//echo "string: $toHash<br/>";
 	$hash = hash_hmac('sha256', $toHash, $pri);
-	//echo "hash: $hash<br/>";
+	echo "hash: $hash<br/>";
 	if(0 != strcmp ( $hash , $hmac )){
 		$app->response()->status(400);
 		hn_ts_error_msg("Invalid hmac parameter.");
