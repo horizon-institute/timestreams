@@ -29,12 +29,87 @@ else{
 	$app->getLog()->setEnabled(false);
 }
 
+/**
+ * Handles authentication
+ */
+function hn_ts_authenticate($app) {
+	//echo "Athentication called!";
+	
+	//Sanitise and validate authentication parameters
+	$req = $app->request();
+	$pub = hn_ts_sanitise($req->params('pubkey'));
+	//echo "pub: $pub<br />	";
+	$hmac = hn_ts_sanitise($req->params('hmac'));
+	//echo "hmac: $hmac<br />	";
+	$now = hn_ts_sanitise($req->params('now'));
+	if(!hn_ts_issetRequiredParameter($pub, "pubkey") || 
+			!hn_ts_issetRequiredParameter($hmac, "hmac") || !hn_ts_issetRequiredParameter($now, "now")){
+		exit();
+	}
+	
+	// Hinder replay attacks 
+	if(0 == hn_ts_withinTime($now)){
+		$app->response()->status(400);
+		hn_ts_error_msg("Invalid now parameter.");
+		exit();
+	}
+	
+	// Select private key for given public key
+	$sql = "SELECT privatekey FROM wp_ts_apikeys WHERE publickey = 
+	'$pub' AND revoked='0'";
+	$pri = querySql($sql);
+	if(count($pri)){
+		$pri = $pri[0]->privatekey;
+		//echo "pri: $pri<br/>";
+	}else{
+		$app->response()->status(400);
+		hn_ts_error_msg("Invalid pubkey parameter.");
+		exit();		
+	}
+	$toHash = "";	
+	foreach ( $_REQUEST as $param){
+		if($param == $hmac){
+			continue;
+		}else{
+			$toHash = $toHash.$param;
+		}
+	}
+	//echo "string: $toHash<br/>";
+	$hash = hash_hmac('sha256', $toHash, $pri);
+	//echo "hash: $hash<br/>";
+	if(0 != strcmp ( $hash , $hmac )){
+		$app->response()->status(400);
+		hn_ts_error_msg("Invalid hmac parameter.");
+		exit();	
+	}
+}
+
+/**
+ * Checks if the given timestamp is within five minutes of the 
+ * servers time.
+ * @param $ts is a long UTC timestamp
+ * @return true if the given timestamp is within 5 minutes of the servers time
+ */
+function hn_ts_withinTime($ts){
+	$now = time();
+	$difference = $now - $ts;
+	 if($difference > 0 && $difference < 301){
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+function hn_ts_getPriKeyForPub($pubkey){
+	
+}
+
 /** ROUTES (resource URIs to callback function mappings) *********************/
 //@todo Make it so that the urls can have / appended to their ends and return correctly.
 //At the moment they are 404ing
 
 $app->get('/', 'describeAPI');
-$app->get('/metadata', function() use ($app) {
+$app->get('/metadata', hn_ts_authenticate($app), function() use ($app) {
 	$paramValue = $app->request()->get('tsid');
 	if(!$paramValue){
 		hn_ts_metadata();
