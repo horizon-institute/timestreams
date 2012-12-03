@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 require 'Slim/Slim.php';
 
 define('HN_TS_DEBUG', false);
-define('HN_TS_VERSION', "v. 2.0.0-Alpha-0.1");
+define('HN_TS_VERSION', "v. 2.0.0-Alpha-0.2");
 $app = new Slim();
 if(HN_TS_DEBUG){
 	$app->getLog()->setEnabled(true);
@@ -79,7 +79,7 @@ function hn_ts_authenticate($app) {
 	}
 	//echo "string: $toHash<br/>";
 	$hash = hash_hmac('sha256', $toHash, $pri);
-	echo "hash: $hash<br/>";
+	//echo "hash: $hash<br/>";
 	if(0 != strcmp ( $hash , $hmac )){
 		$app->response()->status(400);
 		hn_ts_error_msg("Invalid hmac parameter.");
@@ -1419,9 +1419,15 @@ function describeAPI(){
 				</div>
 				<div id="security">
 					<h3>Security</h3>
-					<p>Currently no authentication or authorisation is required to use the API.
-					This is a temporary measure for testing purposes. In the near future we will
-					require authentication measures and requests over SSL.</p>
+					<p>Authentication is required to use most of the API methods. Methods that do not use authentication are noted in their descriptions below. Follow these steps to authenticate:</p>
+					<ol>
+						<li>Attain a public key and private key by logging in to the Timestreams-enabled Wordpress site, 
+						selecting the Api Keys left-menu and click the Create New API Keys button. Note
+						that each instance of a client should have its own set of keys. </li>
+						<li>Requests need to include a Unix UTC timestamp (such as 1354551499) parameter called "now" set to the current time.</li>
+						<li>Requests need to include a parameter called pubkey containing the API public key. Note: do not include the private key.</li>
+						<li>Requests need to include a parameter called hmac. The value should be a SHA256 hash of all of the other parameters being sent in the request (including pubkey, now and any other parameter for the given method). </li>
+					<p>It is recommended that requests are made over HTTPS.</p>
 					</div>
 					<div id="date">
 					<h3>Date Format</h3>
@@ -2434,6 +2440,7 @@ function hn_ts_document_timestream(){
 				    <dt>Description</dt>
 				    <dd>
 				        <p>Returns data corresponding to a given timestream since the last time the function was called.</p>
+				        <p>Note that this method does not use authentication.</p>
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
@@ -2536,6 +2543,7 @@ function hn_ts_document_timestream(){
 				    <dt>Description</dt>
 				    <dd>
 				        <p>Returns the current timestamp.</p>
+				        <p>Note that this method does not use authentication.</p>
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
