@@ -1592,5 +1592,31 @@ class Hn_TS_Database {
 		ORDER BY creation_date DESC;";
 		return $wpdb->get_results($wpdb->prepare($sql));
 	}
+	
+	/**
+	 * Retrieves API private key for a given public key
+	 * @param $pubkey should be a valid key
+	 */
+	function hn_ts_revealPrivateAPIKey($pubkey){
+		global $current_user;
+		global $wpdb;
+		get_currentuserinfo();
+		$sql = "SELECT privatekey FROM `wp_ts_apikeys` 
+		WHERE userid='$current_user->ID' AND 
+		revoked=0 AND publickey='$pubkey';";
+		return $wpdb->get_var( $wpdb->prepare($sql));
+	}
+	
+	function hn_ts_revokeAPIKey($pubkey){
+		global $wpdb;
+		global $current_user;
+		get_currentuserinfo();
+		return $wpdb->update(
+				'wp_ts_apikeys',
+				array( 'revoked' => 1),
+				array( 	'userid' => $current_user->ID,
+						'publickey' => $pubkey)
+		);
+	}
 }
 ?>
