@@ -34,7 +34,8 @@ else{
  * Scheme based on http://www.thebuzzmedia.com/designing-a-secure-rest-api-without-oauth-authentication/
  * and https://s3.amazonaws.com/doc/s3-developer-guide/RESTAuthentication.html
  */
-function hn_ts_authenticate($app) {
+$hn_ts_authenticate = function () {		
+	global $app;
 	//echo "Athentication called!";
 	
 	//Sanitise and validate authentication parameters
@@ -85,7 +86,7 @@ function hn_ts_authenticate($app) {
 		hn_ts_error_msg("Invalid hmac parameter.");
 		exit();	
 	}
-}
+};
 
 /**
  * Checks if the given timestamp is within five minutes of the 
@@ -108,7 +109,7 @@ function hn_ts_withinTime($ts){
 //At the moment they are 404ing
 
 $app->get('/', 'describeAPI');
-$app->get('/metadata', hn_ts_authenticate($app), function() use ($app) {
+$app->get('/metadata', $hn_ts_authenticate, function() use ($app) {
 	$paramValue = $app->request()->get('tsid');
 	if(!$paramValue){
 		hn_ts_metadata();
@@ -116,18 +117,18 @@ $app->get('/metadata', hn_ts_authenticate($app), function() use ($app) {
 		hn_ts_ext_get_timestream_metadata($paramValue);
 	}
 });
-$app->get('/metadata/:name', hn_ts_authenticate($app), function($name) use ($app) {
+$app->get('/metadata/:name', $hn_ts_authenticate, function($name) use ($app) {
 	$limit = $app->request()->get('limit');
 	$offset = $app->request()->get('offset');
 
 	hn_ts_select_metadata_by_name($name, $limit, $offset);
 });
-$app->put('/metadata/heartbeat/:name', hn_ts_authenticate($app), function($name) use ($app) {
+$app->put('/metadata/heartbeat/:name', $hn_ts_authenticate, function($name) use ($app) {
 	$ipaddress = $app->request()->put('ip');
 	hn_ts_heartbeat($name, $ipaddress);
 });
-$app->get('/measurement_containers', hn_ts_authenticate($app), 'hn_ts_list_mc_names');
-$app->post('/measurement_container', function() use ($app) {
+$app->get('/measurement_containers', $hn_ts_authenticate, 'hn_ts_list_mc_names');
+$app->post('/measurement_container', $hn_ts_authenticate, function() use ($app) {
 	$friendlyName = $app->request()->post('name');
 	$measuretype = $app->request()->post('measuretype');
 	$minimumvalue = $app->request()->post('min');
@@ -146,7 +147,7 @@ $app->post('/measurement_container', function() use ($app) {
 			$unitSymbol, $device, $otherInformation, $datatype,
 			$missingDataValue, $siteId, $blogid, $userid, $friendlyName);
 });
-$app->get('/measurement_container/:name', hn_ts_authenticate($app), function($name) use ($app) {
+$app->get('/measurement_container/:name', $hn_ts_authenticate, function($name) use ($app) {
 	if(!isset($name)){
 		$app->response()->status(404);
 		hn_ts_error_msg("Invalid measurement container: $name");
@@ -175,16 +176,16 @@ $app->get('/measurement_container/:name', hn_ts_authenticate($app), function($na
 		echoJsonQuery($sql, $name);
 	}
 });
-$app->post('/measurement/:id', hn_ts_authenticate($app), function($name) use ($app) {
+$app->post('/measurement/:id', $hn_ts_authenticate, function($name) use ($app) {
 	$value = $app->request()->post('value');
 	$timestamp = $app->request()->post('ts');
 	hn_ts_add_measurement($name, $value, $timestamp);
 });
-$app->post('/measurements/:id', hn_ts_authenticate($app), function($name) use ($app) {
+$app->post('/measurements/:id', $hn_ts_authenticate, function($name) use ($app) {
 	$measurements = $app->request()->post('measurements');
 	hn_ts_add_measurements($name, $measurements);
 });
-$app->get('/context', hn_ts_authenticate($app), function() use ($app) {
+$app->get('/context', $hn_ts_authenticate, function() use ($app) {
 	$typeParam = $app->request()->get('type');
 	$valueParam = $app->request()->get('value');
 	$startParam = $app->request()->get('start');
@@ -193,7 +194,7 @@ $app->get('/context', hn_ts_authenticate($app), function() use ($app) {
 	$offset = $app->request()->get('offset');
 	hn_ts_select_contexts($typeParam, $valueParam, $startParam, $endParam, $limit, $offset);
 });
-$app->post('/context', hn_ts_authenticate($app), function() use ($app) {
+$app->post('/context', $hn_ts_authenticate, function() use ($app) {
 	$context_type = $app->request()->post('type');
 	$value = $app->request()->post('value');
 	$start = $app->request()->post('start');
@@ -201,7 +202,7 @@ $app->post('/context', hn_ts_authenticate($app), function() use ($app) {
 	$user_id = $app->request()->post('user');
 	hn_ts_add_context($context_type, $value, $start, $end, $user_id);
 });
-$app->put('/context', hn_ts_authenticate($app), function() use ($app) {
+$app->put('/context', $hn_ts_authenticate, function() use ($app) {
 	$context_id = $app->request()->put('id');
 	$context_type = $app->request()->put('type');
 	$context_value = $app->request()->put('value');
@@ -210,7 +211,7 @@ $app->put('/context', hn_ts_authenticate($app), function() use ($app) {
 	hn_ts_update_context($context_id, $context_type, $context_value, $start_time, $end_time);
 });
 //$app->put('/replicate', 'hn_ts_replicate'); // not really a put or a post -- do we need to define a new verb for activation?
-$app->get('/timestreams', hn_ts_authenticate($app), 'hn_ts_ext_get_timestreams');
+$app->get('/timestreams', $hn_ts_authenticate, 'hn_ts_ext_get_timestreams');
 //Does not use authentication
 //Todo hash the ids to prevent attacks
 $app->get('/timestream/id/:id', function($id) use ($app) {
@@ -221,15 +222,15 @@ $app->get('/timestream/id/:id', function($id) use ($app) {
 });
 
 // name is the timestream table name
-$app->get('/timestream/name/:name', hn_ts_authenticate($app), function() use ($app) {
+$app->get('/timestream/name/:name', $hn_ts_authenticate, function() use ($app) {
 	$args=func_get_args();
 	$limit = $app->request()->get('limit');
 	$offset = $app->request()->get('offset');
 	$lastTimestamp = $app->request()->get('last');
 	hn_ts_int_get_timestream_data($args[0], $limit, $offset, $lastTimestamp);
 });
-$app->get('/timestream/head/:id', hn_ts_authenticate($app), 'hn_ts_int_get_timestream_head');
-$app->put('/timestream/head/:id', hn_ts_authenticate($app), function() use ($app) {
+$app->get('/timestream/head/:id', $hn_ts_authenticate, 'hn_ts_int_get_timestream_head');
+$app->put('/timestream/head/:id', $hn_ts_authenticate, function() use ($app) {
 	$args=func_get_args();
 	$newHead = $app->request()->put('curtime');
 	$newStart = $app->request()->put('start');
