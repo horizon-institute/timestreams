@@ -6,7 +6,6 @@ The Timestreams API is documented [here](http://timestreams.wp.horizon.ac.uk/wp-
 This API:
 
 1. Implements Timestreams as RESTful in PHP using the Slim framework.
-2. Shows the consumption of services using jQuery
 
 Set Up
 -------
