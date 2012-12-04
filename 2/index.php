@@ -52,9 +52,7 @@ $hn_ts_authenticate = function () {
 	
 	// Hinder replay attacks 
 	if(0 == hn_ts_withinTime($now)){
-		$app->response()->status(400);
-		hn_ts_error_msg("Invalid now parameter.");
-		exit();
+		hn_ts_error_msg("Invalid parameter: now", 400);
 	}
 	
 	// Select private key for given public key
@@ -65,9 +63,7 @@ $hn_ts_authenticate = function () {
 		$pri = $pri[0]->privatekey;
 		//echo "pri: $pri<br/>";
 	}else{
-		$app->response()->status(400);
-		hn_ts_error_msg("Invalid pubkey parameter.");
-		exit();		
+		hn_ts_error_msg("Invalid parameter: pubkey", 400);
 	}
 	$toHash = "";
 	sort($_REQUEST,SORT_STRING);
@@ -82,9 +78,9 @@ $hn_ts_authenticate = function () {
 	$hash = hash_hmac('sha256', $toHash, $pri);
 	//echo "hash: $hash<br/>";
 	if(0 != strcmp ( $hash , $hmac )){
-		$app->response()->status(400);
-		hn_ts_error_msg("Invalid hmac parameter.");
-		exit();	
+		//echo "hmac: $hmac<br/>";
+		//echo "hash: $hash<br/>";
+		hn_ts_error_msg("Invalid parameter: hmac", 400);
 	}
 };
 
@@ -97,7 +93,7 @@ $hn_ts_authenticate = function () {
 function hn_ts_withinTime($ts){
 	$now = time();
 	$difference = $now - $ts;
-	 if($difference > 0 && $difference < 301){
+	 if($difference > -10 && $difference < 301){
 		return 1;
 	}else{
 		return 0;
@@ -149,9 +145,7 @@ $app->post('/measurement_container', $hn_ts_authenticate, function() use ($app) 
 });
 $app->get('/measurement_container/:name', $hn_ts_authenticate, function($name) use ($app) {
 	if(!isset($name)){
-		$app->response()->status(404);
-		hn_ts_error_msg("Invalid measurement container: $name");
-		return;
+		hn_ts_error_msg("Invalid measurement container: $name", 400);
 	}
 	$name = hn_ts_sanitise($name);
 	$actionValue = $app->request()->get('action');
@@ -251,8 +245,9 @@ $app->run();
  * Outputs an error message
  * @param $txt is the message to output
  */
-function hn_ts_error_msg($txt){
-	echo '{"error":{"message":"'.$txt.'"}}';
+function hn_ts_error_msg($txt, $code=400){
+	global $app;
+	$app->halt($code, json_encode(array('error' => $txt)));
 }
 
 /**
@@ -261,10 +256,9 @@ function hn_ts_error_msg($txt){
  */
 function hn_ts_issetRequiredParameter($param, $paramName){
 	if(!isset($param)){
-		global $app;
-		$app->response()->status(400);
-		hn_ts_error_msg("Missing required parameter: $paramName");
-		return false;
+		hn_ts_error_msg(
+				"Missing required parameter: $paramName", 
+				$code=400);
 	}else{
 		return true;
 	}
@@ -313,12 +307,10 @@ function sqlInsert($sql){
 		$db = null;
 		echo '{"insertresult": ' . json_encode("$count0 rows inserted") .  '}';
 	} catch(PDOException $e) {
-		global $app;
-		$app->response()->status(400);
 		if(HN_TS_DEBUG){
-			hn_ts_error_msg($e->getMessage());
+			hn_ts_error_msg($e->getMessage(), 400);
 		}else{
-			hn_ts_error_msg("Error accessing the database.");
+			hn_ts_error_msg("Error accessing the database.", 400);
 		}
 	}
 }
@@ -335,12 +327,10 @@ function hn_ts_sqlUpdate($sql){
 		//echo $sql;
 		echo '{"updateresult": ' . json_encode("Updated $count0 row(s).") . '}';
 	} catch(PDOException $e) {
-		global $app;
-		$app->response()->status(400);
 		if(HN_TS_DEBUG){
-			hn_ts_error_msg($e->getMessage());
+			hn_ts_error_msg($e->getMessage(), 400);
 		}else{
-			hn_ts_error_msg("Error accessing the database.");
+			hn_ts_error_msg("Error accessing the database.", 400);
 		}
 	}
 }
@@ -354,12 +344,10 @@ function echoJsonQuery($sql, $root, $error=404){
 	try {
 		echo '{"'.$root.'": ' . json_encode(querySql($sql)) . '}';
 	} catch(PDOException $e) {
-		global $app;
-		$app->response()->status($error);
 		if(HN_TS_DEBUG){
-			hn_ts_error_msg($e->getMessage());
+			hn_ts_error_msg($e->getMessage(), $error);
 		}else{
-			hn_ts_error_msg("Error accessing the database.");
+			hn_ts_error_msg("Error accessing the database.", $error);
 		}
 	}
 }
@@ -431,10 +419,7 @@ $dataType,$missingDataValue, $siteId, $blogId, $userid, $friendlyName){
 		$sql = "SELECT * FROM wp_ts_metadatafriendlynames WHERE friendlyname = '$friendlyName'";
 		$results = querySql($sql);
 		if(count($results)){
-			global $app;
-			$app->response()->status(400);
-			hn_ts_error_msg("The name $friendlyName is already used.");
-			return;
+			hn_ts_error_msg("The name $friendlyName is already used.", 403);
 		}
 	}else{
 		return;
@@ -446,10 +431,7 @@ $dataType,$missingDataValue, $siteId, $blogId, $userid, $friendlyName){
 			!hn_ts_issetRequiredParameter($deviceDetails, "device") ||
 			!hn_ts_issetRequiredParameter($dataType, "datatype")
 	){
-		global $app;
-		$app->response()->status(400);
-		hn_ts_error_msg("Missing required parameter(s)");
-		return;
+		hn_ts_error_msg("Missing required parameter(s)", 400);
 	}
 	
 	// Ensure that the site, blog and user ids are valid
@@ -510,17 +492,13 @@ $dataType,$missingDataValue, $siteId, $blogId, $userid, $friendlyName){
 			$db = null;
 			echo '{"measurementcontainer": ' . json_encode($tablename) .  '}';
 		}else{
-			global $app;
-			$app->response()->status(400);
-			hn_ts_error_msg("Invalid parameter(s)");
+			hn_ts_error_msg("Invalid parameter(s)", 400);
 		}
 	} catch(PDOException $e) {
-		global $app;
-		$app->response()->status(400);
 		if(HN_TS_DEBUG){
-			hn_ts_error_msg($e->getMessage());
+			hn_ts_error_msg($e->getMessage(), 400);
 		}else{
-			hn_ts_error_msg("Error accessing the database.");
+			hn_ts_error_msg("Error accessing the database.", 400);
 		}
 	}
 }
@@ -534,17 +512,13 @@ $dataType,$missingDataValue, $siteId, $blogId, $userid, $friendlyName){
 function hn_ts_add_measurement($name, $value, $timestamp){
 	$name = hn_ts_sanitise($name);
 	if(!$name){
-		global $app;
-		$app->response()->status(400);
-		hn_ts_error_msg("Missing measurement container name.");
+		hn_ts_error_msg("Missing measurement container name.", 400);
 		return;
 	}
 
 	$value = hn_ts_sanitise($value);
 	if(!isset($value)){
-		global $app;
-		$app->response()->status(400);
-		hn_ts_error_msg("Missing parameter: value");
+		hn_ts_error_msg("Missing parameter: value", 400);
 		return;
 	}
 
@@ -567,18 +541,13 @@ function hn_ts_add_measurement($name, $value, $timestamp){
 function hn_ts_add_measurements($name, $measurements){
 	$name = hn_ts_sanitise($name);
 	if(!$name){
-		global $app;
-		$app->response()->status(400);
-		hn_ts_error_msg("Missing measurement container name.");
+		hn_ts_error_msg("Missing measurement container name.", 400);
 	}
 	$sql = "INSERT INTO $name (value, valid_time) VALUES ";
 	$sql2 = $sql;
 	$measurements = json_decode($measurements, true);
 	if(!isset($measurements)){
-		global $app;
-		$app->response()->status(400);
-		hn_ts_error_msg("Missing required parameter: measurements");
-		return;
+		hn_ts_error_msg("Missing required parameter: measurements", 400);
 	}
 	$v = NULL;
 
@@ -593,9 +562,7 @@ function hn_ts_add_measurements($name, $measurements){
 	}
 
 	if(!strcmp($sql, $sql2)){
-		$app->response()->status(400);
-		hn_ts_error_msg("Missing required parameter: measurements");
-		return;
+		hn_ts_error_msg("Missing required parameter: measurements", 400);
 	}else{
 		$sql = rtrim($sql, ",").";";
 	}
@@ -665,7 +632,7 @@ function hn_ts_select_metadata_by_name($mcName, $limit, $offset){
 		$sql = "SELECT * FROM wp_ts_metadata WHERE tablename='$mcName' $limitstatement";
 		echoJsonQuery($sql, "metadata");
 	}else{
-		hn_ts_error_msg("Missing measurement container name.");
+		hn_ts_error_msg("Missing measurement container name.", 400);
 	}
 }
 
@@ -697,8 +664,7 @@ function hn_ts_add_context($context_type, $value, $start, $end, $user_id){
  * @return string XML-XPC response with either an error message as a param or context records
  */
 function hn_ts_select_context($id){
-	hn_ts_error_msg("hn_ts_select_context");
-	echo "id: $id";
+	hn_ts_error_msg("hn_ts_select_context not implemented", 404);
 
 }
 
@@ -766,10 +732,7 @@ function hn_ts_select_contexts($typeParam, $valueParam, $startParam, $endParam, 
  */
 function hn_ts_update_context($context_id, $context_type, $context_value, $start_time, $end_time){
 	if(!isset($end_time)){
-		global $app;
-		$app->response()->status(400);
-		hn_ts_error_msg("Missing parameter: end");
-		return;
+		hn_ts_error_msg("Missing parameter: end", 400);
 	}
 
 	$context_id = hn_ts_sanitise($context_id);
@@ -788,10 +751,7 @@ function hn_ts_update_context($context_id, $context_type, $context_value, $start
 	$where=buildWhere($params);
 
 	if(!strcmp($where,"")){
-		global $app;
-		$app->response()->status(400);
-		hn_ts_error_msg("Missing parameters.");
-		return;
+		hn_ts_error_msg("Missing parameters.", 400);
 	}
 	$sql = "UPDATE wp_ts_context SET end_time='$end_time' $where";
 	hn_ts_sqlUpdate($sql);
@@ -804,9 +764,7 @@ function hn_ts_heartbeat($name, $ipaddress){
 	$name = hn_ts_sanitise($name);
 	$ipaddress = hn_ts_sanitise($ipaddress);
 	if(!isset($name) || !isset($ipaddress)){
-		global $app;
-		$app->response()->status(400);
-		hn_ts_error_msg("Missing name or ip address.");
+		hn_ts_error_msg("Missing name or ip address parameter.", 400);
 	}
 	$sql = "UPDATE wp_ts_metadata SET last_IP_Addr='$ipaddress', heartbeat_time=CURRENT_TIMESTAMP() WHERE tablename='$name'";
 	hn_ts_sqlUpdate($sql);
@@ -821,7 +779,7 @@ function hn_ts_heartbeat($name, $ipaddress){
  * @return string XML-XPC response with either an error message or 1
  */
 function hn_ts_replicate(){
-	hn_ts_error_msg("hn_ts_replication");
+	hn_ts_error_msg("hn_ts_replication not implemented.", 404);
 
 }
 
@@ -859,15 +817,14 @@ function hn_ts_int_get_timestream_head($timestreamId){
 	$sql = "SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
 	$timestream = querySql($sql);
 	if($timestream==null) {
-		hn_ts_error_msg("Timestream not found.");
-		return;
+		hn_ts_error_msg("Timestream not found: $timestreamId", 404);
 	}else{
 		$timestream=$timestream[0];
 	}
 	$head = hn_ts_getReadHead($timestream->head_id);
 
 	if($head==null) {
-		hn_ts_error_msg("Head not found.");
+		hn_ts_error_msg("Head not found: $head", 400);
 		return;
 	}else{
 		$head=$head[0];
@@ -1045,7 +1002,7 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 	$timestreams = $stmt->fetchAll();
 
 	if($timestreams==null) {
-		hn_ts_error_msg("Timestream not found");
+		hn_ts_error_msg("Timestream not found", 404);
 		return;
 	}
 	/*$wpdb->update('wp_ts_head',
@@ -1097,7 +1054,7 @@ function hn_ts_ext_get_timestream_metadata($timestreamId){
 	$timestream = querySql($sql);
 	
 	if($timestream==null) {
-		hn_ts_error_msg("Timestream not found.");
+		hn_ts_error_msg("Timestream not found.", 404);
 		return;
 	} else{
 		$timestream = $timestream[0];
@@ -1106,7 +1063,7 @@ function hn_ts_ext_get_timestream_metadata($timestreamId){
 	$metadata = hn_ts_getMetadata($timestream->metadata_id);
 	
 	if($metadata==null) {
-		hn_ts_error_msg("Metadata not found.");
+		hn_ts_error_msg("Metadata not found.", 400);
 		return;		
 	} else {
 		echo '{"metadata": ' . json_encode($metadata) . '}';		
@@ -1125,14 +1082,14 @@ function hn_ts_ext_get_timestream_metadata($timestreamId){
 function hn_ts_timestream_update($timestream)
 {
 	if($timestream==null) {
-		hn_ts_error_msg("Timestream not found");
+		hn_ts_error_msg("Timestream not found", 404);
 		return;
 	}
 
 	$head = hn_ts_getReadHead($timestream->head_id);
 
 	if($head==null) {
-		hn_ts_error_msg("Head not found.");
+		hn_ts_error_msg("Head not found.", 400);
 		return null;
 	} else{
 		$head = $head[0];
@@ -1200,8 +1157,7 @@ function hn_ts_getMetadata($metadataId)
 	$sql = "SELECT * FROM wp_ts_metadata WHERE metadata_id = $metadataId";
 	$meta = querySql($sql);
 	if($meta==null) {
-		hn_ts_error_msg("Metadata not found.");
-		return null;
+		hn_ts_error_msg("Metadata not found.", 404);
 	} else{
 		$meta = $meta[0];
 	}
@@ -1226,8 +1182,7 @@ function hn_ts_ext_get_timestream_data($timestreamId, $lastAskTime, $limit, $ord
 	$sql = "SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
 	$timestream = querySql($sql);
 	if($timestream==null) {
-		hn_ts_error_msg("Timestream not found");
-		return;
+		hn_ts_error_msg("Timestream not found", 404);
 	}else{
 		$timestream = $timestream[0];
 	}
@@ -1237,8 +1192,7 @@ function hn_ts_ext_get_timestream_data($timestreamId, $lastAskTime, $limit, $ord
 
 	$head = hn_ts_getReadHead($timestream->head_id);
 	if($head==null) {
-		hn_ts_error_msg("Head not found.");
-		return null;
+		hn_ts_error_msg("Head not found.", 400);
 	} else{
 		$head = $head[0];
 	}
@@ -1251,7 +1205,7 @@ function hn_ts_ext_get_timestream_data($timestreamId, $lastAskTime, $limit, $ord
 	// how much timestream has elapsed since last ask
 	if($head->rate==0)	{
 		// no data, stopped
-		hn_ts_error_msg("Data not found.");
+		hn_ts_error_msg("Data not found.", 400);
 	}
 
 	$now = hn_ts_getTimeNow();
