@@ -14,12 +14,6 @@ Set Up
 2. Ensure the api/index.php getConnection() function variables match the database configuration. 
 3. Test the functions using your browser or curl.
 
-To Do:
-------
-1. Implement functions
-2. Write routes
-3. Replace db config with wp-config.php values
-
 Contributing
 ------------
 
