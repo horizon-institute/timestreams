@@ -66,6 +66,7 @@ $hn_ts_authenticate = function () {
 		hn_ts_error_msg("Invalid parameter: pubkey", 400);
 	}
 	$toHash = "";
+if(!$req->isPut()){
 	sort($_REQUEST,SORT_STRING);
 	foreach ( $_REQUEST as $param){
 		if($param == $hmac){
@@ -74,7 +75,17 @@ $hn_ts_authenticate = function () {
 			$toHash = $toHash.$param."&";
 		}
 	}
-	//echo "string: $toHash<br/>";
+	}else{
+		$pars = $req->put();
+		sort($pars,SORT_STRING);
+		foreach ( $pars as $param){
+			if($param == $hmac){
+				continue;
+			}else{
+				$toHash = $toHash.$param."&";
+			}
+		}
+	}
 	$hash = hash_hmac('sha256', $toHash, $pri);
 	//echo "hash: $hash<br/>";
 	if(0 != strcmp ( $hash , $hmac )){
@@ -199,10 +210,10 @@ $app->post('/context', $hn_ts_authenticate, function() use ($app) {
 $app->put('/context', $hn_ts_authenticate, function() use ($app) {
 	$context_id = $app->request()->put('id');
 	$context_type = $app->request()->put('type');
-	$context_value = $app->request()->put('value');
+	$value = $app->request()->put('value');
 	$start_time = $app->request()->put('start');
 	$end_time = $app->request()->put('end');
-	hn_ts_update_context($context_id, $context_type, $context_value, $start_time, $end_time);
+	hn_ts_update_context($context_id, $context_type, $value, $start_time, $end_time);
 });
 //$app->put('/replicate', 'hn_ts_replicate'); // not really a put or a post -- do we need to define a new verb for activation?
 $app->get('/timestreams', $hn_ts_authenticate, 'hn_ts_ext_get_timestreams');
@@ -638,7 +649,7 @@ function hn_ts_select_metadata_by_name($mcName, $limit, $offset){
 
 /**
  * Adds a context record.
- * @param context_type, context_value, start time (optional), end time(optional)
+ * @param context_type, value, start time (optional), end time(optional)
  * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
  */
 function hn_ts_add_context($context_type, $value, $start, $end, $user_id){
@@ -725,26 +736,26 @@ function hn_ts_select_contexts($typeParam, $valueParam, $startParam, $endParam, 
 /**
  * Updates the end time of the context records matching the given values.
  * @param string $context_type
- * @param string $context_value
+ * @param string $value
  * @param timestamp $start_time
  * @param timestamp $end_time
  * @todo Make it so that only the context owners can update their own contexts
  */
-function hn_ts_update_context($context_id, $context_type, $context_value, $start_time, $end_time){
+function hn_ts_update_context($context_id, $context_type, $value, $start_time, $end_time){
 	if(!isset($end_time)){
 		hn_ts_error_msg("Missing parameter: end", 400);
 	}
 
 	$context_id = hn_ts_sanitise($context_id);
 	$context_type = hn_ts_sanitise($context_type);
-	$context_value = hn_ts_sanitise($context_value);
+	$value = hn_ts_sanitise($value);
 	$start_time = hn_ts_sanitise($start_time);
 	$end_time = hn_ts_sanitise($end_time);
 
 	$params = array(
 			array("name"=>"context_id","param"=>$context_id),
 			array("name"=>"context_type","param"=>$context_type),
-			array("name"=>"context_value","param"=>$context_value),
+			array("name"=>"value","param"=>$value),
 			array("name"=>"start_time","param"=>$start_time)
 	);
 
@@ -2247,7 +2258,7 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				    		<tr>
 				    			<td>value</td><td>Context value</td><td>Optional</td>
 					    		<td>String (up to 100 chars)</td>
-					    		<td>Sets the context_value.</td>
+					    		<td>Sets the value.</td>
 				        	</tr>
 				    		<tr>
 				    			<td>start</td><td>Start time</td><td>Optional</td>
@@ -2315,7 +2326,7 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				    		<tr>
 				    			<td>value</td><td>Context value</td><td>Optional</td>
 					    		<td>String (up to 100 chars)</td>
-					    		<td>Updates the contexts with this context_value.</td>
+					    		<td>Updates the contexts with this value.</td>
 				        	</tr>
 				    		<tr>
 				    			<td>start</td><td>Start time</td><td>Optional</td>
