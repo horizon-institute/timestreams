@@ -66,16 +66,17 @@ $hn_ts_authenticate = function () {
 		hn_ts_error_msg("Invalid parameter: pubkey", 400);
 	}
 	$toHash = "";
-if(!$req->isPut()){
-	sort($_REQUEST,SORT_STRING);
-	foreach ( $_REQUEST as $param){
-		if($param == $hmac){
-			continue;
-		}else{
-			$toHash = $toHash.$param."&";
+	if($req->isPost()){
+		$pars = $req->post();
+		sort($pars,SORT_STRING);
+		foreach ( $pars as $param){
+			if($param == $hmac){
+				continue;
+			}else{
+				$toHash = $toHash.$param."&";
+			}
 		}
-	}
-	}else{
+	}else if($req->isPut()){
 		$pars = $req->put();
 		sort($pars,SORT_STRING);
 		foreach ( $pars as $param){
@@ -85,6 +86,18 @@ if(!$req->isPut()){
 				$toHash = $toHash.$param."&";
 			}
 		}
+	}else if($req->isGet()){
+		$pars = $req->get();
+		sort($pars,SORT_STRING);
+		foreach ( $pars as $param){
+			if($param == $hmac){
+				continue;
+			}else{
+				$toHash = $toHash.$param;
+			}
+		}
+	}else{
+		hn_ts_error_msg("Method not supported.", 400);
 	}
 	$hash = hash_hmac('sha256', $toHash, $pri);
 	//echo "hash: $hash<br/>";
