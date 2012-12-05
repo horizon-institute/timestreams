@@ -71,7 +71,7 @@ $hn_ts_authenticate = function () {
 		if($param == $hmac){
 			continue;
 		}else{
-			$toHash = $toHash.$param;
+			$toHash = $toHash.$param."&";
 		}
 	}
 	//echo "string: $toHash<br/>";
@@ -1381,7 +1381,7 @@ function describeAPI(){
 						that each instance of a client should have its own set of keys. </li>
 						<li>Requests need to include a Unix UTC timestamp (such as 1354551499) parameter called "now" set to the current time.</li>
 						<li>Requests need to include a parameter called pubkey containing the API public key. Note: do not include the private key.</li>
-						<li>Requests need to include a parameter called hmac. The value should be a SHA256 hash of all of the other parameters being sent in the request (including pubkey, now and any other parameter for the given method). </li>
+						<li>Requests need to include a parameter called hmac. The value should be a SHA256 hash of all of the other parameters in alphabetical ascending order being sent in the request (including pubkey, now and any other parameter for the given method). </li>
 					<p>It is recommended that requests are made over HTTPS.</p>
 					</div>
 					<div id="date">
