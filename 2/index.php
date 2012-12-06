@@ -240,7 +240,7 @@ $app->get('/timestream/id/:id', function($id) use ($app) {
 });
 
 // name is the timestream table name
-$app->get('/timestream/name/:name', $hn_ts_authenticate, function() use ($app) {
+$app->get('/timestream/name/:name', function() use ($app) {
 	$args=func_get_args();
 	$limit = $app->request()->get('limit');
 	$offset = $app->request()->get('offset');
@@ -1353,6 +1353,7 @@ function describeAPI(){
 									<li><a href="#service-timestream-get-timestream-by-name">Get Timestream By Name</a></li>
 									<li><a href="#service-timestream-get-time">Get Time</a></li>
 									<li><a href="#service-timestream-get-playhead">Get Playhead</a></li>
+									<li><a href="#service-timestream-update-playhead">Update Playhead</a></li>
 								</ol>								
 							</li>
 						</ol>
@@ -1541,12 +1542,13 @@ function hn_ts_document_metadata(){
 				    </dd>
 				    <dt>Description</dt>
 				    <dd>
-				        <p>If no parameter is given then returns the metadata for all of 
+				        <p>If no non-authentication parameter is given then returns the metadata for all of 
 				        the measurement container entries. </p>
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
-				        <pre><a href="./metadata" title="Get metadata">/metadata</a></pre>
+				        <pre><a href="./metadata?pubkey=c21fa479e5&now=1354787072&hmac=cb1458743888b6d9f1e6123d255f38b8e1e21f8b655d4afc51db3babd1cd679b" 
+				        title="Get metadata">/metadata?pubkey=c21fa479e5&now=1354787072&hmac=cb1458743888b6d9f1e6123d255f38b8e1e21f8b655d4afc51db3babd1cd679b</a></pre>
 				    </dd>			
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.ext_get_timestream_metadata</pre></dd>			
 				    <dt>Parameters</dt>		
@@ -1557,6 +1559,12 @@ function hn_ts_document_metadata(){
 				    		<tr><td>tsid</td><td>Id of a Timestream</td><td>Optional</td>
 				    		<td>Counting Number</td><td>Returns the metadata record id for 
 				        	the given timestream id (see <a href="#service-metadata-get-mc-id">Get Metadata Id for Container Id</a>).</td></tr>
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
@@ -1590,7 +1598,8 @@ function hn_ts_document_metadata(){
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
-				        <pre><a href="./metadata?tsid=1" title="Get metadata">/metadata?tsid=[id]</a></pre>
+				        <pre><a href="./metadata?pubkey=c21fa479e5&now=1354787206&hmac=a1df42ea4a7be73f1becae45e386424413659c223bb2406d8d6264fd569601d8&tsid=1" 
+				        title="Get metadata">/metadata?pubkey=c21fa479e5&now=1354787206&hmac=a1df42ea4a7be73f1becae45e386424413659c223bb2406d8d6264fd569601d8&tsid=1</a></pre>
 				    </dd>			
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.ext_get_timestream_metadata</pre></dd>			
 				    <dt>Parameters</dt>		
@@ -1601,6 +1610,12 @@ function hn_ts_document_metadata(){
 				    		<tr><td>tsid</td><td>Id of a Timestream</td><td>Optional</td>
 				    		<td>Counting Number</td><td>Returns the metadata record id for 
 				        	the given timestream id.</td></tr>
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
@@ -1626,11 +1641,21 @@ function hn_ts_document_metadata(){
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
-				        <pre><a href="./metadata/wp_1_ts_temperature_1" title="Get metadata">/metadata/[container tablename]</a></pre>
+				        <pre><a href="./metadata/wp_1_ts_temperature_1?pubkey=c21fa479e5&now=1354787337&hmac=86b0d090d125a75597f9ccebe7f61884d2810fdd45ac68e17e1a0f8d60439431" 
+				        title="Get metadata">/metadata/wp_1_ts_temperature_1?pubkey=c21fa479e5&now=1354787337&hmac=86b0d090d125a75597f9ccebe7f61884d2810fdd45ac68e17e1a0f8d60439431</a></pre>
 				    </dd>			
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.select_metadata_by_name</pre></dd>			
 				    <dt>Parameters</dt>		
-				    <dd><p>None.</p>
+				    <dd><br/>
+				    	<table><tr><th>Name</th><th>Description</th><th>Required or Optional</th>
+				    		<th>Type</th><th>Affect</th></tr>				    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				   		</table><br/>
 				    </dd>
 				    <dt>Response</dt>
 				    <dd>
@@ -1661,7 +1686,8 @@ function hn_ts_document_metadata(){
 				    </dd>			
 				    <dt class="url-label">Put Structure</dt><dd>
 				        <pre>
-curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d "ip=192.168.56.101"
+curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d 
+"ip=192.168.56.101&pubkey=c21fa479e5&now=1354792416&hmac=5cf07dfe405dfaaa7ad6843fe2c8e3852ee1fd06bf3168b98dcc6b7e8a4c6700"
 http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/metadata/heartbeat/wp_1_ts_temperature_1
 				        </pre>
 				    </dd>			
@@ -1679,7 +1705,13 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/metadata/heartb
 					    		<td>String IP Address</td>
 					    		<td>Updates the measurement container with the device\s current 
 					    		IP address.</td>
-				        	</tr>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/><p>Note that one of the optional parameters must be used.</p>
 				    </dd>
 				    <dt>Response</dt>
@@ -1717,11 +1749,22 @@ function hn_ts_document_mc(){
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
-				        <pre><a href="./measurement_containers" title="Get measurement containers">/measurement_containers</a></pre>
+				        <pre><a href="./measurement_containers?pubkey=c21fa479e5&now=1354792657&hmac=2ec469a710e320ec0e7147601a7f9b530c1d3c2ed5cf42076365b7994c008879" title="Get measurement containers">/measurement_containers?pubkey=c21fa479e5&now=1354792657&hmac=2ec469a710e320ec0e7147601a7f9b530c1d3c2ed5cf42076365b7994c008879</a></pre>
 				    </dd>			
 				    <dt>Version 1 API replacement</dt><dd><p>None.</p></dd>			
 				    <dt>Parameters</dt>		
-				    <dd><p>None.</p></dd>
+				    <dd><br/>
+				    	<table>
+				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
+				    		<th>Type</th><th>Affect</th></tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				    	</table><br/>
+				    </dd>
 				    <dt>Response</dt>
 				    <dd>
 				        <p>Container list</p>
@@ -1746,7 +1789,7 @@ function hn_ts_document_mc(){
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
-				        <pre><a href="./measurement_container/wp_1_ts_Pressure_25" title="Get data">/measurement_container/[id]</a></pre>
+				        <pre><a href="./measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792709&hmac=3961bb84cf28beda71ccbe02884741e5ad58a17eaf900d9b5c6b77efa8d52e8a" title="Get data">/measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792709&hmac=3961bb84cf28beda71ccbe02884741e5ad58a17eaf900d9b5c6b77efa8d52e8a</a></pre>
 				    </dd>			
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.select_measurements</pre></dd>		
 				    <dt>Parameters</dt>		
@@ -1777,7 +1820,13 @@ function hn_ts_document_mc(){
 				    		<tr>
 				    			<td>desc</td><td>Descending order.</td><td>Optional</td>
 					    		<td>String (true)</td><td>Returns the records in descending order.</td>
-				        	</tr>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
@@ -1808,7 +1857,7 @@ function hn_ts_document_mc(){
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
-				        <pre><a href="./measurement_container/wp_1_ts_Pressure_25?action=first" title="Get first data">/measurement_container/[id]?action=first</a></pre>
+				        <pre><a href="./measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792793&hmac=4c58970c32fa7a2cbcb683a1726a7aed3d9d4287ed7473d465262752ef33b8c8&action=first" title="Get first data">/measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792793&hmac=4c58970c32fa7a2cbcb683a1726a7aed3d9d4287ed7473d465262752ef33b8c8&action=first</a></pre>
 				    </dd>			
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.select_first_measurement</pre></dd>		
 				    <dt>Parameters</dt>		
@@ -1819,7 +1868,13 @@ function hn_ts_document_mc(){
 				    		<tr>
 				    			<td>action</td><td>action=first</td><td>Optional</td>
 					    		<td>String (first)</td><td>Returns the first measurement in the container.</td>
-				        	</tr>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
@@ -1846,7 +1901,7 @@ function hn_ts_document_mc(){
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
-				        <pre><a href="./measurement_container/wp_1_ts_Pressure_25?action=latest" title="Get latest data">/measurement_container/[id]?action=latest</a></pre>
+				        <pre><a href="./measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792852&hmac=0af68a273dd38a4f2e8a45aa324870039578edf9c2b8c488465fcfc5803ccabf&action=latest" title="Get latest data">/measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792852&hmac=0af68a273dd38a4f2e8a45aa324870039578edf9c2b8c488465fcfc5803ccabf&action=latest</a></pre>
 				    </dd>			
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.select_latest_measurement</pre></dd>		
 				    <dt>Parameters</dt>		
@@ -1857,7 +1912,13 @@ function hn_ts_document_mc(){
 				    		<tr>
 				    			<td>action</td><td>action=latest</td><td>Optional</td>
 					    		<td>String (count)</td><td>Returns container measurement count.</td>
-				        	</tr>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
@@ -1884,7 +1945,7 @@ function hn_ts_document_mc(){
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
-				        <pre><a href="./measurement_container/wp_1_ts_Pressure_25?action=count" title="Get latest data">/measurement_container/[id]?action=count</a></pre>
+				        <pre><a href="./measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792901&hmac=dc6f00de73837cab102730a3c0895d9809c1119cc12f507679cbcce309c040d4&action=count" title="Get latest data">/measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792901&hmac=dc6f00de73837cab102730a3c0895d9809c1119cc12f507679cbcce309c040d4&action=count</a></pre>
 				    </dd>			
 				    <dt>Version 1 API replacement</dt><dd><pre>timestreams.count_measurements</pre></dd>		
 				    <dt>Parameters</dt>		
@@ -1895,7 +1956,13 @@ function hn_ts_document_mc(){
 				    		<tr>
 				    			<td>action</td><td>action=count</td><td>Optional</td>
 					    		<td>String (latest)</td><td>Returns the latest measurement in the container.</td>
-				        	</tr>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
@@ -1923,9 +1990,10 @@ function hn_ts_document_mc(){
 				    <dd>
 				        <pre>
 curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X POST 
--d "name=myContainer&amp;measuretype=temperature&amp;min=0&amp;max=100&amp;
-unit=text/x-data-C&amp;symbol=C&amp;device=testDev&amp;otherinfo=blah&amp;
-datatype=DECIMAL(5,2)&amp;siteid=1&amp;blogid=1&amp;userid=1"
+-d "name=testPostMCLegit-446463794&measuretype=testPostMCLegit&
+unit=text/x-data-test&device=testDev&datatype=DECIMAL(5,2)&
+siteid=1&blogid=1&userid=1&
+pubkey=c21fa479e5&now=1354793013&hmac=ae82388741ac5fbbeec99770565a25b5d2962d8310c3c36f76946572f3cac4fc"
 http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement_container
 				        </pre>
 				    </dd>			
@@ -1996,7 +2064,13 @@ timestreams.hn_ts_create_measurements</pre></li>
 				    		<tr>
 				    			<td>userid</td><td>User id</td><td>Required</td>
 					    		<td>Counting number</td><td>Sets the container\'s producer_id.</td>
-				        	</tr>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
@@ -2049,8 +2123,9 @@ function hn_ts_document_measurements(){
 				    <dd>
 				        <pre>
 curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X POST 
--d "value=1" 
-http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement/wp_1_ts_Pressure_25
+-d "value=1.0&pubkey=c21fa479e5&now=1354793665&
+hmac=3dad6cac2eb327a74233dec7145142f81bceec61a01d70126927bd63efaae403" 
+http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement/:measurement_container_name
 				        </pre>
 				    </dd>			
 				    <dt>Version 1 API replacement</dt>
@@ -2074,7 +2149,13 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement/wp_
 				    		<tr>
 				    			<td>ts</td><td>Timestamp that the measurement was taken</td><td>Optional<p>Note that if this is excluded then the server\'s current time will be used.</td>
 					    		<td>Timestamp</td><td>Sets the measurement timestamp.</td>
-				        	</tr>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
@@ -2101,7 +2182,8 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement/wp_
 				        <pre>
 curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X POST 
 -d "measurements={\"measurements\":[{\"v\":1,\"t\":\"2012-11-09 12:10:23\"},
-{\"v\":2,\"t\":\"2012-07-21 17:10:23\"}]}" 
+{\"v\":2,\"t\":\"2012-07-21 17:10:23\"}]}&
+pubkey=c21fa479e5&now=1354794020&hmac=706f4a139fcc2c553826245bba40554df110e8803288221b10c680ecfba43fde" 
 http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurements/wp_1_ts_Pressure_25
 				        </pre>
 				    </dd>			
@@ -2118,7 +2200,13 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurements/wp
 				    			<td>measurements</td><td>JSON array of measurements</td><td>Required</td>
 					    		<td>JSON array in the format: {"measurements":[{"v":"[value]","t":"[timestamp]"},...]}</td>
 					    		<td>Sets the measurement value.</td>
-				        	</tr>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
@@ -2180,7 +2268,7 @@ function hn_ts_document_context(){
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
-				        <pre><a href="./context" title="Get context">/context</a></pre>
+				        <pre><a href="./context?pubkey=c21fa479e5&now=1354794166&hmac=47d8ee0334fd1ddf92747e2cbc758afb8237857bf384ff6e4b20a863a6e20bab" title="Get context">/context?pubkey=c21fa479e5&now=1354794166&hmac=47d8ee0334fd1ddf92747e2cbc758afb8237857bf384ff6e4b20a863a6e20bab</a></pre>
 				    </dd>	
 				    <dt>Version 1 API replacement</dt>
 				    <dd>
@@ -2223,7 +2311,13 @@ function hn_ts_document_context(){
 				    		<tr>
 				    			<td>offset</td><td>Record set offset.</td><td>Optional</td>
 					    		<td>Counting number</td><td>Sets the starting record.</td>
-				        	</tr>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
@@ -2250,7 +2344,8 @@ function hn_ts_document_context(){
 				    <dt class="url-label">Post Structure</dt><dd>
 				        <pre>
 curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X POST -d 
-"type=place&amp;value=Nottingam&amp;start=2012-11-12 10:10:23&amp;end=2012-11-12 10:20:23&amp;user=1" 
+"type=place&amp;value=Nottingam&amp;start=2012-11-12 10:10:23&amp;end=2012-11-12 10:20:23&amp;user=1
+&pubkey=c21fa479e5&now=1354794235&hmac=1bfc507fa20e1b2c5321a4ba4892e5250a4f3efc5757f96447382c646504c9d9" 
 http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				        </pre>
 				    </dd>			
@@ -2287,7 +2382,13 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				    			<td>user</td><td>user id</td><td>Optional</td>
 					    		<td>Counting number</td>
 					    		<td>Sets the user id for the owner of the context.</td>
-				        	</tr>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
@@ -2313,7 +2414,8 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				    <dt class="url-label">Put Structure</dt><dd>
 				        <pre>
 curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d 
-"type=a&amp;start=2012-05-22 13:36:11&amp;end=2012-05-22 13:36:11" 
+"type=a&amp;start=2012-05-22 13:36:11&amp;end=2012-05-22 13:36:11
+&pubkey=c21fa479e5&now=1354794316&hmac=38efd0026caf3bb2ee5016f68f36adf84c957cc27f7c3ed1628c1fbe516e663f" 
 http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				        </pre>
 				    </dd>			
@@ -2350,7 +2452,13 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/context
 				    			<td>id</td><td>Context id</td><td>Optional</td>
 					    		<td>Counting number</td>
 					    		<td>Updates the context with this id.</td>
-				        	</tr>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/><p>Note that one of the optional parameters must be used.</p>
 				    </dd>
 				    <dt>Response</dt>
@@ -2387,14 +2495,25 @@ function hn_ts_document_timestream(){
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
-				        <pre><a href="./timestreams" title="Get Timestreams">/timestreams</a></pre>
+				        <pre><a href="./timestreams?pubkey=c21fa479e5&now=1354792090&hmac=1f0b52e1cf5bdeed372fa80914810453f04daa17c21b2d81feda04cb508c5493" title="Get Timestreams">/timestreams?pubkey=c21fa479e5&now=1354792090&hmac=1f0b52e1cf5bdeed372fa80914810453f04daa17c21b2d81feda04cb508c5493</a></pre>
 				    </dd>	
 				    <dt>Version 1 API replacement</dt>
 				    <dd>
 				    	<p>timestreams.ext_get_timestreams</p>
 				    </dd>		
 				    <dt>Parameters</dt>		
-				    <dd><p>None.</p></dd>
+				    <dd><br/>
+				    	<table>
+				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
+				    		<th>Type</th><th>Affect</th></tr>
+				    		<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				    	</table><br/><p>Note that one of the optional parameters must be used.</p>
+				    </dd>
 				    <dt>Response</dt>
 				    <dd>
 				        <p>The list of timestreams</p>
@@ -2471,6 +2590,7 @@ function hn_ts_document_timestream(){
 				    <dt>Description</dt>
 				    <dd>
 				        <p>Returns data corresponding to a given timestream since the last time the function was called.</p>
+				        <p>Note that this method does not use authentication.
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
@@ -2533,7 +2653,17 @@ function hn_ts_document_timestream(){
 				    	<p>timestreams.ext_get_time</p>
 				    </dd>		
 				    <dt>Parameters</dt>		
-				    <dd><p>None.</p>
+				    <dd><br/>
+				    	<table>
+				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
+				    		<th>Type</th><th>Affect</th></tr>	    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
 				    <dd>
@@ -2557,14 +2687,24 @@ function hn_ts_document_timestream(){
 				    </dd>			
 				    <dt class="url-label">URL Structure</dt>
 				    <dd>
-				        <pre><a href="./timestream/head/1" title="Get time">/timestream/head/[id]</a></pre>
+				        <pre><a href="./timestream/head/1?pubkey=c21fa479e5&now=1354794437&hmac=539fd701c0967d68424c7dc999c0bcab5343dc07c45ae48d13a07b876567bfaf" title="Get time">/timestream/head/1?pubkey=c21fa479e5&now=1354794437&hmac=539fd701c0967d68424c7dc999c0bcab5343dc07c45ae48d13a07b876567bfaf</a></pre>
 				    </dd>	
 				    <dt>Version 1 API replacement</dt>
 				    <dd>
 				    	<p>timestreams.hn_ts_int_get_timestream_head</p>
 				    </dd>		
 				    <dt>Parameters</dt>		
-				    <dd><p>None.</p>
+				    <dd><br/>
+				    	<table>
+				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
+				    		<th>Type</th><th>Affect</th></tr>	    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr></p>
+				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
 				    <dd>
@@ -2589,7 +2729,9 @@ function hn_ts_document_timestream(){
 				    <dt class="url-label">Put Structure</dt><dd>
 				        <pre>
 curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d
-"curtime=1352315401&amp;start=1352315401&amp;end=1352315401&amp;rate=2"
+"&curtime=1352315402&start=1352315400&end=1352315403&rate=3&
+pubkey=c21fa479e5&now=1354794589
+&hmac=5aad1f08daeedc80b1483978a99cb37ea5a1ee631bd8e6f613a873074860451d"
 http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/timestream/head/1
 				        </pre>
 				    </dd>			
@@ -2618,7 +2760,13 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/timestream/head
 				    		<tr>
 				    			<td>rate</td><td>Record set offset.</td><td>Required</td>
 					    		<td>Real number</td><td>Sets the playback rate</td>
-				        	</tr>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
 				    	</table><br/>
 				    </dd>
 				    <dt>Response</dt>
