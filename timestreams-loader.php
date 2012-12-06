@@ -3,13 +3,13 @@
 		Plugin Name: Timestreams
 		Plugin URI: https://github.com/pszjmb1/Timestreams/
 		Description: Sensor data I/O for WordPress. Connect information from your community or school with your blog and the rest of the world.
-		Version: 0.8
+		Version: 2.0.0-Alpha-0.2
 		Author: Horizon Digital Economy Research Institute Jesse Blum (JMB) & Martin Flintham (MDF)
 		Author URI: http://www.horizon.ac.uk
 		License: AGPLv3
 	*/
 	
-	/*  Copyright (C) 2012  Jesse Blum (JMB)
+	/*  Copyright (C) 2012  Horizon Digital Economy Research Institute, Jesse Blum (JMB) & Martin Flintham (MDF)
 	
 	    This program is free software: you can redistribute it and/or modify
 	    it under the terms of the GNU Affero General Public License as

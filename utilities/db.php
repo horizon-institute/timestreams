@@ -124,7 +124,7 @@ class Hn_TS_Database {
 		) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT=\'Associates friendly names to metadata rows. Legacy data work\';';
 		$wpdb->query($sql);
 		
-		$sql = "CREATE TABLE IF NOT EXISTS  `'.$wpdb->prefix.'ts_apikeys` (
+		$sql = "CREATE TABLE IF NOT EXISTS  `$wpdb->prefix"."ts_apikeys` (
 		  `publickey` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
 		  `privatekey` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
 		  `userid` bigint(20) NOT NULL,
