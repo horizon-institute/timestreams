@@ -121,7 +121,7 @@ $hn_ts_authenticate = function () {
 function hn_ts_withinTime($ts){
 	$now = time();
 	$difference = $now - $ts;
-	 if($difference > -10 && $difference < 301){
+	 if($difference > -120 && $difference < 301){
 		return 1;
 	}else{
 		return 0;
