@@ -22,6 +22,7 @@ require 'Slim/Slim.php';
 define('HN_TS_DEBUG', false);
 define('HN_TS_VERSION', "v. 2.0.0-Alpha-0.2");
 $app = new Slim();
+$hn_tsuserid=NULL;
 if(HN_TS_DEBUG){
 	$app->getLog()->setEnabled(true);
 }
@@ -56,11 +57,12 @@ $hn_ts_authenticate = function () {
 	}
 	
 	// Select private key for given public key
-	$sql = "SELECT privatekey FROM wp_ts_apikeys WHERE publickey = 
+	$sql = "SELECT privatekey,userid FROM wp_ts_apikeys WHERE publickey = 
 	'$pub' AND revoked='0'";
-	$pri = querySql($sql);
-	if(count($pri)){
-		$pri = $pri[0]->privatekey;
+	$rows = querySql($sql);
+	$pri='';
+	if(count($rows)){
+		$pri = $rows[0]->privatekey;
 		//echo "pri: $pri<br/>";
 	}else{
 		hn_ts_error_msg("Invalid parameter: pubkey", 400);
@@ -106,6 +108,8 @@ $hn_ts_authenticate = function () {
 		//echo "hash: $hash<br/>";
 		hn_ts_error_msg("Invalid parameter: hmac", 400);
 	}
+	global $hn_tsuserid;
+	$hn_tsuserid=$rows[0]->userid;
 };
 
 /**
@@ -161,11 +165,10 @@ $app->post('/measurement_container', $hn_ts_authenticate, function() use ($app) 
 	$missingDataValue = $app->request()->post('missingdatavalue');
 	$siteId = $app->request()->post('siteid');
 	$blogid = $app->request()->post('blogid');
-	$userid = $app->request()->post('userid');
 	hn_ts_create_measurement_containerForBlog(
 			$measuretype, $minimumvalue, $maximumvalue, $unit,
 			$unitSymbol, $device, $otherInformation, $datatype,
-			$missingDataValue, $siteId, $blogid, $userid, $friendlyName);
+			$missingDataValue, $siteId, $blogid, $friendlyName);
 });
 $app->get('/measurement_container/:name', $hn_ts_authenticate, function($name) use ($app) {
 	if(!isset($name)){
@@ -434,7 +437,7 @@ function hn_ts_list_mc_names(){
  */
 function hn_ts_create_measurement_containerForBlog($measurementType,
 $minimumvalue, $maximumvalue, $unit, $unitSymbol, $deviceDetails, $otherInformation,
-$dataType,$missingDataValue, $siteId, $blogId, $userid, $friendlyName){
+$dataType,$missingDataValue, $siteId, $blogId, $friendlyName){
 	/* Ensure that the parameters are valid **********/
 	
 	//  Ensure friendly name is unique
@@ -465,8 +468,9 @@ $dataType,$missingDataValue, $siteId, $blogId, $userid, $friendlyName){
 	if(!$blogId || $blogId < 1){
 		$blogId = 1;
 	}
-	if(!$userid || $userid < 1){
-		$userid = 1;
+	global $hn_tsuserid;
+	if(NULL==$hn_tsuserid || $hn_tsuserid < 1){
+		$hn_tsuserid = 1;
 	}
 
 	//Ensure that arguments have legal characters.
@@ -481,7 +485,7 @@ $dataType,$missingDataValue, $siteId, $blogId, $userid, $friendlyName){
 	$missingDataValue = hn_ts_sanitise($missingDataValue);
 	$siteId = hn_ts_sanitise($siteId);
 	$blogId = hn_ts_sanitise($blogId);
-	$userid = hn_ts_sanitise($userid);
+	$userid = hn_ts_sanitise($hn_tsuserid);
 		
 	try {	
 		/** Insert record into metadata, create table, and add friendly name record */

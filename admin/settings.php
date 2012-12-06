@@ -12,11 +12,24 @@ function hn_ts_add_page() {
 	add_options_page('Timestreams', 'Timestreams', 'manage_options', 'hn_ts_options', 'hn_ts_options_do_page');
 }
 
+class SingleSite{
+	public $site_id =1;
+	public $blog_id =1;
+}
+
 // Draw the menu page itself
 function hn_ts_options_do_page() {
+	if(is_multisite()){
+		global $current_blog;
+	}else{
+		$current_blog = new SingleSite;
+	}
+	
 	?>
 	<div class="wrap">
 		<h2><?php _e('Timestreams Options',HN_TS_NAME); ?></h2>
+		<p><?php _e('Site Id: ',HN_TS_NAME); echo $current_blog->site_id;?></p>
+		<p><?php _e('Blog Id: ',HN_TS_NAME); echo $current_blog->blog_id;?></p>
 		<p><?php _e('Please enter the following values if you are replicating your data through a proxy server.',HN_TS_NAME); ?></p>
 		<form method="post" action="options.php">
 			<?php settings_fields('hn_ts_options'); ?>
