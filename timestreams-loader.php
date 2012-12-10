@@ -28,7 +28,7 @@
 	/**
 	 * Sets up common variables and required files
 	 */
-	function setup(){		
+	function hn_ts_setup(){		
 		// Define the Timestreams version
 		if ( !defined( 'HN_TS_VERSION' ) )
 			define( 'HN_TS_VERSION', '0.8' );
@@ -115,7 +115,7 @@
 		}
 	}
 	
-	setup();
+	hn_ts_setup();
 	
 
 ?>
