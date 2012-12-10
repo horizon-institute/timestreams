@@ -89,7 +89,7 @@
 		if ( !defined( 'ABSPATH' ) ) exit;
 		
 		$hn_bu_db = new HN_BU_Database();
-		$hn_bu_db->hn_bu_createTables();
+		$hn_bu_db->hn_bu_createTables();		
 
 	}
 	
@@ -112,6 +112,43 @@
 			exit($exit_msg);
 		}
 	}
+	
+	/***Schedule database blog/user update every few minutes ***************/
+	add_filter( 'cron_schedules', 'my_corn_schedules');
+	function my_corn_schedules(){
+		return array(
+				'minutely' => array(
+						'interval' => 60,
+						'display' => 'In every Mintue'
+				),
+				'two_minutely' => array(
+						'interval' => 60 * 2,
+						'display' => 'In every two Mintues'
+				),
+				'three_minutely' => array(
+						'interval' => 60 * 3,
+						'display' => 'In every three Mintues'
+				),
+				'five_minutely' => array(
+						'interval' => 60 * 5,
+						'display' => 'In every five Mintues'
+				),
+		);
+	}
+	
+	add_action('hn_bu_cron_hook', 'hn_bu_cron_bloguserupdate');
+	function hn_bu_cron_bloguserupdate(){
+		$hn_bu_db = new HN_BU_Database();
+		$hn_bu_db->hn_bu_addAllUsersBlogs();			
+	}
+	
+	add_action('admin_menu', 'hn_bu_cron_settings');
+	function hn_bu_cron_settings(){
+		if(!wp_next_scheduled('hn_bu_cron_hook')){
+			wp_schedule_event(time(), 'three_minutely', 'hn_bu_cron_hook');
+		}
+	}
+	
 	
 	hn_bu_setup();
 	

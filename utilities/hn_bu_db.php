@@ -39,7 +39,7 @@ class HN_BU_Database {
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
 		$wpdb->query($sql);
 	}
-	
+
 	/**
 	 * Returns db rows with all the siteid and blog ids
 	 */
@@ -48,7 +48,7 @@ class HN_BU_Database {
 		return $wpdb->get_results( 	$wpdb->prepare(
 				"SELECT site_id, blog_id FROM wp_blogs ORDER BY site_id ASC, blog_id ASC;" )	);
 	}
-	
+
 	/**
 	 * Returns db rows with all users
 	 */
@@ -57,7 +57,7 @@ class HN_BU_Database {
 		return $wpdb->get_results( 	$wpdb->prepare(
 				"SELECT ID FROM wp_users;" )	);
 	}
-	
+
 	/**
 	 * Adds items from the given array to a truncated version of bu_blogusers
 	 */
@@ -73,6 +73,20 @@ class HN_BU_Database {
 							'blog_id' => $user_blog[2]
 					)
 			);
+		}
+	}
+	
+	function hn_bu_addAllUsersBlogs(){
+		$user_list = $this->hn_bu_getUserlist();
+		$userblogarray = array();
+		$counter=0;
+		foreach ($user_list AS $user) {
+			$user_blogs = get_blogs_of_user( $user->ID );
+			foreach ($user_blogs AS $user_blog) {
+				$userblogarray[$counter]=array($user->ID, $user_blog->site_id, $user_blog->userblog_id);
+				$counter+=1;
+				$this->hn_bu_setUserBloglist($userblogarray);
+			}
 		}
 	}
 }
