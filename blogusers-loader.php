@@ -98,7 +98,7 @@
 	 * but in the future should clean up the plugin database tables and files.
 	 */
 	function hn_bu_blogusers_deactivate() {
-		//To do: remove database tables
+		wp_clear_scheduled_hook( 'hn_bu_cron_hook' );
 	}
 	
 	/**
