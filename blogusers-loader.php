@@ -68,7 +68,7 @@
 		require_once( HN_BU_PLUGIN_DIR . '/utilities/hn_bu_utilitiesloader.php'     );
 		require_once( HN_BU_PLUGIN_DIR . '/controllers/hn_bu_controllers-loader.php'     );
 		require_once( HN_BU_PLUGIN_DIR . '/views/hn_bu_views-loader.php'     );
-		require_once( HN_BU_PLUGIN_DIR . '/admin/hn_bu_admin-loader.php'     );
+		//require_once( HN_BU_PLUGIN_DIR . '/admin/hn_bu_admin-loader.php'     );
 		
 		// Hook into the dashboard action
 		register_activation_hook(__FILE__, 'hn_bu_blogusers_activate');
