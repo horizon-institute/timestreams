@@ -190,7 +190,7 @@ $app->get('/measurement_container/:name', $hn_ts_authenticate, function($name) u
 		/*global $hn_tsuserid;
 		$sqlStr = hn_ts_sqlblogshare($hn_tsuserid);
 	  	WHERE producer_id=$hn_tsuserid OR tablename IN ($sqlStr)";*/
-		$sql="SELECT * FROM $name LIMIT 1";
+		$sql="SELECT * FROM $name ORDER BY id ASC LIMIT 1";
 		echoJsonQuery($sql, $name);
 	}else if(!strcasecmp($actionValue, "latest")){
 		$sql = "SELECT * FROM $name WHERE id = ( SELECT MAX( id ) FROM $name ) ";
