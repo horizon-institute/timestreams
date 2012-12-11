@@ -922,7 +922,8 @@ function hn_ts_getTimeNow(){
  * @todo Add error checking to update sql commands
  */
 function hn_ts_int_get_timestream_head($timestreamId){
-	$sql = "SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
+	$sql = "SELECT * FROM wp_ts_timestreams 
+	WHERE timestream_id = $timestreamId AND user_id=$hn_tsuserid";
 	$timestream = querySql($sql);
 	if($timestream==null) {
 		hn_ts_error_msg("Timestream not found: $timestreamId", 404);
@@ -1103,14 +1104,15 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 	$currenttime = date ("Y-m-d H:i:s", $newHead);
 	$starttime = date ("Y-m-d H:i:s", $newStart);
 	$endtime = date ("Y-m-d H:i:s", $newEnd);
-	$sql = "SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
+	$sql = "SELECT * FROM wp_ts_timestreams 
+	WHERE timestream_id = $timestreamId AND user_id=$hn_tsuserid";
 
 	$db = getConnection();
 	$stmt = $db->query($sql);
 	$timestreams = $stmt->fetchAll();
 
 	if($timestreams==null) {
-		hn_ts_error_msg("Timestream not found", 404);
+		hn_ts_error_msg("Timestream not found or unauthorised.", 404);
 		return;
 	}
 	/*$wpdb->update('wp_ts_head',
@@ -1148,7 +1150,7 @@ function hn_ts_ext_get_time(){
  * Returns all timestreams
  */
 function hn_ts_ext_get_timestreams(){
-	$sql = "SELECT * FROM wp_ts_timestreams";
+	$sql = "SELECT * FROM wp_ts_timestreams WHERE user_id=$hn_tsuserid";
 	echoJsonQuery($sql, "timestreams");
 }
 
@@ -1158,7 +1160,9 @@ function hn_ts_ext_get_timestreams(){
  */
 function hn_ts_ext_get_timestream_metadata($timestreamId){
 	// mdf - this api call should return the metadata itself, not just the id.
-	$sql = "SELECT metadata_id FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
+	$sql = "SELECT metadata_id 
+	FROM wp_ts_timestreams 
+	WHERE timestream_id = $timestreamId AND user_id=$hn_tsuserid";
 	$timestream = querySql($sql);
 	
 	if($timestream==null) {
