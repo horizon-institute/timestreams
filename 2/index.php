@@ -921,7 +921,8 @@ function hn_ts_getTimeNow(){
  * @param $timestreamId is an id for a timestream
  * @todo Add error checking to update sql commands
  */
-function hn_ts_int_get_timestream_head($timestreamId){
+function hn_ts_int_get_timestream_head($timestreamId){	
+	global $hn_tsuserid;
 	$sql = "SELECT * FROM wp_ts_timestreams 
 	WHERE timestream_id = $timestreamId AND user_id=$hn_tsuserid";
 	$timestream = querySql($sql);
@@ -1104,6 +1105,7 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 	$currenttime = date ("Y-m-d H:i:s", $newHead);
 	$starttime = date ("Y-m-d H:i:s", $newStart);
 	$endtime = date ("Y-m-d H:i:s", $newEnd);
+	global $hn_tsuserid;
 	$sql = "SELECT * FROM wp_ts_timestreams 
 	WHERE timestream_id = $timestreamId AND user_id=$hn_tsuserid";
 
@@ -1149,7 +1151,8 @@ function hn_ts_ext_get_time(){
 /**
  * Returns all timestreams
  */
-function hn_ts_ext_get_timestreams(){
+function hn_ts_ext_get_timestreams(){	
+	global $hn_tsuserid;
 	$sql = "SELECT * FROM wp_ts_timestreams WHERE user_id=$hn_tsuserid";
 	echoJsonQuery($sql, "timestreams");
 }
@@ -1160,6 +1163,7 @@ function hn_ts_ext_get_timestreams(){
  */
 function hn_ts_ext_get_timestream_metadata($timestreamId){
 	// mdf - this api call should return the metadata itself, not just the id.
+	global $hn_tsuserid;
 	$sql = "SELECT metadata_id 
 	FROM wp_ts_timestreams 
 	WHERE timestream_id = $timestreamId AND user_id=$hn_tsuserid";
