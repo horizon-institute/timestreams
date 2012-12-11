@@ -7,13 +7,14 @@ Installation
 -----------
 
 1. Install Timestreams by uploading the files to your server
-2. Activate the Timestreams
-3. That's it. You're ready to go!
+2. Activate the Timestreams plugin
+3. Activate the Blogusers plugin
+4. That's it. You're ready to go!
 
 Contributing
 ------------
 
-1. Fork it.
+1. Fork it
 2. Create a branch (`git checkout -b my_markup`)
 3. Commit your changes (`git commit -am "Added Snarkdown"`)
 4. Push to the branch (`git push origin my_markup`)
