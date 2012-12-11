@@ -679,6 +679,9 @@ function hn_ts_add_measurements($name, $measurements){
 function hn_ts_select_measurements($table, $minimumTime, $maximumTime, $limit,
 		$offset, $sortcolumn, $descending){
 	$table = hn_ts_sanitise($table);
+	if(!hn_ts_isTableAccessibleToUser($table)){
+		hn_ts_error_msg("Unauthorized access to: ".$name , 400);
+	}
 	$minimumTime = hn_ts_sanitise($minimumTime);
 	$maximumTime = hn_ts_sanitise($maximumTime);
 	$limit = hn_ts_sanitise($limit);
@@ -723,7 +726,13 @@ function hn_ts_select_measurements($table, $minimumTime, $maximumTime, $limit,
  * @param $offset (optional) is an integer for the record offset to return
  */
 function hn_ts_select_metadata_by_name($mcName, $limit, $offset){
+	$mcName = hn_ts_sanitise($mcName);
+	$limit = hn_ts_sanitise($limit);
+	$offset = hn_ts_sanitise($offset);
 	if($mcName){
+		if(!hn_ts_isTableAccessibleToUser($mcName)){
+			hn_ts_error_msg("Unauthorized access to: ".$mcName , 400);
+		}
 		$limitstatement = hn_ts_getLimitStatement($limit, $offset);
 		$sql = "SELECT * FROM wp_ts_metadata WHERE tablename='$mcName' $limitstatement";
 		echoJsonQuery($sql, "metadata");
@@ -858,6 +867,9 @@ function hn_ts_update_context($context_id, $context_type, $value, $start_time, $
  */
 function hn_ts_heartbeat($name, $ipaddress){
 	$name = hn_ts_sanitise($name);
+	if(!hn_ts_isTableAccessibleToUser($name)){
+		hn_ts_error_msg("Unauthorized access to: ".$name , 400);
+	}
 	$ipaddress = hn_ts_sanitise($ipaddress);
 	if(!isset($name) || !isset($ipaddress)){
 		hn_ts_error_msg("Missing name or ip address parameter.", 400);
