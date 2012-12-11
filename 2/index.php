@@ -22,6 +22,7 @@ require 'Slim/Slim.php';
 define('HN_TS_DEBUG', false);
 define('HN_TS_VERSION', "v. 2.0.0-Alpha-0.2");
 $app = new Slim();
+$app->response()->header('Access-Control-Allow-Origin', '*');
 $hn_tsuserid=NULL;
 if(HN_TS_DEBUG){
 	$app->getLog()->setEnabled(true);
