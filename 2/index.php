@@ -187,6 +187,9 @@ $app->get('/measurement_container/:name', $hn_ts_authenticate, function($name) u
 		hn_ts_select_measurements($name,$minValue, $maxValue, $limitValue,
 				$offsetValue,$sortValue,$descValue);
 	}else if(!strcasecmp($actionValue, "first")){
+		/*global $hn_tsuserid;
+		$sqlStr = hn_ts_sqlblogshare($hn_tsuserid);
+	  	WHERE producer_id=$hn_tsuserid OR tablename IN ($sqlStr)";*/
 		$sql="SELECT * FROM $name LIMIT 1";
 		echoJsonQuery($sql, $name);
 	}else if(!strcasecmp($actionValue, "latest")){
@@ -435,11 +438,14 @@ function hn_ts_metadata() {
  * Returns the names and friendly names of the measurement containers.
  */
 function hn_ts_list_mc_names(){
+	global $hn_tsuserid;
+	$sqlStr = hn_ts_sqlblogshare($hn_tsuserid);
 	$sql = "SELECT wp_ts_metadata.metadata_id AS id, 
 				wp_ts_metadata.tablename AS name, wp_ts_metadatafriendlynames.friendlyname
 	FROM  wp_ts_metadatafriendlynames 
 	RIGHT JOIN wp_ts_metadata
-	ON wp_ts_metadatafriendlynames.metadata_id=wp_ts_metadata.metadata_id";	
+	ON wp_ts_metadatafriendlynames.metadata_id=wp_ts_metadata.metadata_id
+  	WHERE producer_id=$hn_tsuserid OR tablename IN ($sqlStr)";	
 	echoJsonQuery($sql, "measurementContainers");
 }
 
