@@ -188,17 +188,26 @@ $app->get('/measurement_container/:name', $hn_ts_authenticate, function($name) u
 		hn_ts_select_measurements($name,$minValue, $maxValue, $limitValue,
 				$offsetValue,$sortValue,$descValue);
 	}else if(!strcasecmp($actionValue, "first")){
-		/*global $hn_tsuserid;
-		$sqlStr = hn_ts_sqlblogshare($hn_tsuserid);
-	  	WHERE producer_id=$hn_tsuserid OR tablename IN ($sqlStr)";*/
-		$sql="SELECT * FROM $name ORDER BY id ASC LIMIT 1";
-		echoJsonQuery($sql, $name);
+		if(hn_ts_isTableAccessibleToUser($name)){
+			$sql="SELECT * FROM $name ORDER BY id ASC LIMIT 1";
+			echoJsonQuery($sql, $name);
+		}else{
+			hn_ts_error_msg("Unauthorized access to: ".$name , 400);			
+		}
 	}else if(!strcasecmp($actionValue, "latest")){
-		$sql = "SELECT * FROM $name WHERE id = ( SELECT MAX( id ) FROM $name ) ";
-		echoJsonQuery($sql, $name);
+		if(hn_ts_isTableAccessibleToUser($name)){
+			$sql = "SELECT * FROM $name WHERE id = ( SELECT MAX( id ) FROM $name ) ";
+			echoJsonQuery($sql, $name);
+		}else{
+			hn_ts_error_msg("Unauthorized access to: ".$name , 400);
+		}
 	}else if(!strcasecmp($actionValue, "count")){
-		$sql="SELECT COUNT(*) FROM $name;";
-		echoJsonQuery($sql, $name);
+		if(hn_ts_isTableAccessibleToUser($name)){
+			$sql="SELECT COUNT(*) FROM $name;";
+			echoJsonQuery($sql, $name);
+		}else{
+			hn_ts_error_msg("Unauthorized access to: ".$name , 400);
+		}
 	}
 });
 $app->post('/measurement/:id', $hn_ts_authenticate, function($name) use ($app) {
@@ -403,20 +412,47 @@ function hn_ts_sanitise($arg){
  * @param $userId is a SQL user id
  * @returns a String taht can be used in a SQL statement such as:
  * 	$sqlStr = hn_ts_sqlblogshare($id);
- * 	 WHERE producer_id=$id OR tablename IN ($sqlStr)
+ * 	 WHERE producer_id=$id OR $sqlStr
  */
 function hn_ts_sqlblogshare($userId){
 	return "
-		(
-		    SELECT share.table_name
-		    FROM `wp_bu_blogusers` blogusers
-		    JOIN (
-		     SELECT table_name, site_id, blog_id
-		     FROM `wp_ts_container_shared_with_blog`
-		    ) share ON (share.site_id = blogusers.site_id AND share.blog_id = blogusers.blog_id )
-		    WHERE blogusers.user_id =$userId
-		)
+		tablename IN (
+    SELECT share.table_name
+    FROM `wp_bu_blogusers` blogusers
+    JOIN (
+     SELECT table_name, site_id, blog_id
+     FROM `wp_ts_container_shared_with_blog`
+    ) share ON (share.site_id = blogusers.site_id AND 
+    			share.blog_id = blogusers.blog_id )
+    WHERE blogusers.user_id =$userId
+) OR ( producer_blog_id in (
+    SELECT blog_id
+    FROM `wp_bu_blogusers` blogusers
+    WHERE blogusers.user_id =$userId
+) AND producer_site_id in (
+    SELECT site_id
+    FROM `wp_bu_blogusers` blogusers
+    WHERE blogusers.user_id =$userId
+))
 	";
+}
+
+/**
+ * Checks if the given user can access the given table
+ * @param $table is a measurement container table name
+ */
+function hn_ts_isTableAccessibleToUser($table){
+	global $hn_tsuserid;
+	$sqlStr = hn_ts_sqlblogshare($hn_tsuserid);
+	$sql = "SELECT COUNT(*) AS count FROM wp_ts_metadata
+	WHERE tablename = '$table' AND 
+	(producer_id=$hn_tsuserid OR $sqlStr) ";
+	$rows = querySql($sql);
+	if(count($rows)>0 && $rows[0]->count > 0){
+		return true;
+	}else{
+		return false;
+	}
 }
 
 /** API Callback functions ***************************************************/
@@ -431,7 +467,7 @@ function hn_ts_metadata() {
 	FROM wp_ts_metadata
 	LEFT JOIN wp_ts_metadatafriendlynames
 	ON wp_ts_metadatafriendlynames.metadata_id=wp_ts_metadata.metadata_id
-  	WHERE producer_id=$hn_tsuserid OR tablename IN ($sqlStr)";
+  	WHERE producer_id=$hn_tsuserid OR $sqlStr";
 	echoJsonQuery($sql, "metadata");
 }
 
@@ -446,7 +482,7 @@ function hn_ts_list_mc_names(){
 	FROM  wp_ts_metadatafriendlynames 
 	RIGHT JOIN wp_ts_metadata
 	ON wp_ts_metadatafriendlynames.metadata_id=wp_ts_metadata.metadata_id
-  	WHERE producer_id=$hn_tsuserid OR tablename IN ($sqlStr)";	
+  	WHERE producer_id=$hn_tsuserid OR $sqlStr";	
 	echoJsonQuery($sql, "measurementContainers");
 }
 
