@@ -393,16 +393,41 @@ function hn_ts_sanitise($arg){
 	}
 }
 
+/**
+ * Returns a SQL statement for fetching tables that have been shared
+ * with the given user and the sites/blogs belonged to
+ * @param $userId is a SQL user id
+ * @returns a String taht can be used in a SQL statement such as:
+ * 	$sqlStr = hn_ts_sqlblogshare($id);
+ * 	 WHERE producer_id=$id OR tablename IN ($sqlStr)
+ */
+function hn_ts_sqlblogshare($userId){
+	return "
+		(
+		    SELECT share.table_name
+		    FROM `wp_bu_blogusers` blogusers
+		    JOIN (
+		     SELECT table_name, site_id, blog_id
+		     FROM `wp_ts_container_shared_with_blog`
+		    ) share ON (share.site_id = blogusers.site_id AND share.blog_id = blogusers.blog_id )
+		    WHERE blogusers.user_id =$userId
+		)
+	";
+}
+
 /** API Callback functions ***************************************************/
 
 /**
  * Returns wp_ts_metadata entries
  */
 function hn_ts_metadata() {
+	global $hn_tsuserid;
+	$sqlStr = hn_ts_sqlblogshare($hn_tsuserid);
 	$sql = "SELECT wp_ts_metadata.*, wp_ts_metadatafriendlynames.friendlyname
 	FROM wp_ts_metadata
 	LEFT JOIN wp_ts_metadatafriendlynames
-	ON wp_ts_metadatafriendlynames.metadata_id=wp_ts_metadata.metadata_id";	;
+	ON wp_ts_metadatafriendlynames.metadata_id=wp_ts_metadata.metadata_id
+  	WHERE producer_id=$hn_tsuserid OR tablename IN ($sqlStr)";
 	echoJsonQuery($sql, "metadata");
 }
 
