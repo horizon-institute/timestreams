@@ -263,7 +263,7 @@ $app->get('/timestream/name/:name', function() use ($app) {
 	$lastTimestamp = $app->request()->get('last');
 	hn_ts_int_get_timestream_data($args[0], $limit, $offset, $lastTimestamp);
 });
-$app->get('/timestream/head/:id', $hn_ts_authenticate, 'hn_ts_int_get_timestream_head');
+$app->get('/timestream/head/:id', 'hn_ts_int_get_timestream_head');
 $app->put('/timestream/head/:id', $hn_ts_authenticate, function() use ($app) {
 	$args=func_get_args();
 	$newHead = $app->request()->put('curtime');
@@ -922,9 +922,9 @@ function hn_ts_getTimeNow(){
  * @todo Add error checking to update sql commands
  */
 function hn_ts_int_get_timestream_head($timestreamId){	
-	global $hn_tsuserid;
+	//global $hn_tsuserid;
 	$sql = "SELECT * FROM wp_ts_timestreams 
-	WHERE timestream_id = $timestreamId AND user_id=$hn_tsuserid";
+	WHERE timestream_id = $timestreamId;// AND user_id=$hn_tsuserid";
 	$timestream = querySql($sql);
 	if($timestream==null) {
 		hn_ts_error_msg("Timestream not found: $timestreamId", 404);
