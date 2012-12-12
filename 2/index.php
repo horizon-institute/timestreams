@@ -924,7 +924,7 @@ function hn_ts_getTimeNow(){
 function hn_ts_int_get_timestream_head($timestreamId){	
 	//global $hn_tsuserid;
 	$sql = "SELECT * FROM wp_ts_timestreams 
-	WHERE timestream_id = $timestreamId;// AND user_id=$hn_tsuserid";
+	WHERE timestream_id = $timestreamId";// AND user_id=$hn_tsuserid";
 	$timestream = querySql($sql);
 	if($timestream==null) {
 		hn_ts_error_msg("Timestream not found: $timestreamId", 404);
