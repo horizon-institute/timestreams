@@ -34,7 +34,8 @@
 		if(!isset($_POST["hn_ts_ajax_repl_id"])){
 			die('');
 		}else{
-			echo hn_ts_replicate_full($_POST["hn_ts_ajax_repl_id"]);
+			//echo hn_ts_replicate_full($_POST["hn_ts_ajax_repl_id"]);
+			echo hn_ts_replicate_partial($_POST["hn_ts_ajax_repl_id"]);			
 		}
 		die();	
 	}

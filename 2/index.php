@@ -107,7 +107,7 @@ $hn_ts_authenticate = function () {
 	if(0 != strcmp ( $hash , $hmac )){
 		//echo "hmac: $hmac<br/>";
 		//echo "hash: $hash<br/>";
-		hn_ts_error_msg("Invalid parameter: hmac", 400);
+		hn_ts_error_msg("Invalid parameter: hmac -- $toHash", 400);
 	}
 	global $hn_tsuserid;
 	$hn_tsuserid=$rows[0]->userid;
@@ -1543,7 +1543,6 @@ function describeAPI(){
 	hn_ts_document_measurements();
 	hn_ts_document_context();
 	hn_ts_document_timestream();
-	hn_ts_document_heartbeat();
 	echo '</ul></div></body></html>';
 
 	/**
