@@ -12,6 +12,7 @@ require_once(ABSPATH . WPINC . '/class-wp-xmlrpc-server.php');
 /**
  * Controls calls to the database for timestreams
  * @author pszjmb
+ * @todo replace "wp" with $wpdb->prefix
  *
  */
 class Hn_TS_Database {
@@ -92,17 +93,18 @@ class Hn_TS_Database {
 		$wpdb->query($sql);
 
 		$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_replication (
-		replication_id bigint(20) unsigned NOT NULL AUTO_INCREMENT COLLATE utf8_unicode_ci,
-		local_user_id bigint(20) unsigned NOT NULL COLLATE utf8_unicode_ci,
-		local_table varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-		remote_user_login varchar(60) NOT NULL COLLATE utf8_unicode_ci,
-		remote_user_pass varchar(64) NOT NULL COLLATE utf8_unicode_ci,
-		remote_url varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-		remote_table varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-		continuous boolean COLLATE utf8_unicode_ci NOT NULL,
-		last_replication varchar(75) COLLATE utf8_unicode_ci NULL,
-		PRIMARY KEY  (replication_id)
-		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';			
+			  `replication_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			  `mylock` timestamp NULL DEFAULT NULL,
+			  `local_user_id` bigint(20) unsigned NOT NULL,
+			  `local_table` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+			  `remote_user_login` varchar(60) COLLATE utf8_unicode_ci NOT NULL,
+			  `remote_user_pass` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+			  `remote_url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+			  `remote_table` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+			  `continuous` tinyint(1) NOT NULL,
+			  `last_replication` varchar(75) COLLATE utf8_unicode_ci DEFAULT NULL,
+			  PRIMARY KEY (`replication_id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';			
 		$wpdb->query($sql);
 		
 		$sql = 'CREATE  TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_container_shared_with_blog (
@@ -1524,7 +1526,8 @@ class Hn_TS_Database {
 	 */
 	function hn_ts_getReplRow($replRowId){
 		global $wpdb;
-		return $wpdb->get_row('SELECT * FROM '.$wpdb->prefix.'ts_replication'.
+		return $wpdb->get_row(
+				'SELECT * FROM '.$wpdb->prefix.'ts_replication'.
 				' WHERE replication_id='.$replRowId);
 	}
 
@@ -1618,5 +1621,32 @@ class Hn_TS_Database {
 						'publickey' => $pubkey)
 		);
 	}
-}
+	
+	function hn_ts_replLock($rowId){
+		global $wpdb;
+		return $wpdb->query(
+				"
+					UPDATE wp_ts_replication 
+					SET mylock = NOW() 
+					WHERE replication_id = $rowId 
+					AND (mylock IS NULL OR now( ) - mylock >10)
+				"
+		);
+	}
+	
+	function hn_ts_replUnlock($rowId){
+		global $wpdb;
+		return $wpdb->query(
+				"
+					UPDATE wp_ts_replication 
+					SET mylock = NULL 
+					WHERE replication_id = $rowId
+				"
+		);
+	}
+}/*
+
+	$repls = $wpdb->get_results( 	$wpdb->prepare(
+			";" )	);
+			*/
 ?>

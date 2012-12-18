@@ -72,10 +72,18 @@
 	
 		require_once( HN_TS_PLUGIN_DIR . '/admin/visualisation.php'     );
 		
+		
+		if(!wp_next_scheduled('hn_ts_cron_replication')){
+			wp_schedule_event(
+					time(), 'minutely', 'minutely_replication');
+		}
+		
 		// Hook into the dashboard action
 		register_activation_hook(__FILE__, 'hn_ts_timestreams_activate');
 		register_deactivation_hook(__FILE__, 'hn_ts_timestreams_deactivate');
+		
 	}
+	add_action('minutely_replication', 'hn_ts_continuousReplication');
 	
 	function timestreams_init() {
 		$plugin_path = dirname( plugin_basename( __FILE__ ) ) ;
@@ -83,6 +91,14 @@
 	}
 	add_action('init', 'timestreams_init');
 
+	add_filter('cron_schedules', 'add_scheduled_interval');
+	
+	// add once a minute to wp schedules
+	function add_scheduled_interval($schedules) {
+	
+		$schedules['minutely'] = array('interval'=>60, 'display'=>'Once a minute');
+		return $schedules;
+	}
 	/**
 	 * Plugin activation. This creates the initial multisite tables.
 	 */
@@ -101,6 +117,7 @@
 	 */
 	function hn_ts_timestreams_deactivate() {
 		//To do: remove database tables
+		wp_clear_scheduled_hook('my_hourly_event');
 	}
 	
 	/**

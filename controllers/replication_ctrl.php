@@ -206,20 +206,41 @@ function hn_ts_getExternalLatestReading($replRow){
 }
 
 /**
+ * Calls partial replication for all replication db entries that are marked as continuous
+ */
+function hn_ts_continuousReplication(){
+	global $wpdb;	
+	$repls = $wpdb->get_results( 	$wpdb->prepare(
+			"SELECT replication_id FROM wp_ts_replication 
+			WHERE continuous=1;" )	);
+	foreach ( $repls as $repl )
+	{
+		call_user_func('hn_ts_replicate_partial',$repl->replication_id);
+	}
+}
+
+/**
  * Performs a partial copy of a local table to a remote table.
- * @param $replRecord is a row from the Replication Table
+ * @param $replRecord is a row id from the Replication Table
  * @return mixed|string, on success the replication response and time started or 'Replication failed.'
  */
-function hn_ts_replicate_partial($replRow){
-	
+function hn_ts_replicate_partial($replRowId){	
 	$db = new Hn_TS_Database();
-	$replRow = $db->hn_ts_getReplRow($replRow);
+	$replRow = $db->hn_ts_getReplRow($replRowId);
 	
 	if ($replRow != null) {
+		// Acquire replication lock
+		$lockres = $db->hn_ts_replLock($replRowId);
+		if($lockres < 1){
+			return  __("Replication aborted. Couldn\'t acquire lock for id $replRow->replication_id.",HN_TS_NAME);
+		}
+		
 		// get most recent record from external table (which could be empty)
 		$response = hn_ts_getExternalLatestReading($replRow);
 		if(null == $response){
-			return hn_ts_replicate_full($replRow->replication_id);
+			$res = hn_ts_replicate_full($replRow->replication_id);
+			// unlock
+			return $res;
 		}else{
 			$db = new Hn_TS_Database();
 			$date = new DateTime();
@@ -240,8 +261,12 @@ function hn_ts_replicate_partial($replRow){
 					
 				$resp = replicateRest($replRow, $measurements);
 				$db->hn_ts_updateReplRow($replRow->replication_id, $resp."<br />".$date);
+				// unlock
+				$lockres = $db->hn_ts_replUnlock($replRowId);
 				return $resp."<br />".$date;
-			}else{				
+			}else{		
+				// unlock
+				$lockres = $db->hn_ts_replUnlock($replRowId);
 				return __("No insertions to make.<br />",HN_TS_NAME).$date;
 			}
 		}
