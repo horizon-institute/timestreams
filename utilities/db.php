@@ -1644,6 +1644,17 @@ class Hn_TS_Database {
 				"
 		);
 	}
+		
+	function hn_ts_removeReplicationRecord(){
+		global $wpdb;
+		return $wpdb->query($wpdb->prepare( 
+				"
+				DELETE FROM wp_ts_replication
+				WHERE replication_id = %d
+				", $rowId
+				)
+		);
+	}
 }/*
 
 	$repls = $wpdb->get_results( 	$wpdb->prepare(

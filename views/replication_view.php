@@ -77,7 +77,10 @@
 			<?php 
 			$db = new Hn_TS_Database();			
 			global $wpdb;
-			$rows = $db->hn_ts_select($wpdb->prefix.'ts_replication');
+			global $current_user;
+			get_currentuserinfo();
+			$rows = $db->hn_ts_select($wpdb->prefix.'ts_replication'.
+					" WHERE local_user_id = $current_user->ID");
 			if($rows){
 				global $pagenow;
 				$screen = get_current_screen();

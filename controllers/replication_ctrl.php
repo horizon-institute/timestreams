@@ -439,4 +439,5 @@ if(isset($_POST['local_table']) && $_POST['local_table'] &&
 	);
 	_e('Record added.',HN_TS_NAME);
 }
+var_dump($_POST);
 }
