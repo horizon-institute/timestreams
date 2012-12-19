@@ -403,16 +403,6 @@ class Hn_TS_Database {
 	}
 
 	/**
-	 * Retrieves a count from a table
-	 * @param $table is the table to count
-	 */
-	function getCount($table){
-		global $wpdb;
-		$sql="SELECT COUNT(*) FROM $table;";
-		return $wpdb->get_var($wpdb->prepare($sql));
-	}
-
-	/**
 	 * Selects all from a table
 	 * @param  $table is the table to select from
 	 */
