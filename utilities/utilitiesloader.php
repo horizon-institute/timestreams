@@ -14,5 +14,4 @@
 	
 	// Require utility files
 	require_once( HN_TS_UTILITES_DIR . '/db.php'     );
-	require_once( HN_TS_UTILITES_DIR . '/external.php'     );
 ?>

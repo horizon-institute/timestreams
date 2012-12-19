@@ -403,27 +403,6 @@ class Hn_TS_Database {
 	}
 
 	/**
-	 * Retrieves the count from a readings table of the form
-	 * wp_[blog-id]_ts_[measurement-type]_[device-id]
-	 * @param $args is an array in the expected format of:
-	 * [0]username
-	 * [1]password
-	 * [2]table name
-	 * To do: Sanitise parameters
-	 * @return the result of the select
-	 */
-	function hn_ts_count_readings($args){
-		global $wpdb;
-		if(count($args) != 3){
-			return $this->missingcontainername;
-		}
-			
-		$table=$args[2];
-			
-		return $this->getCount($table);
-	}
-
-	/**
 	 * Retrieves a count from a table
 	 * @param $table is the table to count
 	 */
