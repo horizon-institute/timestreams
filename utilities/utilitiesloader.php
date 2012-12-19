@@ -14,13 +14,5 @@
 	
 	// Require utility files
 	require_once( HN_TS_UTILITES_DIR . '/db.php'     );
-	require_once( HN_TS_UTILITES_DIR . '/xml_rpc.php'     );
 	require_once( HN_TS_UTILITES_DIR . '/external.php'     );
-	
-	$spdbxml = new HN_TS_SensorDB_XML_RPC();
-	if(isset($spdbxml)){
-		// Pass the Wordpress xmlrpc methods filter data to the SensorDataView 
-		//add_new_xmlrpc_methods function
-		add_filter( 'xmlrpc_methods', array(&$spdbxml, 'add_new_xmlrpc_methods'));
-	}
 ?>

@@ -144,10 +144,13 @@ class Hn_TS_Database {
 	 * @param $type is the type of measurement taken (such as temperature)
 	 * @param $deviceId is the id for the device that took the readings
 	 * @param $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
-	 * To do: Sanitise inputs
 	 */
 	function hn_ts_createMeasurementTable($blogId, $type, $deviceId,$dataType){
 		global $wpdb;
+		$blogId=absint($blogId);
+		$deviceId=absint($deviceId);
+		$type = sanitize_text_field($type);
+		$dataType = sanitize_text_field($dataType);
 		$tablename = $wpdb->prefix.$blogId.'_ts_'.$type.'_'.$deviceId;
 		$idName = 'id';//$type.'_'.$blogId.'_'.$deviceId.'_id';
 		$sql =
@@ -158,7 +161,7 @@ class Hn_TS_Database {
 		transaction_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		PRIMARY KEY  ('.$idName.')
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
-		dbDelta($sql);
+		dbDelta($sql);  
 			
 		return $tablename;
 	}
