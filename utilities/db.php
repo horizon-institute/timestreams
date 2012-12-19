@@ -144,6 +144,7 @@ class Hn_TS_Database {
 	 * @param $type is the type of measurement taken (such as temperature)
 	 * @param $deviceId is the id for the device that took the readings
 	 * @param $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
+	 * @return the table name or null on failure
 	 */
 	function hn_ts_createMeasurementTable($blogId, $type, $deviceId,$dataType){
 		global $wpdb;
@@ -161,9 +162,12 @@ class Hn_TS_Database {
 		transaction_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		PRIMARY KEY  ('.$idName.')
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
-		dbDelta($sql);  
-			
-		return $tablename;
+		
+		if(1 == $wpdb->query($sql)){ // using query instead of dbDelta for consistent return type 
+			return $tablename;
+		} else{
+			return null;
+		}			
 	}
 
 	/**
@@ -181,10 +185,11 @@ class Hn_TS_Database {
 	 * @param $missingDataValue is a value of type $dataType which represents rows in the timeseries with unknown values.
 	 * @param $siteId site that owns the measurement container
 	 * @param $blogId blog that owns the measurement container
-	 * To do: Sanitise inputs
 	 * @change 01/11/2012 - Modified by JMB to handle siteId and BlogId
+	 * @change 19/12/2012 - Modified by JMB to handle invalid characters and sanitisation correctly
 	 */
-	function hn_ts_addMetadataRecord($blog_id='', $measurementType, $minimumvalue, $maximumvalue,
+	function hn_ts_addMetadataRecord($blog_id='', $measurementType, 
+			$minimumvalue, $maximumvalue,
 			$unit, $unitSymbol, $deviceDetails, $otherInformation, 
 			$dataType,$missingDataValue,$siteId=1){
 		global $wpdb;
@@ -211,10 +216,14 @@ class Hn_TS_Database {
 				"SHOW TABLE STATUS LIKE 'wp_ts_metadata';" )
 		);
 		$nextdevice=$nextdevice->Auto_increment;
-		$tablename = $wpdb->prefix.$blog_id.'_ts_'.$measurementType.'_'.$nextdevice;
+		$tablename = $this->hn_ts_createMeasurementTable(
+				$blog_id, $measurementType, $nextdevice, $dataType);
+		if($tablename == null){
+			return null;
+		}
 		global $current_user;
 		get_currentuserinfo();
-		$wpdb->insert(
+		return $wpdb->insert(
 				'wp_ts_metadata',
 				array( 	'tablename' => $tablename,
 						'measurement_type' => $measurementType,
@@ -229,10 +238,9 @@ class Hn_TS_Database {
 						'producer_site_id' => $siteId,
 						'producer_blog_id' => $blog_id,
 						'producer_id' => $current_user->ID),
-				array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' , '%s','%s', '%s' , '%s' )
+				array( '%s', '%s', '%s', '%s', '%s', '%s', 
+						'%s' , '%s','%s', '%s' , '%s' )
 		);
-			
-		return $this->hn_ts_createMeasurementTable($blog_id, $measurementType, $nextdevice, $dataType);
 	}
 
 	/**

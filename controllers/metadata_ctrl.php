@@ -18,7 +18,7 @@
 			<form id="metadataform" method="post" action="">
 				<table class="form-table">
 			        <tr valign="top">
-				        <th scope="row"><?php _e('What are you measuring',HN_TS_NAME); ?>? *</th>
+				        <th scope="row"><?php _e('What are you measuring',HN_TS_NAME); ?>?*</th>
 				        <td>
 					        <input type="text" name="measurement_type"  />
 					    </td>
@@ -38,7 +38,7 @@
 			        </tr>
 			        
 			        <tr valign="top">
-			        <th scope="row"><?php _e('What is the unit of measurement (e.g. Celsius, png image file)?',HN_TS_NAME); ?>
+			        <th scope="row"><?php _e('What is the unit of measurement (e.g. Celsius, png image file)?*',HN_TS_NAME); ?>
 			        </th>
 			        <td><input type="text" name="unit" /></td>
 			        </tr>
@@ -82,17 +82,32 @@
 			</div>
 			<hr />
 			<?php
-				if(isset($_POST['measurement_type']) && $_POST['measurement_type'] && 
-					isset($_POST['unit']) && $_POST['unit'] &&
-					isset($_POST['datatype']) && $_POST['datatype']) {
+				if(!count($_POST)){
+					return;
+				}
+				if(isset($_POST['measurement_type']) && 
+					isset($_POST['unit']) &&
+					isset($_POST['datatype'])) {
 					$db = new Hn_TS_Database();
-					$db->hn_ts_addMetadataRecord("",
+					$table = $db->hn_ts_addMetadataRecord("",
 						$_POST['measurement_type'], $_POST['minimum'], 
 						$_POST['maximum'], $_POST['unit'], $_POST['unit_symbol'], 
 						$_POST['device'], $_POST['other'],$_POST['datatype'],
 						$_POST['missingDataValue']
 					);
-					echo 'Record added.';
+					if(isset($table)){
+						if(0==strcmp("integer",gettype($table))){
+							echo "Record added: $table";
+							return;
+						} else if(
+								0==strcmp("object",gettype($table)) && 
+								0==strcmp(get_class($table),"IXR_Error")){
+							echo $table->message;
+							return;
+						}
+						
+					} 
+					echo "Unable to add record.";
 				}	
 			}
 /**
