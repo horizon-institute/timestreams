@@ -81,6 +81,8 @@
 			get_currentuserinfo();
 			$rows = $db->hn_ts_select($wpdb->prefix.'ts_replication'.
 					" WHERE local_user_id = $current_user->ID");
+			//echo("numrows");
+			//var_dump($rows);
 			if($rows){
 				global $pagenow;
 				$screen = get_current_screen();

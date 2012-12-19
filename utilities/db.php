@@ -911,7 +911,7 @@ class Hn_TS_Database {
 			global $current_user;
 			get_currentuserinfo();
 			return $wpdb->insert( $wpdb->prefix.'ts_replication',
-					array('local_user_id' => $current_user->user_ID,
+					array('local_user_id' => $current_user->ID,
 				 		'local_table' => $args[2],
 							'remote_user_login' => $args[3],
 				 		'remote_user_pass' => $args[4],

@@ -426,6 +426,7 @@ $cont = 0;
 if(isset($_POST['continuous']) && $_POST['continuous'] == 'Yes'){
 	$cont = 1;
 }
+$replication = null;
 if(isset($_POST['local_table']) && $_POST['local_table'] &&
 		isset($_POST['remote_user_login']) && $_POST['remote_user_login'] &&
 		isset($_POST['pwrd']) && $_POST['pwrd'] &&
@@ -438,6 +439,8 @@ if(isset($_POST['local_table']) && $_POST['local_table'] &&
 			$cont,"")
 	);
 	_e('Record added.',HN_TS_NAME);
+}else{
+	_e('Record not added. Missing required field(s).',HN_TS_NAME);
 }
-var_dump($_POST);
+//var_dump($replication);
 }
