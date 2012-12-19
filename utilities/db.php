@@ -138,6 +138,21 @@ class Hn_TS_Database {
 		
 		//For some reason dbDelta wasn't working for all of the tables :(
 	}
+	
+	/**
+	 * Really simple sanitisation for input parameters.
+	 * @param is a String to be sanitized $arg
+	 * @return a String containing only -a-zA-Z0-9_ or NULL
+	 * @todo Improve this to better sanitise the inputs
+	 */
+	function hn_ts_sanitise($arg){
+		if(isset($arg)){
+			return preg_replace('/[^-a-zA-Z0-9_\s:\/.]/', '_', (string)$arg);
+		}else{
+			return null;
+		}
+	}
+	
 	/**
 	 * Creates a sensor measurement table for a site.
 	 * @param $blogId is the id for the site that the sensor belongs to
@@ -275,7 +290,6 @@ class Hn_TS_Database {
 	 * [6]offset -- optional
 	 * [7]sort by column -- optional
 	 * [8]descending boolean -- optional
-	 * To do: Sanitise parameters
 	 * @return the result of the select
 	 */
 	function hn_ts_get_readings_from_name($args){
@@ -311,8 +325,13 @@ class Hn_TS_Database {
 			if($descending)
 				$sort .= " DESC";
 		}
-		return $wpdb->get_results( 	$wpdb->prepare(
-				"SELECT * FROM $table $where $sort $limit;" )	);
+		
+		$table=$this->hn_ts_sanitise($table);
+		$where=$this->hn_ts_sanitise($where);
+		$sort=$this->hn_ts_sanitise($sort);
+		$limit= $this->hn_ts_sanitise($limit);
+		
+		return $wpdb->get_results("SELECT * FROM $table $where $sort $limit;");
 	}
 
 	/**
@@ -324,13 +343,16 @@ class Hn_TS_Database {
 	 * [2]table name
 	 * [3]minimum timestamp
 	 * [4]maximum timestamp
-	 * To do: Sanitise parameters
 	 * @return the result of the select
 	 */
 	function hn_ts_get_count_from_name($args){
 		global $wpdb;
 		if(count($args) < 3){
 			return $this->missingcontainername;
+		}
+		$argcount=0;
+		foreach($args as $arg){
+			$args[$argcount++]=$this->hn_ts_sanitise($arg);
 		}
 		$table=$args[2];
 		$minimumTime=$args[3];
@@ -352,26 +374,6 @@ class Hn_TS_Database {
 		return $wpdb->get_var(
 				$wpdb->prepare("SELECT COUNT(*) FROM $table $where;" )
 		);
-	}
-
-	/**
-	 * Retrieves the first record from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
-	 * @param $args is an array in the expected format of:
-	 * [0]username
-	 * [1]password
-	 * [2]table name
-	 * To do: Sanitise parameters
-	 * @return the result of the select
-	 */
-	function hn_ts_get_first_reading($args){
-		global $wpdb;
-		if(count($args) != 3){
-			return $this->missingcontainername;
-		}
-
-		$table=$args[2];
-			
-		return $wpdb->get_row( 	$wpdb->prepare("SELECT * FROM $table LIMIT 1" )	);
 	}
 
 	/**
