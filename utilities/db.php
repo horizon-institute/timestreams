@@ -376,32 +376,6 @@ class Hn_TS_Database {
 		);
 	}
 
-	/**
-	 * Retrieves the records from a metadata table for tables of the form:
-	 * wp_[blog-id]_ts_[measurement-type]_[device-id]
-	 * @param $args is an array in the expected format of:
-	 * [0]username
-	 * [1]password
-	 * [2]table name
-	 * [3]limit -- optional
-	 * [4]offset -- optional
-	 * To do: Sanitise parameters
-	 * @return the result of the select
-	 */
-	function hn_ts_get_metadata_by_name($args){
-		global $wpdb;
-		if(count($args) != 5){
-			return $this->missingcontainername;
-		}
-			
-		$table=$args[2];
-			
-		$limit=$this->hn_ts_getLimitStatement($args[3], $args[4]);
-			
-		return $wpdb->get_results( 	$wpdb->prepare(
-				"SELECT * FROM wp_ts_metadata WHERE tablename='$table' $limit" )	);
-	}
-
 	/** Retrieves replication records for tables of the form:
 	 * wp_[blog-id]_ts_[measurement-type]_[device-id]
 		* @param $args is an array in the expected format of:
