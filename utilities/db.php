@@ -193,6 +193,8 @@ class Hn_TS_Database {
 			$unit, $unitSymbol, $deviceDetails, $otherInformation, 
 			$dataType,$missingDataValue,$siteId=1){
 		global $wpdb;
+		$blogId=absint($blogId);
+		$siteId=absint($siteId);
 		if($blog_id==''){
 			global $blog_id;
 		}
@@ -258,36 +260,6 @@ class Hn_TS_Database {
 			}
 		}
 		return $limit;
-	}
-
-	/**
-	 * Retrieves records from a readings table of the form wp_[blog-id]_ts_[measurement-type]_[device-id]
-	 * @param integer $blogId is the id of the blog to select from
-	 * @param String $measurementType is the type of measurement such as temperatureto select from
-	 * @param integer $deviceId is the id of the device to select from
-	 * @param timestamp $minimumTime is the lowest timestamp to select from (can be null)
-	 * @param timestamp $maximumTime is the maximum timestamp to select from (can be null)
-	 * To do: Sanitise parameters
-	 * @return the result of the select
-	 */
-	function hn_ts_get_readings($blogId, $measurementType, $deviceId,
-			$minimumTime, $maximumTime){
-		global $wpdb;
-		$table="wp_$blogId_ts_$measurementType_$deviceId";
-		$where="WHERE ";
-		if($minimum){
-			$where=$where."valid_time > $minimumTime ";
-
-			if($maximumTime){
-				$where=$where."AND valid_time < $maximumTime";
-			}
-		}else if($maximumTime){
-			$where=$where."valid_time < $maximumTime";
-		}
-		if(0==strcmp($where,"WHERE ")){
-			$where="";
-		}
-		return $wpdb->get_var( 	$wpdb->prepare("SELECT * FROM $table $where;" )	);
 	}
 
 	/**
