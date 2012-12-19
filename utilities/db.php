@@ -168,54 +168,6 @@ class Hn_TS_Database {
 
 	/**
 	 * Adds records to the wp_ts_metadata table
-	 * @param String $blog_id
-	 * @param String $measurementType
-	 * @param String $minimumvalue
-	 * @param String $maximumvalue
-	 * @param String $unit
-	 * @param String $unitSymbol
-	 * @param String $deviceDetails
-	 * @param String $otherInformation
-	 * @param $dataType is the type of value to use. Any MySQL type (such as decimal(4,1) ) is a legal value.
-	 * @param $missingDataValue is a value of type $dataType which represents rows in the timeseries with unknown values.
-	 * @param $siteId site that owns the measurement container
-	 * @param $blogId blog that owns the measurement container
-	 * @param $friendlyname is a unique friendly name given to the tables
-	 * @return an xml error else the name of the table created.
-	 * To do: Sanitise inputs
-	 * @change 01/11/2012 - Modified by JMB to handle siteId and BlogId
-	 */
-	function hn_ts_addMetadataRecord2($blog_id='', $measurementType, $minimumvalue, $maximumvalue,
-			$unit, $unitSymbol, $deviceDetails, $otherInformation, 
-			$dataType,$missingDataValue,$siteId=1,$friendlyname){
-		if(!isset($friendlyname)){
-			return new IXR_Error(400, __('Friendly name is missing.',HN_TS_NAME));
-		}		
-		global $wpdb;
-		$value =  $wpdb->get_var( 	
-				$wpdb->prepare("SELECT * FROM wp_ts_metadatafriendlynames WHERE 
-						friendlyname = '$friendlyname';" )	);
-		if(isset($value)){
-			return new IXR_Error(400, __('Friendly name is already used.',HN_TS_NAME));
-		}
-		
-		$recordname = hn_ts_addMetadataRecord($blog_id, $measurementType, $minimumvalue, $maximumvalue,
-				$unit, $unitSymbol, $deviceDetails, $otherInformation,
-				$dataType,$missingDataValue,$siteId);
-		
-		
-		$id =  $wpdb->get_var( 	$wpdb->prepare("SELECT * FROM wp_ts_metadata WHERE tablename = '$recordname';" )	);
-		$wpdb->insert(
-				'wp_ts_metadatafriendlynames',
-				array( 	'metadata_id' => $id,
-						'friendlyname' => $friendlyname),
-				array( '%s', '%s')
-		);		
-		return $recordname;
-	}
-
-	/**
-	 * Adds records to the wp_ts_metadata table
 	 * @deprecated Use the version with the friendly id
 	 * @param String $blog_id
 	 * @param String $measurementType
