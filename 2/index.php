@@ -1500,6 +1500,8 @@ function describeAPI(){
 						<li>Requests need to include a parameter called pubkey containing the API public key. Note: do not include the private key.</li>
 						<li>Requests need to include a parameter called hmac. The value should be a SHA256 hash of all of the other parameters in alphabetical ascending order being sent in the request (including pubkey, now and any other parameter for the given method). </li>
 					<p>It is recommended that requests are made over HTTPS.</p>
+					<p>The Timestreams API authentication method provides authentication without the need to use the user\'s Wordpress password. It preserves data integrity based on the scheme presented <a href="http://www.thebuzzmedia.com/designing-a-secure-rest-api-without-oauth-authentication/" title="secure rest API">here</a>.</p> 
+					<p>This method avoids the use of sessions (and related problems such as side-jacking). It is safely used in conjunction with SSL (HTTPS), although using standard HTTP requests may also be made securely. It also minimises replay attacks after a period of time. This could be improved in the future by adding in support for nonces. Along with this limitation, another issue is that this authentication method is non-starndard. Future work could replace this with a standard mechanism such as two-legged Oauth 1.0a, or require HTTPS and use basic authentication.</p>
 					</div>
 					<div id="date">
 					<h3>Date Format</h3>
