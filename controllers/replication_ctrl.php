@@ -176,48 +176,45 @@ function hn_ts_doDataReplication($replRow, $readings, $db){
  * @return the replicateRest response
  */
 function hn_ts_doFileReplication($replRow, $readings, $db){
-	$measurements = "{\"measurements\":[";
 	foreach($readings as $reading){
-		$data = base64_encode(file_get_contents($reading->value));
+		$data = file_get_contents($reading->value);
 		$name = basename($reading->value);
-		$type = $db->hn_ts_getUnitForReplicationTable($replRow->local_table);
-		$response = sendFileXmlRpc($name, $type, $data, $replRow);
-		$measurements = $measurements.
-		"{\"v\":\"$response->url\",\"t\":\"$reading->valid_time\"},";
+		$ts = $reading->valid_time;
+		echo sendFile($name, $data,$replRow,$ts);
 	}
-	$measurements=rtrim($measurements, ",");
-	$measurements = $measurements."]}";
-	$resp = replicateRest($replRow, $measurements);
-	$db->hn_ts_updateReplRow($replRecordID, $resp."<br />".$date);
-	return $resp."<br />".$date;
 }
 
 /**
- * Transfers a file XML-RPC
- * $data is base64 encoded file data to send
+ * Transfers a file using API
+ * $data is file data to send
  */
-function sendFileXmlRpc($name, $type, $data,$replRow){
-	$options = get_option('hn_ts');
-
-	/*if(count($options['proxyAddr']) > 0){
-		$client = new Proxied_IXR_Client(
-				$options['proxyAddr'], $options['proxyPort'], 
-				$replRow->remote_url);
-	}else{*/
-		$client = new IXR_Client($replRow->remote_url);
-	//}
-	$queryArgs = 
-		array(
-			//'wp.uploadFile',$replRow->blog_id,$replRow->remote_user_login,
-			//$replRow->remote_user_pass, array("name" => $name, "type" =>$type, "data" =>$data, "overwrite"=>true)
-			'wp.uploadFile',$replRow->blog_id,"admin",
-			"a", array("name" => $name, "type" =>$type, "data" =>$data, "overwrite"=>true)
+function sendFile($name, $data,$replRow, $timestamp){
+	$now=time();
+	$args = array(
+		'data' => $data,
+		'filename' => $name,
+		'ts' => $timestamp,
+		'pubkey' => $replRow->remote_user_login,
+		'now' => $now
 	);
+	$hmac = getHmac($args,$replRow->remote_user_pass);
+	array_push($args, $hmac);
+	return wp_remote_post( 
+		$replRow->remote_url.'/measurementfile/'.$replRow->remote_table, $args 
+	);
+}
 
-	if (!call_user_func_array(array($client,'query'), $queryArgs)){
-		die('An error occurred - '.$client->getErrorCode().":".$client->getErrorMessage());
+/**
+ * Returns an Hmac for the given parameters
+ */
+function getHmac($args, $prikey){
+	asort($args);
+	$toHash="";
+	foreach($args as $arg){
+		$toHash .= $arg . '&';
 	}
-	return $response = $client->getResponse();
+	$toHash = rtrim($toHash, '&');
+	return hash_hmac ( 'sha256' , $toHash , $prikey);
 }
 
 /**
