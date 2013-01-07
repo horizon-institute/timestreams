@@ -121,6 +121,7 @@
 			<h3><?php _e('Description',HN_TS_NAME); ?></h3>
 			<p><?php _e('You can replicate your data sources from one timestreams blog to another. This is useful if you are collecting data locally and want to provide it publicly as well.',HN_TS_NAME); ?></p>
 			<p><?php _e('Timestreams supports two types of replication -- discrete and continuous. Discrete replication means doing a single data transfer. Continuous means that your data will be tranfered all the time as new data come in from a data source.',HN_TS_NAME); ?></p>
+			<p><?php _e('If you are replicating data files (such as pictures or audio files), you can choose to copy the files to the destination by toggling on the "Copy Files" checkbox, or to only replicate the URL by leaving the "Copy Files" checkbox un-ticked. Note that the destination Wordpress site will need its XML-RPC setting (in admin->settings->writing) turned on.',HN_TS_NAME); ?></p>
 			<p><?php _e('To use replication complete the form below and click add replication record.',HN_TS_NAME); ?></p>
 			<hr />
 		<?php

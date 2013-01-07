@@ -1,6 +1,6 @@
 <?php
 /* Timestreams API v. 2.0.
- Authors  Jesse Blum (JMB) an Martin Flintham (MDF)
+Authors  Jesse Blum (JMB) an Martin Flintham (MDF)
 Produced for the Relate Project, Horizon Digital Economy Institute, University of Nottingham
 
 This program is free software: you can redistribute it and/or modify
@@ -20,8 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 require 'Slim/Slim.php';
 
 define('HN_TS_DEBUG', false);
-define('HN_TS_VERSION', "v. 2.0.0-Alpha-0.2");
-$app = new Slim();
+define('HN_TS_VERSION', "v. 2.0.0-Alpha-0.3");
+$app = new Slim();	
+hn_ts_readWpConfig();
+hn_ts_setSitepath();
 $app->response()->header('Access-Control-Allow-Origin', '*');
 $hn_tsuserid=NULL;
 if(HN_TS_DEBUG){
@@ -219,6 +221,13 @@ $app->post('/measurements/:id', $hn_ts_authenticate, function($name) use ($app) 
 	$measurements = $app->request()->post('measurements');
 	hn_ts_add_measurements($name, $measurements);
 });
+$app->post('/measurementfile/:id', $hn_ts_authenticate, function($name) use ($app) {
+	$data = $app->request()->post('data');
+	$filename = $app->request()->post('filename');
+	$timestamp = $app->request()->post('ts');
+	//hn_ts_add_measurement($name, $value, $timestamp);
+	hn_ts_upload_measurement_file($name, $data, $filename, $timestamp);
+});
 $app->get('/context', $hn_ts_authenticate, function() use ($app) {
 	$typeParam = $app->request()->get('type');
 	$valueParam = $app->request()->get('value');
@@ -309,10 +318,10 @@ function hn_ts_issetRequiredParameter($param, $paramName){
  * To do get values from wp-config.php
  */
 function getConnection() {
-	$dbhost="127.0.0.1";
-	$dbuser="root";
-	$dbpass="tow4mfN";
-	$dbname="wordpress";
+	$dbhost=DB_HOST;
+	$dbuser=DB_USER;
+	$dbpass=DB_PASSWORD;
+	$dbname=DB_NAME;
 	//$dbname="cellar";
 	$dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);	
 	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -627,6 +636,154 @@ function hn_ts_add_measurement($name, $value, $timestamp){
 
 	$sql = "INSERT INTO $name (value, valid_time) VALUES ('$value', '$timestamp');";
 	sqlInsert($sql);
+}
+
+/**
+ * Adds a measurement file to a measurement container.
+ * @param String of the form  wp_[blog-id]_ts_[measurement-type]_[device-id] $name
+ * @param String $data is a 64bit encoded String
+ * @param String of the form 2012-07-21 00:05:23 $timestamp
+ */
+function hn_ts_upload_measurement_file($tablename, $data, $filename, $timestamp){
+	$tablename = hn_ts_sanitise($tablename);
+	if(!$tablename){
+		hn_ts_error_msg("Missing measurement container name.", 400);
+		return;
+	}
+	
+	$filename = hn_ts_sanitise($filename);
+	if(!$filename){
+		hn_ts_error_msg("Missing file name.", 400);
+		return;
+	}
+	
+	if(!$data){
+		hn_ts_error_msg("Missing data.", 400);
+		return;
+	}
+
+	//$data = hn_ts_sanitise($data);
+	
+	$fp = hn_ts_get_filepath_for_table($tablename, $filename);
+	if(file_put_contents($fp, $data)){
+		hn_ts_add_measurement($tablename, $fp, $timestamp);
+	}else{
+		hn_ts_error_msg("Failed to write file.", 400);		
+	}
+}
+
+/**
+ * Reads the wp-config file
+ * @param $path is the path to the wp-config.php file
+ */
+function hn_ts_readWpConfig($path="../../../../wp-config.php"){
+	if (file_exists($path)) {
+		$subject = file_get_contents($path);
+	}
+	
+	//Set Multisite value
+	if (preg_match("/define\s?\(\s?'MULTISITE'\s?,\s?true\s?\)\s?;/i", $subject)){
+		define("MULTISITE", TRUE);
+	}else{
+		define("MULTISITE", FALSE);
+	}
+	
+	// Store database name from wp-config.php
+	//presumes form of: define('DB_NAME', 'database_name_here');
+	if (preg_match("/define\s?\(\s?'DB_NAME'.*\)\s?;/i", $subject, $matches)) {
+		$items = explode("'", $matches[0]);
+		define('DB_NAME', $items[3]);
+	}else{
+		echo "Database name not found in wp-config.php. Aborting.";
+		exit();
+	}
+	
+	// Store database user from wp-config.php
+	//presumes form of: define('DB_NAME', 'database_name_here');
+	if (preg_match("/define\s?\(\s?'DB_USER'.*\)\s?;/i", $subject, $matches)) {
+		$items = explode("'", $matches[0]);
+		define('DB_USER', $items[3]);
+	}else{
+		echo "Database user not found in wp-config.php. Aborting.";
+		exit();
+	}
+	
+	// Store database user from wp-config.php
+	//presumes form of: define('DB_NAME', 'database_name_here');
+	if (preg_match("/define\s?\(\s?'DB_PASSWORD'.*\)\s?;/i", $subject, $matches)) {
+		$items = explode("'", $matches[0]);
+		define('DB_PASSWORD', $items[3]);
+	}else{
+		echo "Database password not found in wp-config.php. Aborting.";
+		exit();
+	}
+	
+	// Store database user from wp-config.php
+	//presumes form of: define('DB_NAME', 'database_name_here');
+	if (preg_match("/define\s?\(\s?'DB_HOST'.*\)\s?;/i", $subject, $matches)) {
+		$items = explode("'", $matches[0]);
+		define('DB_HOST', $items[3]);
+	}else{
+		echo "Database host not found in wp-config.php. Presuming localhost.";
+		define('DB_HOST', 'localhost');
+	}
+}
+
+/**
+ * Sets the Sitepath to the base part of the URL 
+ * To do: make sure that $_SERVER["SERVER_NAME"] exists
+ */
+function hn_ts_setSitepath(){
+	$sitepath = 'http';
+	if (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") {
+		$sitepath .= "s";
+	}
+	$sitepath .= "://".$_SERVER["SERVER_NAME"];
+	if (isset($_SERVER["HTTPS"]) && $_SERVER["SERVER_PORT"] != "80") {
+		$sitepath .= ":".$_SERVER["SERVER_PORT"];
+	} 
+	if(isset($_SERVER["REQUEST_URI"])){
+		$parts = explode('/', $_SERVER["REQUEST_URI"]);
+		foreach($parts as $part){
+			if(0==strcasecmp( $part, "wp-content")){
+				break;
+			}else{
+				$sitepath = $sitepath.$part.'/';
+			}
+		}
+	}
+	$sitepath = rtrim($sitepath,'/');
+	define("SITEPATH",$sitepath);
+}
+
+/**
+ * Returns a path to store a file for a given meaurement container table
+ * @param $tablename
+ * @param $filename
+ */
+function hn_ts_get_filepath_for_table($tablename, $filename){
+	$sql = "SELECT producer_blog_id FROM `wp_ts_metadata` WHERE tablename = '$tablename'";
+	$rows = querySql($sql);
+	if(count($rows)){
+		$blogid = $rows[0]->producer_blog_id;
+	}
+	$basepath=SITEPATH.'/wp-content/';
+	if(MULTISITE){
+		$basepath = $basepath."blogs.dir/".$blogid."/files/";
+	}else{		
+		$basepath = $basepath."uploads";
+	}		
+	$basepath = $basepath.date("Y")."/".date("m").'/';
+	//Avoid file collisions
+	$prefix="";
+	while(file_exists($basepath.$prefix.$filename)){
+		if($prefix === ""){
+			$prefix = 0;
+		}else{
+			$prefix = $prefix + 1;
+		}
+	}	
+	return $basepath.$prefix.$filename;
 }
 
 /**
@@ -1428,6 +1585,7 @@ function describeAPI(){
 							<li><a href="#service-measurements">Measurements</a>
 								<ol>
 									<li><a href="#service-measurements-add-measurement">Add Measurement</a></li>
+									<li><a href="#service-measurements-add-measurement-file">Add Measurement File</a></li>
 									<li><a href="#service-measurements-add-measurements">Add Measurements</a></li>
 								</ol>
 							</li>
@@ -2224,10 +2382,8 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement/:me
 				    <dt>Version 1 API replacement</dt>
 				    <dd>
 				    	<pre>timestreams.hn_ts_add_measurement</pre>
-				    	<p>Note that this can be used as a replacement for timestreams.add_measurement_file(s) / 
-				    	timestreams.import_data_from_files. To do so first upload your file 
-				    	(which can be accomplished on this server using XML-RPC: 
-				    	wp.uploadFile -- https://codex.wordpress.org/XML-RPC_wp#wp.uploadFile)</p>
+				    	<p>Note that this can be used to record files uploaded elsewhere. 
+				    	To do so first upload your file then use this method to store the url as the value.</p>
 				    </dd>		
 				    <dt>Parameters</dt>		
 				    <dd><br/>
@@ -2238,6 +2394,69 @@ http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement/:me
 				    			<td>value</td><td>Measurement value</td><td>Required</td>
 					    		<td>A valid data type as per the given measurement container</td>
 					    		<td>Sets the measurement value.</td>
+				        	</tr>
+				    		<tr>
+				    			<td>ts</td><td>Timestamp that the measurement was taken</td><td>Optional<p>Note that if this is excluded then the server\'s current time will be used.</td>
+					    		<td>Timestamp</td><td>Sets the measurement timestamp.</td>
+				        	</tr>			    		
+				        	<tr><td>pubkey</td><td>API public key</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				        	<tr><td>now</td><td>Current timestamp</td><td>Required</td>
+				    		<td>Counting Number</td><td>Used for authentication.</td></tr>
+				    		<tr><td>hmac</td><td>SHA256 hash of parameters</td><td>Required</td>
+				    		<td>String</td><td>Used for authentication.</td></tr>
+				    	</table><br/>
+				    </dd>
+				    <dt>Response</dt>
+				    <dd>
+				        <p>Insert result</p>
+				        <p><strong>Sample response</strong></p>
+				        <pre>
+{"insertresult": "1 rows inserted"}
+	        			</pre>
+				    </dd>
+				</dl>
+				</li><li>
+				<h4 class="service-method" id="service-measurements-add-measurement-file">Add Measurement File</h4>		
+				<dl>
+				    <dt>Method</dt>
+				    <dd>
+				        <p>POST</p>
+				    </dd>
+				    <dt>Description</dt>
+				    <dd>
+				        <p>Stores a new measurement file on the server 
+				        and adds a record to its corresponding measurement container.</p>
+				    </dd>			
+				    <dt class="url-label">Post Structure</dt>
+				    <dd>
+				        <pre>
+curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X POST 
+-d "value=1.0&pubkey=c21fa479e5&now=1354793665&
+hmac=3dad6cac2eb327a74233dec7145142f81bceec61a01d70126927bd63efaae403" 
+http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement/:measurement_container_name
+				        </pre>
+				    </dd>			
+				    <dt>Version 1 API replacement</dt>
+				    <dd>
+				    	<pre>timestreams.add_measurement_file</pre>
+				    </dd>		
+				    <dt>Parameters</dt>		
+				    <dd><br/>
+				    	<table>
+				    		<tr><th>Name</th><th>Description</th><th>Required or Optional</th>
+				    		<th>Type</th><th>Affect</th></tr>
+				    		<tr>
+				    			<td>data</td><td>Measurement file contents</td><td>Required</td>
+					    		<td>String or bytes</td>
+					    		<td>Stores the data in a file.</td>
+				        	</tr>
+				    		<tr>
+				    			<td>filename</td><td>Name of the file to store on the server (such as test.png). Note that
+				    			this name will be prepended with a number if a file with the same name
+				    			already is stored on the server.</td><td>Required</td>
+					    		<td>String</td>
+					    		<td>Stores the data in a file.</td>
 				        	</tr>
 				    		<tr>
 				    			<td>ts</td><td>Timestamp that the measurement was taken</td><td>Optional<p>Note that if this is excluded then the server\'s current time will be used.</td>

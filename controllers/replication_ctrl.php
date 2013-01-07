@@ -119,7 +119,7 @@ class Proxied_IXR_Client extends IXR_Client{
 	}
 }
 /**
- * Performs a complete copy of a local table to a remote table.
+ * Sets up a complete copy of a local table to a remote table.
  * @param int $replRecordID is a row id from the Replication Table
  * @return mixed|string, on success the replication response and time or Replication failure message.
  */
@@ -136,21 +136,88 @@ function hn_ts_replicate_full($replRecordID){
 		if(count($readings) <= 0){
 			return "Local measurement container is empty.";
 		}
-		$readingsArgs = array();
-		$measurements = "{\"measurements\":[";
-		foreach($readings as $reading){
-			$measurements = $measurements.
-			"{\"v\":\"$reading->value\",\"t\":\"$reading->valid_time\"},";
+		if(0==$replRow->copy_files){
+			return hn_ts_doDataReplication($replRow, $readings, $db);
+		}else{
+			hn_ts_doFileReplication($replRow, $readings, $db);
 		}
-		$measurements=rtrim($measurements, ",");
-		$measurements = $measurements."]}";
-
-		$resp = replicateRest($replRow, $measurements);
-		$db->hn_ts_updateReplRow($replRecordID, $resp."<br />".$date);
-		return $resp."<br />".$date;
 	}else{
 		return  __("Replication failed. Couldn\'t find replication id $replRecordID.",HN_TS_NAME);
 	}
+}
+
+/**
+ * Copies data from a local table to a remote table.
+ * @param $replRow is the replication table row
+ * @param $readings are the readings from a measurement container
+ * @param $db is a Hn_TS_Database
+ * @return the replicateRest response
+ */
+function hn_ts_doDataReplication($replRow, $readings, $db){
+	$measurements = "{\"measurements\":[";
+	foreach($readings as $reading){
+		$measurements = $measurements.
+		"{\"v\":\"$reading->value\",\"t\":\"$reading->valid_time\"},";
+	}
+	$measurements=rtrim($measurements, ",");
+	$measurements = $measurements."]}";
+
+	$resp = replicateRest($replRow, $measurements);
+	$db->hn_ts_updateReplRow($replRecordID, $resp."<br />".$date);
+	return $resp."<br />".$date;
+}
+
+/**
+ * Copies files from a local table to a remote table.
+ * @param $replRow is the replication table row
+ * @param $readings are the readings from a measurement container presumed to be in the form:
+ * http://.../filename.suffix and reachable
+ * @param $db is a Hn_TS_Database
+ * @return the replicateRest response
+ */
+function hn_ts_doFileReplication($replRow, $readings, $db){
+	$measurements = "{\"measurements\":[";
+	foreach($readings as $reading){
+		$data = base64_encode(file_get_contents($reading->value));
+		$name = basename($reading->value);
+		$type = $db->hn_ts_getUnitForReplicationTable($replRow->local_table);
+		$response = sendFileXmlRpc($name, $type, $data, $replRow);
+		$measurements = $measurements.
+		"{\"v\":\"$response->url\",\"t\":\"$reading->valid_time\"},";
+	}
+	$measurements=rtrim($measurements, ",");
+	$measurements = $measurements."]}";
+	$resp = replicateRest($replRow, $measurements);
+	$db->hn_ts_updateReplRow($replRecordID, $resp."<br />".$date);
+	return $resp."<br />".$date;
+}
+
+/**
+ * Transfers a file XML-RPC
+ * $data is base64 encoded file data to send
+ */
+function sendFileXmlRpc($name, $type, $data,$replRow){
+	$options = get_option('hn_ts');
+
+	/*if(count($options['proxyAddr']) > 0){
+		$client = new Proxied_IXR_Client(
+				$options['proxyAddr'], $options['proxyPort'], 
+				$replRow->remote_url);
+	}else{*/
+		$client = new IXR_Client($replRow->remote_url);
+	//}
+	$queryArgs = 
+		array(
+			//'wp.uploadFile',$replRow->blog_id,$replRow->remote_user_login,
+			//$replRow->remote_user_pass, array("name" => $name, "type" =>$type, "data" =>$data, "overwrite"=>true)
+			'wp.uploadFile',$replRow->blog_id,"admin",
+			"a", array("name" => $name, "type" =>$type, "data" =>$data, "overwrite"=>true)
+	);
+
+	if (!call_user_func_array(array($client,'query'), $queryArgs)){
+		die('An error occurred - '.$client->getErrorCode().":".$client->getErrorMessage());
+	}
+	return $response = $client->getResponse();
 }
 
 /**
@@ -160,7 +227,7 @@ function hn_ts_replicate_full($replRecordID){
 function hn_ts_getExternalLatestReading($replRow){
 	if( !class_exists( 'WP_Http' ) )
 		include_once( ABSPATH . WPINC. '/class-http.php' );
-	
+
 	handleProxy();
 	$request = new WP_Http;
 
@@ -209,9 +276,9 @@ function hn_ts_getExternalLatestReading($replRow){
  * Calls partial replication for all replication db entries that are marked as continuous
  */
 function hn_ts_continuousReplication(){
-	global $wpdb;	
+	global $wpdb;
 	$repls = $wpdb->get_results( 	$wpdb->prepare(
-			"SELECT replication_id FROM wp_ts_replication 
+			"SELECT replication_id FROM wp_ts_replication
 			WHERE continuous=1;" )	);
 	foreach ( $repls as $repl )
 	{
@@ -220,55 +287,45 @@ function hn_ts_continuousReplication(){
 }
 
 /**
- * Performs a partial copy of a local table to a remote table.
+ * Sets up a partial copy of a local table to a remote table.
  * @param $replRecord is a row id from the Replication Table
  * @return mixed|string, on success the replication response and time started or 'Replication failed.'
  */
-function hn_ts_replicate_partial($replRowId){	
+function hn_ts_replicate_partial($replRowId){
 	$db = new Hn_TS_Database();
 	$replRow = $db->hn_ts_getReplRow($replRowId);
-	
+
 	if ($replRow != null) {
 		// Acquire replication lock
 		$lockres = $db->hn_ts_replLock($replRowId);
 		if($lockres < 1){
 			return  __("Replication aborted. Couldn\'t acquire lock for id $replRow->replication_id.",HN_TS_NAME);
 		}
-		
+
 		// get most recent record from external table (which could be empty)
 		$response = hn_ts_getExternalLatestReading($replRow);
 		if(null == $response){
 			$res = hn_ts_replicate_full($replRow->replication_id);
-			// unlock
+			$db->hn_ts_replUnlock($replRowId);
 			return $res;
-		}else{
-			$db = new Hn_TS_Database();
+		}else{				
 			$date = new DateTime();
-			$mindate = date( "Y-m-d H:i:s", strtotime( $response )+1 );
+			$mindate = date( "Y-m-d H:i:s", strtotime( $extLatestReading )+1 );
 			$date = str_replace("T"," ",
 					substr_replace(gmdate("Y-m-d\TH:i:s\Z", $date->getTimestamp() ) ,"",-1));
 			$readings = $db->hn_ts_get_readings_from_name(
 					array("","",$replRow->local_table,$mindate,0,0,0,0,0));
 			if(count($readings) >= 1){
-				// post records to external table
-				$measurements = "{\"measurements\":[";
-				foreach($readings as $reading){
-					$measurements = $measurements.
-					"{\"v\":\"$reading->value\",\"t\":\"$reading->valid_time\"},";
+				if(0==$replRow->copy_files){
+					$res = hn_ts_doDataReplication($replRow, $readings, $db);
+				}else{
+					$res = hn_ts_doFileReplication($replRow, $readings, $db);
 				}
-				$measurements=rtrim($measurements, ",");
-				$measurements = $measurements."]}";
-					
-				$resp = replicateRest($replRow, $measurements);
-				$db->hn_ts_updateReplRow($replRow->replication_id, $resp."<br />".$date);
-				// unlock
-				$lockres = $db->hn_ts_replUnlock($replRowId);
-				return $resp."<br />".$date;
-			}else{		
-				// unlock
-				$lockres = $db->hn_ts_replUnlock($replRowId);
-				return __("No insertions to make.<br />",HN_TS_NAME).$date;
+			}else{
+				$res = __("No insertions to make.<br />",HN_TS_NAME).$date;
 			}
+			$db->hn_ts_replUnlock($replRowId);
+			return $res;
 		}
 	}else{
 		return  __("Replication failed. Couldn\'t find replication id $replRow->replication_id.",HN_TS_NAME);
@@ -303,9 +360,9 @@ function replicateXmlRpc($replRow){
 	return $response = $client->getResponse();
 }
 
-function handleProxy(){	
+function handleProxy(){
 	$options = get_option('hn_ts');
-	
+
 	if(array_key_exists('proxyAddr',$options) &&array_key_exists('proxyPort',$options)){
 		if ( !defined( 'WP_PROXY_HOST' ) ){
 			define('WP_PROXY_HOST', $options['proxyAddr']);
@@ -347,7 +404,7 @@ function replicateRest($replRow, $measurements){
 
 	if( !class_exists( 'WP_Http' ) )
 		include_once( ABSPATH . WPINC. '/class-http.php' );
-	
+
 	handleProxy();
 	$request = new WP_HTTP;
 
@@ -412,6 +469,19 @@ function hn_ts_addReplicationRecord(){
 			</td>
 		</tr>
 
+		<tr valign="top">
+			<th scope="row"><?php _e('Copy Files',HN_TS_NAME); ?></th>
+			<td><input type="checkbox" name="hn_ts_copy" value="Yes"
+				class="hn_ts_copy_chk" />
+			</td>
+		</tr>
+
+		<tr valign="top">
+			<th scope="row"><?php _e('Remote Blog Id',HN_TS_NAME); ?> *</th>
+			<td><input type="text" name="hn_ts_remote_blog_id" />
+			</td>
+		</tr>
+
 	</table>
 
 	<p class="submit">
@@ -423,24 +493,34 @@ function hn_ts_addReplicationRecord(){
 <hr />
 <?php
 $cont = 0;
+$hn_ts_copy = 0;
+$hn_ts_remote_blog_id = 0;
 if(isset($_POST['continuous']) && $_POST['continuous'] == 'Yes'){
 	$cont = 1;
 }
+if(isset($_POST['hn_ts_copy']) && $_POST['hn_ts_copy'] == 'Yes'){
+	$hn_ts_copy = 1;
+}
+if(isset($_POST['hn_ts_remote_blog_id'])){
+	$hn_ts_remote_blog_id = $_POST['hn_ts_remote_blog_id'];
+}else{
+	$hn_ts_remote_blog_id = 1;
+}
 $replication = null;
-	if(isset($_POST['local_table']) &&
+if(isset($_POST['local_table']) &&
 		isset($_POST['remote_user_login']) &&
 		isset($_POST['pwrd']) &&
-		isset($_POST['remote_url']) && 
+		isset($_POST['remote_url']) &&
 		isset($_POST['remote_table']) ) {
-			$db = new Hn_TS_Database();
-			$replication = $db->hn_ts_insert_replication(array("","",
-					$_POST['local_table'], $_POST['remote_user_login'],
-					$_POST['pwrd'], $_POST['remote_url'], $_POST['remote_table'],
-					$cont,"")
-			);
-			if($replication){
-				_e('Record added.',HN_TS_NAME);
-			}
-		}
+	$db = new Hn_TS_Database();
+	$replication = $db->hn_ts_insert_replication(array("","",
+			$_POST['local_table'], $_POST['remote_user_login'],
+			$_POST['pwrd'], $_POST['remote_url'], $_POST['remote_table'],
+			$cont,"",$hn_ts_copy,$hn_ts_remote_blog_id)
+	);
+	if($replication){
+		_e('Record added.',HN_TS_NAME);
+	}
+}
 //var_dump($replication);
 }

@@ -102,6 +102,8 @@ class Hn_TS_Database {
 			  `remote_url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
 			  `remote_table` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 			  `continuous` tinyint(1) NOT NULL,
+  			  `copy_files` tinyint(1) NOT NULL,
+  			  `blog_id` bigint(20) DEFAULT NULL,
 			  `last_replication` varchar(75) COLLATE utf8_unicode_ci DEFAULT NULL,
 			  PRIMARY KEY (`replication_id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';			
@@ -208,11 +210,11 @@ class Hn_TS_Database {
 			$unit, $unitSymbol, $deviceDetails, $otherInformation, 
 			$dataType,$missingDataValue,$siteId=1){
 		global $wpdb;
-		$blogId=absint($blogId);
-		$siteId=absint($siteId);
 		if($blog_id==''){
 			global $blog_id;
 		}
+		$blog_id=absint($blog_id);
+		$siteId=absint($siteId);
 		//Ensure that there aren't empty or null values going into mandatory fields.
 		if((0==strcmp(strtoupper($measurementType),"NULL") || 0==strcmp($measurementType,""))){
 			return new IXR_Error(403, __('Measurement type may not be blank.',HN_TS_NAME));
@@ -752,6 +754,8 @@ class Hn_TS_Database {
 	 * [6]remote table name
 	 * [7]continuous (boolean)
 	 * [8]last replication (timestamp)
+	 * [9]should copy files (boolean)
+	 * [10]external blog id
 	 */
 	function hn_ts_insert_replication($args){
 		global $wpdb;
@@ -767,6 +771,8 @@ class Hn_TS_Database {
 				 		'remote_table' => $args[6],
 				 		'continuous' => $args[7],
 				 		'last_replication' => $args[8],
+				 		'copy_files' => $args[9],
+				 		'blog_id' => $args[10],
 					) );
 		}else{
 			return $this->missingParameters;
@@ -1502,6 +1508,18 @@ class Hn_TS_Database {
 				", $rowId
 				)
 		);
+	}
+	
+	/**
+	 * Returns the unit (mime type) from the metadata for a given measurement container 
+	 * @param $mc is a measurement container table name
+	 */
+	function hn_ts_getUnitForReplicationTable($mc){
+		global $wpdb;
+		return $wpdb->get_var($wpdb->prepare("SELECT unit FROM wp_ts_metadata
+		INNER JOIN wp_ts_replication ON 
+		wp_ts_metadata.tablename = wp_ts_replication.local_table
+		WHERE local_table = '%s'", $mc));
 	}
 }/*
 
