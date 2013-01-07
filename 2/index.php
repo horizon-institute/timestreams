@@ -107,9 +107,7 @@ $hn_ts_authenticate = function () {
 	$hash = hash_hmac('sha256', $toHash, $pri);
 	//echo "hash: $hash<br/>";
 	if(0 != strcmp ( $hash , $hmac )){
-		//echo "hmac: $hmac<br/>";
-		//echo "hash: $hash<br/>";
-		hn_ts_error_msg("Invalid parameter: hmac -- $toHash", 400);
+		hn_ts_error_msg("Invalid parameter: hmac");//-- tohash: $toHash *** hash: $hash *** hmac$hmac", 400);
 	}
 	global $hn_tsuserid;
 	$hn_tsuserid=$rows[0]->userid;

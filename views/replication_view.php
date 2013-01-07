@@ -57,6 +57,7 @@
 					<th><?php _e('remote url',HN_TS_NAME); ?></th>
 					<th><?php _e('remote table',HN_TS_NAME); ?></th>
 					<th><?php _e('continuous',HN_TS_NAME); ?></th>
+					<th><?php _e('copy files',HN_TS_NAME); ?></th>
 					<th><?php _e('last replication',HN_TS_NAME); ?></th>
 					<th><?php _e('Replicate Now',HN_TS_NAME); ?></th>
 				</tr>
@@ -69,6 +70,7 @@
 					<th><?php _e('remote url',HN_TS_NAME); ?></th>
 					<th><?php _e('remote table',HN_TS_NAME); ?></th>
 					<th><?php _e('continuous',HN_TS_NAME); ?></th>
+					<th><?php _e('copy files',HN_TS_NAME); ?></th>
 					<th><?php _e('last_replication',HN_TS_NAME); ?></th>
 					<th><?php _e('Replicate Now',HN_TS_NAME); ?></th>
 				</tr>
@@ -101,7 +103,13 @@
 						}else{
 							$input="<td><input type=\"checkbox\" name=\"continuous\" />";
 						}
-						$rowString = $rowString.$input.
+						$rowString .= $input;
+						if ($row->copy_files){
+							$input="<td><input type=\"checkbox\" name=\"hn_ts_copy_files\" checked=\"checked\" disabled=\"disabled\" />";
+						}else{
+							$input="<td><input type=\"checkbox\" name=\"hn_ts_copy_files\" />";
+						}
+						$rowString .= $input.
 						"<td><div id=\"hn_ts_last_repl-$row->replication_id\">".
 						"$row->last_replication</td></div><td>";
 						if($row->continuous){	

@@ -110,7 +110,8 @@ class Proxied_IXR_Client extends IXR_Client{
 
 		// Is the message a fault?
 		if ($this->message->messageType == 'fault') {
-			$this->error = new IXR_Error($this->message->faultCode, $this->message->faultString);
+			$this->error = new IXR_Error($this->message->faultCode, 
+					$this->message->faultString);
 			return false;
 		}
 
@@ -139,7 +140,7 @@ function hn_ts_replicate_full($replRecordID){
 		if(0==$replRow->copy_files){
 			return hn_ts_doDataReplication($replRow, $readings, $db);
 		}else{
-			hn_ts_doFileReplication($replRow, $readings, $db);
+			return hn_ts_doFileReplication($replRow, $readings, $db);
 		}
 	}else{
 		return  __("Replication failed. Couldn\'t find replication id $replRecordID.",HN_TS_NAME);
@@ -176,12 +177,17 @@ function hn_ts_doDataReplication($replRow, $readings, $db){
  * @return the replicateRest response
  */
 function hn_ts_doFileReplication($replRow, $readings, $db){
+	$counter = 0;
 	foreach($readings as $reading){
 		$data = file_get_contents($reading->value);
 		$name = basename($reading->value);
 		$ts = $reading->valid_time;
-		echo sendFile($name, $data,$replRow,$ts);
+		$response = sendFile($name, $data,$replRow,$ts);
+		echo $name.': '.$response['response']['code'].' '.
+		$response['response']['message']. ' '.$response['body'];
+		$counter += 1;
 	}
+	$db->hn_ts_updateReplRow($replRow->replication_id, date( "Y-m-d H:i:s").' '.$counter." file(s) replicated.<br />");
 }
 
 /**
@@ -198,9 +204,10 @@ function sendFile($name, $data,$replRow, $timestamp){
 		'now' => $now
 	);
 	$hmac = getHmac($args,$replRow->remote_user_pass);
-	array_push($args, $hmac);
+	$args['hmac']= $hmac;
+	$body=array('body'=>$args);
 	return wp_remote_post( 
-		$replRow->remote_url.'/measurementfile/'.$replRow->remote_table, $args 
+		$replRow->remote_url.'/measurementfile/'.$replRow->remote_table, $body 
 	);
 }
 
@@ -208,12 +215,11 @@ function sendFile($name, $data,$replRow, $timestamp){
  * Returns an Hmac for the given parameters
  */
 function getHmac($args, $prikey){
-	asort($args);
+	sort($args,SORT_STRING);
 	$toHash="";
 	foreach($args as $arg){
 		$toHash .= $arg . '&';
 	}
-	$toHash = rtrim($toHash, '&');
 	return hash_hmac ( 'sha256' , $toHash , $prikey);
 }
 
@@ -296,7 +302,7 @@ function hn_ts_replicate_partial($replRowId){
 		// Acquire replication lock
 		$lockres = $db->hn_ts_replLock($replRowId);
 		if($lockres < 1){
-			return  __("Replication aborted. Couldn\'t acquire lock for id $replRow->replication_id.",HN_TS_NAME);
+			return  __("Acquiring lock $replRow->replication_id...",HN_TS_NAME);
 		}
 
 		// get most recent record from external table (which could be empty)
@@ -307,7 +313,7 @@ function hn_ts_replicate_partial($replRowId){
 			return $res;
 		}else{				
 			$date = new DateTime();
-			$mindate = date( "Y-m-d H:i:s", strtotime( $extLatestReading )+1 );
+			$mindate = date( "Y-m-d H:i:s", strtotime( $response )+1 );
 			$date = str_replace("T"," ",
 					substr_replace(gmdate("Y-m-d\TH:i:s\Z", $date->getTimestamp() ) ,"",-1));
 			$readings = $db->hn_ts_get_readings_from_name(
