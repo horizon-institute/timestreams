@@ -164,7 +164,8 @@ function hn_ts_doDataReplication($replRow, $readings, $db){
 	$measurements = $measurements."]}";
 
 	$resp = replicateRest($replRow, $measurements);
-	$db->hn_ts_updateReplRow($replRecordID, $resp."<br />".$date);
+	$date = date( "Y-m-d H:i:s");
+	$db->hn_ts_updateReplRow($replRow->replication_id, $resp."<br />".$date);
 	return $resp."<br />".$date;
 }
 
