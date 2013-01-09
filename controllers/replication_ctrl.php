@@ -198,7 +198,7 @@ function hn_ts_doFileReplication($replRow, $readings, $db){
 function sendFile($name, $data,$replRow, $timestamp){
 	$now=time();
 	$args = array(
-		'data' => $data,
+		'data' => base64_encode($data),
 		'filename' => $name,
 		'ts' => $timestamp,
 		'pubkey' => $replRow->remote_user_login,

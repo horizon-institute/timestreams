@@ -220,10 +220,9 @@ $app->post('/measurements/:id', $hn_ts_authenticate, function($name) use ($app) 
 	hn_ts_add_measurements($name, $measurements);
 });
 $app->post('/measurementfile/:id', $hn_ts_authenticate, function($name) use ($app) {
-	$data = $app->request()->post('data');
+	$data = base64_decode($app->request()->post('data'));
 	$filename = $app->request()->post('filename');
 	$timestamp = $app->request()->post('ts');
-	//hn_ts_add_measurement($name, $value, $timestamp);
 	hn_ts_upload_measurement_file($name, $data, $filename, $timestamp);
 });
 $app->get('/context', $hn_ts_authenticate, function() use ($app) {
@@ -2441,9 +2440,10 @@ function hn_ts_document_measurements(){
 	<dd>
 	<pre>
 	curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X POST
-	-d "value=1.0&pubkey=c21fa479e5&now=1354793665&
+	-d "data=iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAAXNSR0IArs4c6QAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wGDw0zKcAK/Q0AAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAEklEQVQY02P8z4APMDGMSmMBAEEsARNlYhAzAAAAAElFTkSuQmCC
+	&filename=3wp_2_ts_Image_URL_11_red2.png&pubkey=c21fa479e5&now=1354793665&
 	hmac=3dad6cac2eb327a74233dec7145142f81bceec61a01d70126927bd63efaae403"
-	http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurement/:measurement_container_name
+	http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/measurementfile/:measurement_container_name
 	</pre>
 	</dd>
 	<dt>Version 1 API replacement</dt>
@@ -2457,7 +2457,7 @@ function hn_ts_document_measurements(){
 	<th>Type</th><th>Affect</th></tr>
 	<tr>
 	<td>data</td><td>Measurement file contents</td><td>Required</td>
-	<td>String or bytes</td>
+	<td>Base64 encoded string of file contents.</td>
 	<td>Stores the data in a file.</td>
 	</tr>
 	<tr>
