@@ -1,2 +1,25 @@
 @CHARSET "UTF-8";
-#contentslist.ol{margin:0;padding:0;list-style:none}
+#contentslist ul{margin:0;padding:0;list-style:none}
+#contentslist li{margin:0;padding:0;}
+h2.contentsheader{
+    color: #666666;
+    font-family: sans-serif;
+    font-size: large;
+    font-weight: bold;
+    margin-bottom: 2px;
+    margin-top: 0;
+}
+#documentcontents h2{
+    font-size: large;
+    text-transform: none;
+}
+#documentcontents h3{
+    font-size: medium;
+    text-transform: none;
+}
+
+#documentcontents ul{margin:0;padding:0;list-style:none}
+#documentcontents {
+    font-family: sans-serif;  font-size:small;
+}
+#documentcontents li{font-family: sans-serif; }
