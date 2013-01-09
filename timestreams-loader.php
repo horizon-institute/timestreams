@@ -84,6 +84,10 @@
 		
 	}
 	add_action('minutely_replication', 'hn_ts_continuousReplication');
+	function hn_ts_stylesheet(){
+		wp_enqueue_style('ts-css', plugins_url('/css/documentation.css', __FILE__));
+	}
+	add_action( 'wp_enqueue_scripts', 'hn_ts_stylesheet' );
 	
 	function timestreams_init() {
 		$plugin_path = dirname( plugin_basename( __FILE__ ) ) ;
