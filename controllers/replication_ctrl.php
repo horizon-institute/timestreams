@@ -443,13 +443,13 @@ function hn_ts_addReplicationRecord(){
 		</tr>
 
 		<tr valign="top">
-			<th scope="row"><?php _e('Remote-User Login Name',HN_TS_NAME); ?> *</th>
+			<th scope="row"><?php _e('Remote-User Public Key',HN_TS_NAME); ?> *</th>
 			<td><input type="text" name="remote_user_login" />
 			</td>
 		</tr>
 
 		<tr valign="top">
-			<th scope="row"><?php _e('Remote-User Password',HN_TS_NAME); ?> *</th>
+			<th scope="row"><?php _e('Remote-User Private Key',HN_TS_NAME); ?> *</th>
 			<td><input type="password" name="pwrd" />
 			</td>
 		</tr>
