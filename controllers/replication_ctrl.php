@@ -437,7 +437,7 @@ function hn_ts_addReplicationRecord(){
 <form id="replicationform" method="post" action="">
 	<table class="form-table">
 		<tr valign="top">
-			<th scope="row"><?php _e('Local Table',HN_TS_NAME); ?>*</th>
+			<th scope="row"><?php _e('Local Measurement Container Table',HN_TS_NAME); ?>*</th>
 			<td><input type="text" name="local_table" />
 			</td>
 		</tr>
@@ -461,7 +461,7 @@ function hn_ts_addReplicationRecord(){
 		</tr>
 
 		<tr valign="top">
-			<th scope="row"><?php _e('Remote Table',HN_TS_NAME); ?> *</th>
+			<th scope="row"><?php _e('Remote Measurement Container Table',HN_TS_NAME); ?> *</th>
 			<td><input type="text" name="remote_table" />
 			</td>
 		</tr>
