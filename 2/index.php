@@ -134,7 +134,7 @@ function hn_ts_withinTime($ts){
 //At the moment they are 404ing
 
 $app->get('/', 'describeAPI');
-$app->get('/metadata', $hn_ts_authenticate, function() use ($app) {
+$app->get('/metadata', function() use ($app) { //$hn_ts_authenticate, function() use ($app) {
 	$paramValue = $app->request()->get('tsid');
 	if(!$paramValue){
 		hn_ts_metadata();
@@ -1331,7 +1331,10 @@ function hn_ts_ext_get_timestream_metadata($timestreamId){
 	global $hn_tsuserid;
 	$sql = "SELECT metadata_id
 	FROM wp_ts_timestreams
-	WHERE timestream_id = $timestreamId AND user_id=$hn_tsuserid";
+	WHERE timestream_id = $timestreamId";
+    if(isset($hn_tsuserid)){
+           $sql .=  "AND user_id=$hn_tsuserid";
+    }
 	$timestream = querySql($sql);
 
 	if($timestream==null) {
