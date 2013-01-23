@@ -270,7 +270,8 @@ $app->get('/timestream/name/:name', function() use ($app) {
 	hn_ts_int_get_timestream_data($args[0], $limit, $offset, $lastTimestamp);
 });
 $app->get('/timestream/head/:id', 'hn_ts_int_get_timestream_head');
-$app->put('/timestream/head/:id', $hn_ts_authenticate, function() use ($app) {
+$app->put('/timestream/head/:id', function() use ($app) {
+//$app->put('/timestream/head/:id', $hn_ts_authenticate, function() use ($app) {
 	$args=func_get_args();
 	$newHead = $app->request()->put('curtime');
 	$newStart = $app->request()->put('start');
@@ -1271,8 +1272,12 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 	$starttime = date ("Y-m-d H:i:s", $newStart);
 	$endtime = date ("Y-m-d H:i:s", $newEnd);
 	global $hn_tsuserid;
-	$sql = "SELECT * FROM wp_ts_timestreams
-	WHERE timestream_id = $timestreamId AND user_id=$hn_tsuserid";
+	
+	$sql = "SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
+
+	 if(isset($hn_tsuserid)){
+	 	$sql = "$sql AND user_id=$hn_tsuserid";
+	 }
 
 	$db = getConnection();
 	$stmt = $db->query($sql);
