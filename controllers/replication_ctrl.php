@@ -399,12 +399,7 @@ function replicateRest($replRow, $measurements){
 	}
 	$hmac = hash_hmac ( 'sha256' , $tohash , $prikey );
 
-	$body = array(
-			'measurements' => $measurements,
-			'pubkey' => $pubkey,
-			'now' => $now,
-			'hmac' => $hmac,
-	);
+	$body['hmac']=$hmac;
 
 	if( !class_exists( 'WP_Http' ) )
 		include_once( ABSPATH . WPINC. '/class-http.php' );
