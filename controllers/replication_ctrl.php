@@ -399,21 +399,23 @@ function replicateRest($replRow, $measurements){
 	}
 	$hmac = hash_hmac ( 'sha256' , $tohash , $prikey );
 
-	$body['hmac']=$hmac;
-
 	if( !class_exists( 'WP_Http' ) )
 		include_once( ABSPATH . WPINC. '/class-http.php' );
 
 	handleProxy();
-	$request = new WP_HTTP;
+	//$request = new WP_HTTP;
 
 	$headers = array(
 			'Content-Type' => 'application/x-www-form-urlencoded',
 			'Content-Length' => strlen($hmac)
 	);
-
-	$result = $request->request( $replRow->remote_url."/measurements/$replRow->remote_table",
-			array( 'method' => 'POST', 'body' => $body, 'headers' => $headers) );
+	echo $replRow->remote_url."/measurements/$replRow->remote_table";
+	$result = wp_remote_post( $replRow->remote_url."/measurements/$replRow->remote_table",
+			array( 'method' => 'POST', 'body' => array(
+			'measurements' => $measurements,
+			'pubkey' => $pubkey,
+			'now' => $now,
+			'hmac' => $hmac	), 'headers' => $headers) );
 	if ( is_wp_error($result) ){
 		return $result->get_error_message();
 	}else{
