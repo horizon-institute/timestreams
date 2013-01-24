@@ -406,8 +406,8 @@ function replicateRest($replRow, $measurements){
 	//$request = new WP_HTTP;
 
 	$headers = array(
-			'Content-Type' => 'application/x-www-form-urlencoded',
-			'Content-Length' => strlen($hmac)
+			'Content-Type' => 'application/x-www-form-urlencoded'//,
+			//'Content-Length' => strlen($hmac)
 	);
 	echo $replRow->remote_url."/measurements/$replRow->remote_table";
 	$result = wp_remote_post( $replRow->remote_url."/measurements/$replRow->remote_table",
