@@ -1423,7 +1423,7 @@ class Hn_TS_Database {
 	 */
 	function hn_ts_addNewAPIKeys(){
 		global $wpdb;
-		$table = $wpdb->prefix.'ts_apikeys';
+		$table = $wpdb->base_prefix.'ts_apikeys';
 		global $current_user;
 		get_currentuserinfo();
 		
