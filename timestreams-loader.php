@@ -24,6 +24,19 @@
 	    You should have received a copy of the GNU Affero General Public License
 	    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	*/
+
+	// from http://fuelyourcoding.com/simple-debugging-with-wordpress/
+	if(!function_exists('_log')){
+		function _log( $message ) {
+			if( WP_DEBUG === true ){
+				if( is_array( $message ) || is_object( $message ) ){
+					error_log( print_r( $message, true ) );
+				} else {
+					error_log( $message );
+				}
+			}
+		}
+	}
 	
 	/**
 	 * Sets up common variables and required files
@@ -103,6 +116,7 @@
 		$schedules['minutely'] = array('interval'=>60, 'display'=>'Once a minute');
 		return $schedules;
 	}
+	
 	/**
 	 * Plugin activation. This creates the initial multisite tables.
 	 */
