@@ -299,6 +299,9 @@ class Hn_TS_Database {
 		if(count($args) < 3){
 			return $this->missingcontainername;
 		}
+		for($i=0; $i < count($args); $i=$i+1){
+			$args[$i]=$this->hn_ts_sanitise($args[$i]);
+		}
 		$table=$args[2];
 		$minimumTime=$args[3];
 		$maximumTime=$args[4];
@@ -327,11 +330,6 @@ class Hn_TS_Database {
 			if($descending)
 				$sort .= " DESC";
 		}
-		
-		$table=$this->hn_ts_sanitise($table);
-		$where=$this->hn_ts_sanitise($where);
-		$sort=$this->hn_ts_sanitise($sort);
-		$limit= $this->hn_ts_sanitise($limit);
 		
 		return $wpdb->get_results("SELECT * FROM $table $where $sort $limit;");
 	}

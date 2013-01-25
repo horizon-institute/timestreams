@@ -296,6 +296,7 @@ function hn_ts_continuousReplication(){
  * @return mixed|string, on success the replication response and time started or 'Replication failed.'
  */
 function hn_ts_replicate_partial($replRowId){
+	_log("hn_ts_replicate_partial($replRowId)");
 	$db = new Hn_TS_Database();
 	$replRow = $db->hn_ts_getReplRow($replRowId);
 
@@ -366,8 +367,8 @@ function replicateXmlRpc($replRow){
 
 function handleProxy(){
 	$options = get_option('hn_ts');
-
-	if(array_key_exists('proxyAddr',$options) &&array_key_exists('proxyPort',$options)){
+	
+	if(is_array($options) && array_key_exists('proxyAddr',$options) &&array_key_exists('proxyPort',$options)){
 		if ( !defined( 'WP_PROXY_HOST' ) ){
 			define('WP_PROXY_HOST', $options['proxyAddr']);
 		}
