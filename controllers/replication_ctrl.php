@@ -281,9 +281,9 @@ function hn_ts_getExternalLatestReading($replRow){
  */
 function hn_ts_continuousReplication(){
 	global $wpdb;
-	$repls = $wpdb->get_results( 	$wpdb->prepare(
+	$repls = $wpdb->get_results( 	
 			"SELECT replication_id FROM wp_ts_replication
-			WHERE continuous=1;" )	);
+			WHERE continuous=1;"	);
 	foreach ( $repls as $repl )
 	{
 		call_user_func('hn_ts_replicate_partial',$repl->replication_id);
