@@ -150,6 +150,17 @@
 		}
 	}
 	
+	/**
+	 * Allow unity file uploads. This would be better placed in its own plugin. 
+	 * Ideally the functionality of the plugin would allow admins to add additional mimetypes.
+	 */
+	add_filter('upload_mimes', 'custom_upload_mimes');
+	
+	function custom_upload_mimes ( $existing_mimes=array() ){
+		$existing_mimes['unity3d'] = 'application/vnd.unity';
+		return $existing_mimes;
+	}
+	
 	hn_ts_setup();
 	
 
