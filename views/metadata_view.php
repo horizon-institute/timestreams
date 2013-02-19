@@ -14,8 +14,12 @@
 		<div id="icon-themes" class="icon32"></div>
 		<h2><?php _e('Timestreams - Measurement Containers',HN_TS_NAME); ?></h2>
 		<h3><?php _e('Description',HN_TS_NAME); ?></h3>		
-		<p class="ts_description"><?php _e('Data sources describe the sensor data brought into Timestreams. A device such as a weateher station may collect data using multiple sensors (thermometer, barometer, etc.). Below is a form to add new measurement containers followed by a list of existing containers that you have access to. You have access to any containers that you or others on this blog have added, as well as the ones that have been shared with this blog from other ones. Click "view" on any of the containers to see the data. Click "share" on any of the containers to share the container with other Timestreams blogs. You may only share measurement containers that you have added or have been added to this blog.',HN_TS_NAME);?></p>
-		<p class="ts_description"><?php _e('To add a new data source fill in the form below so that the platform knows what type of data you are adding into the system. Use one datasource entry per type of sensor. Only basic Latin letters (a-zA-Z), digits (0-9), dollar ($), and underscore (_) characters are permitted. Please note that the values for the unit of measurement field should be entered in <a href="http://en.wikipedia.org/wiki/Internet_media_type" title="Wikipedia entry on Internet media types">internet media type</a> format. For sensor data follow a protocol of: text/x-data-Unit, where Unit would be the unit of measurement (such as Celsius or Decibels). For example: text/x-data-celsius or image/png. Data Types are used to store your data in the correct format. For instance, if you are storing image files you\'d want to use a textual type (VARCHR(255)), but if you\'re storing temperature readings between 0 and 100 then you\'d want to use a numeric type (DECIMAL(4,1)). You may use any of the standard <a href="https://dev.mysql.com/doc/refman/5.5/en/data-types.html" title="mysql data types">MySQL ones</a>.',HN_TS_NAME);?></p>
+		<p class="ts_description"><?php _e('Measurement containers store sensor data sent to Timestreams. A device such as a weateher station may collect data using multiple sensors (thermometer, barometer, etc.). 
+				Below is a form to add new measurement containers followed by a list of existing containers that you have access to. 
+				You have access to any containers that you or others on this blog have added, as well as the ones that have been shared with this blog from other ones. 
+				Click "view" on any of the containers to see the data. Click "share" on any of the containers to share the container with other Timestreams blogs. 
+				You may only share measurement containers that you have added or have been added to this blog.',HN_TS_NAME);?></p>
+		
 		<hr />
 		<?php
 	}

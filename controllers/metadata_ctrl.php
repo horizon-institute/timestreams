@@ -14,62 +14,70 @@
 		?>	<button id="hide_ts_ds_form" class="button-primary"><?php _e('Hide Add Measurement Container Form',HN_TS_NAME);?></button>
 			<button id="show_ts_ds_form" class="button-primary"><?php _e(' Show Add Measurement Container Form',HN_TS_NAME);?></button>			
 			<div id="ts_ds_form">		
-			<h3><?php _e('Add New Measurement Container'); ?></h3>			
+			<h3><?php _e('Add New Measurement Container'); ?></h3><h4>Required fields have * next to them.</h4> 	
 			<form id="metadataform" method="post" action="">
 				<table class="form-table">
 			        <tr valign="top">
-				        <th scope="row"><?php _e('What are you measuring',HN_TS_NAME); ?>?*</th>
+				        <th scope="row">
+				        <?php _e('What are you measuring?<br/>For example temperature, forest_pictures, CO2',HN_TS_NAME); ?><br/>
+				        <input class="button-secondary" type="button" onclick="alert('<?php  hn_ts_exaplinMeasuring()?>')" value="More information">
+				        </th>
 				        <td>
-					        <input type="text" name="measurement_type"  />
+					        <input type="text" name="measurement_type"  />*
 					    </td>
-			        </tr>
-			         
+			        </tr>			        
+			        
 			        <tr valign="top">
-			        <th scope="row"><?php _e('What is the minimum value of measurement you expect to be recorded?',HN_TS_NAME); ?>
+			        <th scope="row"><?php _e('What unit of measurement do you want to use?<br/>For example: text/x-data-celsius, image/png, text/x-data-ppm',HN_TS_NAME); ?>
+			        	<br/><input class="button-secondary" type="button" onclick="alert('<?php hn_ts_explainUnitOfMeasure()?>')" value="More information">
+			        </th>
+			        <td><input type="text" name="unit" />*</td>
+			        </tr>
+			       
+			        <tr valign="top">
+			        <th scope="row"><?php _e('What symbol do you want to use for this unit?<br /> For example C can be used for Celsius or % could be used for percent)?',HN_TS_NAME); ?>
+			        </th>
+			        <td><input type="text" name="unit_symbol"  /></td>
+			        </tr>
+		            
+		            <tr valign="top">
+			        <th scope="row"><?php _e('What Data Type do you want to use to store your values?',HN_TS_NAME); ?>
+			        <br/><input class="button-secondary" type="button" onclick="alert('<?php hn_ts_exaplinDatatypes()?>')" value="More information"></th>
+			        <td><input type="text" name="datatype" />*</td>
+			        </tr>
+			        
+			        <tr valign="top">
+			        <th scope="row"><?php _e('What do you want to call the device or person collecting the data?<br /> For example Rachel\'s Eco Sense)?',HN_TS_NAME); ?>
+			        </th>
+			        <td><input type="text" name="device"  /></td>
+			        </tr>
+			        
+			        <tr valign="top">
+			        <th scope="row"><?php _e('What is the lowest measurement value you expect to be recorded?',HN_TS_NAME); ?>
+			        <br/><input class="button-secondary" type="button" onclick="alert('<?php hn_ts_whereInfo()?>')" value="More information">
 			        </th>
 			        <td><input type="text" name="minimum" />
 			        </td>
 			        </tr>
 			        
 			        <tr valign="top">
-			        <th scope="row"><?php _e('What is the maximum value of measurement you expect to be recorded?',HN_TS_NAME); ?>
+			        <th scope="row"><?php _e('What is the highest measurement value you expect to be recorded?',HN_TS_NAME); ?>
+			        <br/><input class="button-secondary" type="button" onclick="alert('<?php hn_ts_whereInfo()?>')" value="More information">
 			        </th>
 			        <td><input type="text" name="maximum" /></td>
 			        </tr>
 			        
 			        <tr valign="top">
-			        <th scope="row"><?php _e('What is the unit of measurement (e.g. Celsius, png image file)?*',HN_TS_NAME); ?>
+			        <th scope="row"><?php _e('What value does your device use if it has an error or a missing value?',HN_TS_NAME); ?>
+			        <br/><input class="button-secondary" type="button" onclick="alert('<?php hn_ts_whereInfo()?>')" value="More information">
 			        </th>
-			        <td><input type="text" name="unit" /></td>
+			        <td><input type="text" name="missingDataValue" 			/></td>
 			        </tr>
 			        
 			        <tr valign="top">
-			        <th scope="row"><?php _e('What is the symbol of this measurement (e,g, C)?',HN_TS_NAME); ?>
-			        </th>
-			        <td><input type="text" name="unit_symbol"  /></td>
-			        </tr>
-			        
-			        <tr valign="top">
-			        <th scope="row"><?php _e('What is the unique name of device containing your sensor called (e.g. Rachel\'s Eco Sense)?',HN_TS_NAME); ?>
-			        </th>
-			        <td><input type="text" name="device"  /></td>
-			        </tr>
-			        
-			        <tr valign="top">
-			        <th scope="row"><?php _e('Any Other Information (this is to help you recognise the data source):',HN_TS_NAME); ?>
+			        <th scope="row"><?php _e('Any other information?<br/>This can help you recognise the measurement source.):',HN_TS_NAME); ?>
 			        </th>
 			        <td><input type="text" name="other" 			/></td>
-			        </tr>
-			        
-			        <tr valign="top">
-			        <th scope="row"><?php _e('What Data Type do you want to use to store your values?',HN_TS_NAME); ?>
-			         *</th>
-			        <td><input type="text" name="datatype" 			/></td>
-			        </tr>
-			        
-			        <tr valign="top">
-			        <th scope="row"><?php _e('What value does your device use if it has an error or a missing value?',HN_TS_NAME); ?></th>
-			        <td><input type="text" name="missingDataValue" 			/></td>
 			        </tr>
 			        
 			    </table>
@@ -117,6 +125,21 @@ function hn_ts_addShareTableButton($tableName){
 	//$share = _e("Share",HN_TS_NAME);  // brakes the button for no apparent reason :(
 	$share = "Share";
 	global $pagenow;
-	return "<a class='button-primary' href=\"$pagenow?page=timestreams/admin/interface.phpdatasources&share_button=$tableName\">Share</a>";
-			
+	return "<a class='button-primary' href=\"$pagenow?page=timestreams/admin/interface.phpdatasources&share_button=$tableName\">Share</a>";			
+}
+
+function hn_ts_explainUnitOfMeasure(){
+	_e('When measuring it is important to state the unit being measured by. For example Celsius can be used to measure temperature. For this form, the values for the unit of measurement field should be entered in internet media type format (see http://en.wikipedia.org/wiki/Internet_media_type). If sensor data is being stored then follow a protocol of: text/x-data-Unit, where Unit would be the unit of measurement (such as Celsius or Decibels). Alternatively if a media type such as picture is stored then use a media type such as image/png.');
+}
+
+function hn_ts_exaplinMeasuring(){
+	_e('Please only use basic Latin letters (a-zA-Z), digits (0-9), dollar ($), and underscore (_) characters to describe the type of measurements you are taking.');
+}
+
+function hn_ts_exaplinDatatypes(){
+	_e('Data Types are used to store your data in the correct format. For instance, if you are storing image files you would want to use a textual type (VARCHR(255)), but if you are storing temperature readings between 0 and 100 then you would want to use a numeric type (DECIMAL(4,1)). You may use any of the standard MySQL ones as described here: https://dev.mysql.com/doc/refman/5.5/en/data-types.html.');
+}
+
+function hn_ts_whereInfo(){
+	_e('You might be able to find this out from the packaging your sensor came in or from the person you received the sensor from.');
 }
