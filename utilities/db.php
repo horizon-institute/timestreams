@@ -189,7 +189,6 @@ class Hn_TS_Database {
 
 	/**
 	 * Adds records to the wp_ts_metadata table
-	 * @deprecated Use the version with the friendly id
 	 * @param String $blog_id
 	 * @param String $measurementType
 	 * @param String $minimumvalue
@@ -204,11 +203,12 @@ class Hn_TS_Database {
 	 * @param $blogId blog that owns the measurement container
 	 * @change 01/11/2012 - Modified by JMB to handle siteId and BlogId
 	 * @change 19/12/2012 - Modified by JMB to handle invalid characters and sanitisation correctly
+	 * @change 19/02/2013 - Modified by JMB to allow friendlyId
 	 */
 	function hn_ts_addMetadataRecord($blog_id='', $measurementType, 
 			$minimumvalue, $maximumvalue,
 			$unit, $unitSymbol, $deviceDetails, $otherInformation, 
-			$dataType,$missingDataValue,$siteId=1){
+			$dataType,$missingDataValue,$friendlyId=NULL, $siteId=1){
 		global $wpdb;
 		if($blog_id==''){
 			global $blog_id;
@@ -240,9 +240,20 @@ class Hn_TS_Database {
 		if($tablename == null){
 			return null;
 		}
+		
 		global $current_user;
 		get_currentuserinfo();
-		return $wpdb->insert(
+		
+		//Ensure frinedlyname is unique
+		if(NULL != $friendlyId){
+			$sql = "SELECT COUNT(*) FROM wp_ts_metadatafriendlynames
+			WHERE friendlyname = '$friendlyId'";
+			if( 0 != $wpdb->get_var($sql)){
+				return new IXR_Error(403, __('Your measurement container name is already being used. Please try a new value.',HN_TS_NAME));
+			}
+		}
+		
+		$res = $wpdb->insert(
 				'wp_ts_metadata',
 				array( 	'tablename' => $tablename,
 						'measurement_type' => $measurementType,
@@ -260,6 +271,16 @@ class Hn_TS_Database {
 				array( '%s', '%s', '%s', '%s', '%s', '%s', 
 						'%s' , '%s','%s', '%s' , '%s' )
 		);
+		
+		if (FALSE != $res && NULL != $friendlyId){				
+			$wpdb->insert(
+					'wp_ts_metadatafriendlynames',
+					array( 	'metadata_id' => $wpdb->insert_id,
+					'friendlyname' => $friendlyId),
+					array( '%s', '%s')
+			);
+		}
+		return $res;
 	}
 
 	/**
@@ -435,9 +456,12 @@ class Hn_TS_Database {
 		$blogId = get_current_blog_id();
 		$siteId = get_current_site();
 		$siteId = $siteId->id;
-		$sql = "SELECT * FROM `wp_ts_metadata` WHERE (
-				producer_id = $current_user->ID OR (
-					producer_blog_id = $blogId AND producer_site_id = $siteId
+		$sql = "SELECT wp_ts_metadata . * , wp_ts_metadatafriendlynames.friendlyname 
+				FROM wp_ts_metadata
+				LEFT JOIN wp_ts_metadatafriendlynames ON wp_ts_metadata.metadata_id = wp_ts_metadatafriendlynames.metadata_id
+				WHERE (
+				wp_ts_metadata.producer_id = $current_user->ID OR (
+					wp_ts_metadata.producer_blog_id = $blogId AND wp_ts_metadata.producer_site_id = $siteId
 				) OR 
 				tablename IN (
 					SELECT `wp_ts_container_shared_with_blog`.table_name 
@@ -458,9 +482,12 @@ class Hn_TS_Database {
 		global $wpdb;
 		get_currentuserinfo();
 		$blogId = get_current_blog_id();
-		$sql = "SELECT * FROM `wp_ts_metadata` WHERE (
-				producer_id = $current_user->ID OR 
-				producer_blog_id = $blogId
+		$sql = "SELECT wp_ts_metadata . * , wp_ts_metadatafriendlynames.friendlyname 
+				FROM wp_ts_metadata
+				LEFT JOIN wp_ts_metadatafriendlynames ON wp_ts_metadata.metadata_id = wp_ts_metadatafriendlynames.metadata_id
+				WHERE (
+					wp_ts_metadata.producer_id = $current_user->ID OR 
+					wp_ts_metadata.producer_blog_id = $blogId
 				OR 
 				tablename IN (
 					SELECT `wp_ts_container_shared_with_blog`.table_name 

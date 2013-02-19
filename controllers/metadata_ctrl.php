@@ -16,7 +16,13 @@
 			<div id="ts_ds_form">		
 			<h3><?php _e('Add New Measurement Container'); ?></h3><h4>Required fields have * next to them.</h4> 	
 			<form id="metadataform" method="post" action="">
-				<table class="form-table">
+				<table class="form-table">	        			        
+			        <tr valign="top">
+				        <th scope="row"><?php _e('What do you want to call this measurement container?<br/>Make sure to use a unique name. For example \'Horizon outside temperature\'',HN_TS_NAME); ?>
+				        </th>
+				        <td><input type="text" name="hn_ts_friendlynametb" />*</td>
+			        </tr>	
+			        
 			        <tr valign="top">
 				        <th scope="row">
 				        <?php _e('What are you measuring?<br/>For example temperature, forest_pictures, CO2',HN_TS_NAME); ?><br/>
@@ -34,7 +40,7 @@
 					        	<option value="messages">messages</option>
 					        </select>
 					    </td>
-			        </tr>			        
+			        </tr>		        
 			        
 			        <tr valign="top">
 			        <th scope="row"><?php _e('What unit of measurement do you want to use?<br/>For example: text/x-data-celsius, image/png, text/x-data-ppm',HN_TS_NAME); ?>
@@ -92,7 +98,7 @@
 			    </table>
 			    
 			    <p class="submit">
-			    <input type="submit" name='submit' class="button-primary" value="<?php _e('Add Metadata Record',HN_TS_NAME) ?>" />
+			    <input type="submit" name='submit' class="button-primary" value="<?php _e('Add Measurement Container',HN_TS_NAME) ?>" />
 			    </p>
 			
 			</form>
@@ -110,9 +116,10 @@
 						$_POST['measurement_type'], $_POST['minimum'], 
 						$_POST['maximum'], $_POST['unit'], $_POST['unit_symbol'], 
 						$_POST['device'], $_POST['other'],$_POST['datatype'],
-						$_POST['missingDataValue']
+						$_POST['missingDataValue'], $_POST['hn_ts_friendlynametb']
 					);
 					if(isset($table)){
+						
 						if(0==strcmp("integer",gettype($table))){
 							echo "Record added: $table";
 							return;

@@ -64,44 +64,48 @@
 				<th>id</th>
 				<th>view</th>
 				<th>share</th>
+				<th>friendly name</th>
 				<th>table name</th>
+				<th>device details</th>
+				<th>other info</th>
 				<th>measurement type</th>
 				<th>min value</th>
 				<th>max value</th>
 				<th>unit</th>
 				<th>unit symbol</th>
-				<th>device details</th>
-				<th>other info</th>
 				<th>Data Type</th>
 				<th>Missing Data Value</th>
-				<th>Device IP Address</th>
-				<th>Heartbeat</th>
 				</tr>
+				<?php /*
+				<th>Device IP Address</th>
+				<th>Heartbeat</th>*/?>
 			</thead>
 			<tfoot>
 				<tr>
 				<th>id</th>
 				<th>view</th>
 				<th>share</th>
+				<th>friendly name</th>
 				<th>table name</th>
+				<th>device details</th>
+				<th>other info</th>
 				<th>measurement type</th>
 				<th>min value</th>
 				<th>max value</th>
 				<th>unit</th>
 				<th>unit symbol</th>
-				<th>device details</th>
-				<th>other info</th>
 				<th>Data Type</th>
 				<th>Missing Data Value</th>
-				<th>Device IP Address</th>
-				<th>Heartbeat</th>
 				</tr>
+				<?php /*
+				<th>Device IP Address</th>
+				<th>Heartbeat</th>*/?>
 			</tfoot>
 			<tbody>
 			<?php 
 			$db = new Hn_TS_Database();
 			//$rows = $db->hn_ts_select('wp_ts_metadata ORDER BY metadata_id DESC');
-			$rows = $db->hn_ts_select_viewable_metadata();
+			$rows = $db->hn_ts_select_viewable_metadata();		
 			if($rows){
 				global $pagenow;
 				$screen = get_current_screen();
@@ -118,19 +122,20 @@
 						"?page=timestreams/admin/interface.phpdatasources&table=
 						$row->tablename&limit=100\">View</a></td>
 					<td>$btn</td>
+					<td>$row->friendlyname</td>
 					<td>$row->tablename</td>
+					<td>$row->device_details</td>
+					<td>$row->other_info</td>
 					<td>$row->measurement_type</td>
 					<td>$row->min_value</td>
 					<td>$row->max_value</td>
 					<td>$row->unit</td>
 					<td>$row->unit_symbol</td>
-					<td>$row->device_details</td>
-					<td>$row->other_info</td>
 					<td>$row->data_type</td>
 					<td>$row->missing_data_value</td>
-					<td>$row->last_IP_Addr</td>
-					<td>$row->heartbeat_time</td>
 					</tr>";
+					//<td>$row->last_IP_Addr</td>
+					//<td>$row->heartbeat_time</td>
 				}
 			}?>
 			</tbody>
