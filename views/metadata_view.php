@@ -17,8 +17,7 @@
 		<p class="ts_description"><?php _e('Measurement containers store sensor data sent to Timestreams. A device such as a weateher station may collect data using multiple sensors (thermometer, barometer, etc.). 
 				Below is a form to add new measurement containers followed by a list of existing containers that you have access to. 
 				You have access to any containers that you or others on this blog have added, as well as the ones that have been shared with this blog from other ones. 
-				Click "view" on any of the containers to see the data. Click "share" on any of the containers to share the container with other Timestreams blogs. 
-				You may only share measurement containers that you have added or have been added to this blog.',HN_TS_NAME);?></p>
+				',HN_TS_NAME);?></p>
 		
 		<hr />
 		<?php
@@ -57,6 +56,8 @@
 	function hn_ts_showMetadataTable(){
 		?>
 		<h3>Measurement Container</h3>
+		Click "view" on any of the containers to see the data. Click "share" on any of the containers to share the container with other Timestreams blogs. 
+				You may only share measurement containers that you have added or have been added to this blog.
 		<table class="widefat">
 			<thead>
 				<tr>

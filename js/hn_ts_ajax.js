@@ -71,4 +71,66 @@ jQuery(document).ready(function($) {
 		$("#hide_ts_ds_form").show();
 		$("#show_ts_ds_form").hide();
 	});
+	
+	// For dropdown fill in of textfield 
+	$('#hn_ts_measurementDD').change(function(){
+	 	$('#hn_ts_measurementTB').val($(this).val());
+	 	
+	 	if($(this).val() == ''){
+	 		$('#hn_ts_unittb').val('');	  
+	 		$('#hn_ts_unitsymboltb').val('');	  
+	 		$('#hn_ts_datatypetb').val('');	  
+	 		$('#hn_ts_lowval').val('');	  	 
+	 		$('#hn_ts_highval').val('');	  	 		
+	 	}
+	 	
+	 	if($(this).val() == 'CO2'){
+	 		$('#hn_ts_unittb').val('text/x-data-CO2');	  
+	 		$('#hn_ts_unitsymboltb').val('ppm');	  
+	 		$('#hn_ts_datatypetb').val('DECIMAL(5,2)');	  
+	 		$('#hn_ts_lowval').val('0');	  	 
+	 		$('#hn_ts_highval').val('5000');	
+	 	}
+	 	
+	 	if($(this).val() == 'humidity'){
+	 		$('#hn_ts_unittb').val('text/x-data-messages');	  
+	 		$('#hn_ts_unitsymboltb').val('%');	  
+	 		$('#hn_ts_datatypetb').val('SMALLINT');	  
+	 		$('#hn_ts_lowval').val('0');	  	 
+	 		$('#hn_ts_highval').val('100');	
+	 	}
+	 	
+	 	if($(this).val() == 'temperature'){
+	 		$('#hn_ts_unittb').val('text/x-data-messages');	  
+	 		$('#hn_ts_unitsymboltb').val('C');	  
+	 		$('#hn_ts_datatypetb').val('messages');	  
+	 		$('#hn_ts_lowval').val('-40');	  	 
+	 		$('#hn_ts_highval').val('125');	
+	 	}
+	 	
+	 	if($(this).val() == 'noise'){
+	 		$('#hn_ts_unittb').val('text/x-data-decibels');	  
+	 		$('#hn_ts_unitsymboltb').val('db');	  
+	 		$('#hn_ts_datatypetb').val('SMALLINT');	  
+	 		$('#hn_ts_lowval').val('30');	  	 
+	 		$('#hn_ts_highval').val('140');	
+	 	}
+	 	
+	 	if($(this).val() == 'images'){
+	 		$('#hn_ts_unittb').val('image/png');	  
+	 		$('#hn_ts_unitsymboltb').val('PNG');	  
+	 		$('#hn_ts_datatypetb').val('VARCHAR(255)');	
+	 		$('#hn_ts_lowval').val('');	  	 
+	 		$('#hn_ts_highval').val('');	  
+	 	}
+	 	
+	 	if($(this).val() == 'messages'){
+	 		$('#hn_ts_unittb').val('text/plain');	  
+	 		$('#hn_ts_unitsymboltb').val('TXT');	  
+	 		$('#hn_ts_datatypetb').val('VARCHAR(200)');	
+	 		$('#hn_ts_lowval').val('');	  	 
+	 		$('#hn_ts_highval').val('');	  
+	 	}
+	});
 });
+

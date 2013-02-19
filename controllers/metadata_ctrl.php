@@ -23,7 +23,16 @@
 				        <input class="button-secondary" type="button" onclick="alert('<?php  hn_ts_exaplinMeasuring()?>')" value="More information">
 				        </th>
 				        <td>
-					        <input type="text" name="measurement_type"  />*
+					        <input id="hn_ts_measurementTB" type="text" name="measurement_type"  />*
+					        <select id="hn_ts_measurementDD">
+					        	<option value="">Common measurement types</option>
+					        	<option value="CO2">CO2</option>
+					        	<option value="noise">noise levels</option>
+					        	<option value="humidity">humidity</option>
+					        	<option value="temperature">temperature</option>
+					        	<option value="images">images</option>
+					        	<option value="messages">messages</option>
+					        </select>
 					    </td>
 			        </tr>			        
 			        
@@ -31,19 +40,19 @@
 			        <th scope="row"><?php _e('What unit of measurement do you want to use?<br/>For example: text/x-data-celsius, image/png, text/x-data-ppm',HN_TS_NAME); ?>
 			        	<br/><input class="button-secondary" type="button" onclick="alert('<?php hn_ts_explainUnitOfMeasure()?>')" value="More information">
 			        </th>
-			        <td><input type="text" name="unit" />*</td>
+			        <td><input id="hn_ts_unittb" type="text" name="unit" />*</td>
 			        </tr>
 			       
 			        <tr valign="top">
 			        <th scope="row"><?php _e('What symbol do you want to use for this unit?<br /> For example C can be used for Celsius or % could be used for percent)?',HN_TS_NAME); ?>
 			        </th>
-			        <td><input type="text" name="unit_symbol"  /></td>
+			        <td><input id="hn_ts_unitsymboltb" type="text" name="unit_symbol"  /></td>
 			        </tr>
 		            
 		            <tr valign="top">
 			        <th scope="row"><?php _e('What Data Type do you want to use to store your values?',HN_TS_NAME); ?>
 			        <br/><input class="button-secondary" type="button" onclick="alert('<?php hn_ts_exaplinDatatypes()?>')" value="More information"></th>
-			        <td><input type="text" name="datatype" />*</td>
+			        <td><input id="hn_ts_datatypetb" type="text" name="datatype" />*</td>
 			        </tr>
 			        
 			        <tr valign="top">
@@ -56,7 +65,7 @@
 			        <th scope="row"><?php _e('What is the lowest measurement value you expect to be recorded?',HN_TS_NAME); ?>
 			        <br/><input class="button-secondary" type="button" onclick="alert('<?php hn_ts_whereInfo()?>')" value="More information">
 			        </th>
-			        <td><input type="text" name="minimum" />
+			        <td><input id="hn_ts_lowval" type="text" name="minimum" />
 			        </td>
 			        </tr>
 			        
@@ -64,7 +73,7 @@
 			        <th scope="row"><?php _e('What is the highest measurement value you expect to be recorded?',HN_TS_NAME); ?>
 			        <br/><input class="button-secondary" type="button" onclick="alert('<?php hn_ts_whereInfo()?>')" value="More information">
 			        </th>
-			        <td><input type="text" name="maximum" /></td>
+			        <td><input id="hn_ts_highval" type="text" name="maximum" /></td>
 			        </tr>
 			        
 			        <tr valign="top">
@@ -137,7 +146,7 @@ function hn_ts_exaplinMeasuring(){
 }
 
 function hn_ts_exaplinDatatypes(){
-	_e('Data Types are used to store your data in the correct format. For instance, if you are storing image files you would want to use a textual type (VARCHR(255)), but if you are storing temperature readings between 0 and 100 then you would want to use a numeric type (DECIMAL(4,1)). You may use any of the standard MySQL ones as described here: https://dev.mysql.com/doc/refman/5.5/en/data-types.html.');
+	_e('Data Types are used to store your data in the correct format. For instance, if you are storing image files you would want to use a textual type (VARCHR(255)), but if you are storing temperature readings between 0 and 100 then you would want to use a numeric type (DECIMAL(4,1)). You may use any of the standard MySQL ones as described here: https://dev.mysql.com/doc/refman/5.5/en/data-types.html. The following are common choices for different measurement types: CO2 levels (parts per million) - decimal(5,2); noise (decibels) - smallint; humidity (%) - smallint; battery (volts) - decimal(4,2); temperature (Celsius) - decimal(3,1); image files (URL) - varchar(255)');
 }
 
 function hn_ts_whereInfo(){
