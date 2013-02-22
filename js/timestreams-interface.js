@@ -2,7 +2,7 @@
 
 function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, rate, minY, maxY, unit)
 {
-	this.remote_pollingRate = 5000;
+	this.remote_pollingRate = 2000;
 	this.remote_username = "username";
 	this.remote_password = "password";
 	this.remote_url = remoteUrl;
@@ -185,6 +185,8 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	
 	this.save = function()
 	{		
+
+		document.getElementById("hn_ts_saved").innerHTML = "Saving...";
 		var _this = this;
 		
 		if(this.newHead==0)
@@ -231,6 +233,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 
 	this.saveRpcComplete = function(jqXHR, textStatus)
 	{
+		document.getElementById("hn_ts_saved").innerHTML = "Saved.";
 		console.log("saveRpcComplete: " + jqXHR + " "  + textStatus);
 	}	
 	

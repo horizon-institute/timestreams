@@ -7,6 +7,9 @@ jQuery(document).ready(function($) {
 	$('.button-secondary').click(function() {
 		$elem = $(this);
 		var btn_id = $(this).attr('name').split('.')[1];
+		if(btn_id == "ignore"){
+			return;
+		}
 
 		$('#hn_ts_rpl_loading-'.concat(btn_id)).show()
 		$(this).attr('disabled', true);
