@@ -24,7 +24,10 @@
 						<?php
 						foreach($datasources as $meta)
 						{
-							echo "<option value=\"" . $meta->metadata_id . "\">" . $meta->tablename . " " . $meta->measurement_type . " " . $meta->device_details . "</option>";
+							if(!isset($meta->friendlyname) || $meta->friendlyname == ""){
+								$meta->friendlyname = "unnamed";
+							}
+							echo "<option value=\"" . $meta->metadata_id . "\">" . "container: " . $meta->friendlyname . " | type: " . $meta->measurement_type . " | table: " . $meta->tablename . "</option>";
 						}
 						?>
 						</select>

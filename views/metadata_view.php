@@ -64,7 +64,7 @@
 				<th>id</th>
 				<th>view</th>
 				<th>share</th>
-				<th>friendly name</th>
+				<th>name</th>
 				<th>table name</th>
 				<th>device details</th>
 				<th>other info</th>
@@ -85,7 +85,7 @@
 				<th>id</th>
 				<th>view</th>
 				<th>share</th>
-				<th>friendly name</th>
+				<th>name</th>
 				<th>table name</th>
 				<th>device details</th>
 				<th>other info</th>

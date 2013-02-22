@@ -12,7 +12,7 @@
  */
 	function hn_ts_addMetadataRecord(){
 		?>	<button id="hide_ts_ds_form" class="button-primary"><?php _e('Hide Add Measurement Container Form',HN_TS_NAME);?></button>
-			<button id="show_ts_ds_form" class="button-primary"><?php _e(' Show Add Measurement Container Form',HN_TS_NAME);?></button>			
+			<button id="show_ts_ds_form" class="button-primary"><?php _e('Add Measurement Container Form',HN_TS_NAME);?></button>			
 			<div id="ts_ds_form">		
 			<h3><?php _e('Add New Measurement Container'); ?></h3><h4>Required fields have * next to them.</h4> 	
 			<form id="metadataform" method="post" action="">

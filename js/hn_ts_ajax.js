@@ -28,8 +28,9 @@ jQuery(document).ready(function($) {
 
 	// Hide or show Timestreams usage description and instructions
 
-	$("#hide_ts_description").show();
-	$("#show_ts_description").hide();
+	$("#hide_ts_description").hide();
+	$("#show_ts_description").show();
+	$(".ts_description").hide();
 
 	$("#hide_ts_description").click(function() {
 		$(".ts_description").hide();
@@ -42,8 +43,9 @@ jQuery(document).ready(function($) {
 		$("#show_ts_description").hide();
 	});
 
-	$("#hide_ts_instructions").show();
-	$("#show_ts_instructions").hide();
+	$("#hide_ts_instructions").hide();
+	$("#show_ts_instructions").show();
+	$(".ts_instructions").hide();
 
 	$("#hide_ts_instructions").click(function() {
 		$(".ts_instructions").hide();
@@ -58,8 +60,9 @@ jQuery(document).ready(function($) {
 
 	// Hide or show Datsources form
 
-	$("#hide_ts_ds_form").show();
-	$("#show_ts_ds_form").hide();
+	$("#hide_ts_ds_form").hide();
+	$("#show_ts_ds_form").show();
+	$("#ts_ds_form").hide();
 
 	$("#hide_ts_ds_form").click(function() {
 		$("#ts_ds_form").hide();

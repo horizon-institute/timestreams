@@ -137,13 +137,16 @@
 			foreach($metarows as $meta)
 			{
 				$selected = "";
+				if(!isset($meta->friendlyname) || $meta->friendlyname == ""){
+					$meta->friendlyname = "unnamed";
+				}
 				
 				if(!strcmp($meta->metadata_id, $timestream->metadata_id))
 				{
 					$selected = "selected=\"selected\"";
 				}
 			
-				echo "<option " . $selected . " value=\"" . $meta->metadata_id . "\">" . $meta->tablename . " " . $meta->measurement_type . " " . $meta->device_details . "</option>";					
+				echo "<option " . $selected . " value=\"" . $meta->metadata_id . "\">" . "container: " . $meta->friendlyname . " | type: " . $meta->measurement_type . " | table: " . $meta->tablename . "</option>";					
 			}
 			
 			echo "</select></td>";
