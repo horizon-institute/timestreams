@@ -15,10 +15,10 @@
 			<form id="timestreamform" method="post" action="">
 				<table class="form-table">
 					<tr valign="top">
-			        <th scope="row"><?php _e('Timestream Name',HN_TS_NAME); ?>*</th>
+			        <th scope="row"><?php _e('Timestream Name',HN_TS_NAME); ?></th>
 			        <td><input type="text" name="timestream_name" />
 			        </td>
-			        <th scope="row"><?php _e('Measurement Container',HN_TS_NAME); ?>*</th>
+			        <th scope="row"><?php _e('Measurement Container',HN_TS_NAME); ?></th>
 					<td>
 						<select name="timestream_data" >
 						<?php
