@@ -14,8 +14,7 @@
 		<div id="icon-themes" class="icon32"></div>
 		<h2><?php _e('Timestreams - Measurement Containers',HN_TS_NAME); ?></h2>
 		<h3><?php _e('Description',HN_TS_NAME); ?></h3>		
-		<p class="ts_description"><?php _e('Measurement containers store sensor data sent to Timestreams. A device such as a weateher station may collect data using multiple sensors (thermometer, barometer, etc.). 
-				Below is a form to add new measurement containers followed by a list of existing containers that you have access to. 
+		<p class="ts_description"><?php _e('Measurement containers store sensor data sent to Timestreams. A device such as a weateher station may collect data using multiple sensors (thermometer, barometer, etc.).
 				You have access to any containers that you or others on this blog have added, as well as the ones that have been shared with this blog from other ones. 
 				',HN_TS_NAME);?></p>
 		

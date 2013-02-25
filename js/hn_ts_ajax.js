@@ -31,11 +31,11 @@ jQuery(document).ready(function($) {
 
 	// Hide or show Timestreams usage description and instructions
 
-	$("#hide_ts_description").hide();
+	//$("#hide_ts_description").hide();
 	$("#show_ts_description").show();
-	$(".ts_description").hide();
+	//$(".ts_description").hide();
 
-	$("#hide_ts_description").click(function() {
+	/*$("#hide_ts_description").click(function() {
 		$(".ts_description").hide();
 		$("#hide_ts_description").hide();
 		$("#show_ts_description").show();
@@ -44,7 +44,7 @@ jQuery(document).ready(function($) {
 		$(".ts_description").show();
 		$("#hide_ts_description").show();
 		$("#show_ts_description").hide();
-	});
+	});*/
 
 	$("#hide_ts_instructions").hide();
 	$("#show_ts_instructions").show();
