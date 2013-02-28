@@ -60,6 +60,7 @@ class Hn_TS_Database {
 		missing_data_value varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
 		last_IP_Addr varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
 		heartbeat_time timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  		license bigint(20) DEFAULT NULL,
 		PRIMARY KEY  (metadata_id)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
 		$wpdb->query($sql);
@@ -136,6 +137,15 @@ class Hn_TS_Database {
 		  `revoked` tinyint(1) NOT NULL DEFAULT '0',
 		  PRIMARY KEY (`publickey`)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+		$wpdb->query($sql);	
+		
+		$sql = "CREATE TABLE IF NOT EXISTS  `$wpdb->prefix"."ts_datalicenses` (
+		`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  		`name` varchar(100) NOT NULL,
+		`shortname` varchar(20) NOT NULL,
+		`url` varchar(255) NOT NULL,
+		PRIMARY KEY (`id`)
+		) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=10";
 		$wpdb->query($sql);
 		
 		//For some reason dbDelta wasn't working for all of the tables :(
