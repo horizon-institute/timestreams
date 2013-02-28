@@ -456,9 +456,12 @@ class Hn_TS_Database {
 		$blogId = get_current_blog_id();
 		$siteId = get_current_site();
 		$siteId = $siteId->id;
-		$sql = "SELECT wp_ts_metadata . * , wp_ts_metadatafriendlynames.friendlyname 
+		$sql = "SELECT wp_ts_metadata . * , wp_ts_metadatafriendlynames.friendlyname, 
+				wp_ts_datalicenses.name AS licname, wp_ts_datalicenses.shortname AS licshortname, 
+				wp_ts_datalicenses.url AS licurl
 				FROM wp_ts_metadata
 				LEFT JOIN wp_ts_metadatafriendlynames ON wp_ts_metadata.metadata_id = wp_ts_metadatafriendlynames.metadata_id
+				LEFT JOIN wp_ts_datalicenses ON wp_ts_metadata.license = wp_ts_datalicenses.id
 				WHERE (
 				wp_ts_metadata.producer_id = $current_user->ID OR (
 					wp_ts_metadata.producer_blog_id = $blogId AND wp_ts_metadata.producer_site_id = $siteId

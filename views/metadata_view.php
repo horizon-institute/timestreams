@@ -74,6 +74,7 @@
 				<th>unit symbol</th>
 				<th>Data Type</th>
 				<th>Missing Data Value</th>
+				<th>Data License</th>
 				</tr>
 				<?php /*
 				<th>Device IP Address</th>
@@ -95,6 +96,7 @@
 				<th>unit symbol</th>
 				<th>Data Type</th>
 				<th>Missing Data Value</th>
+				<th>Data License</th>
 				</tr>
 				<?php /*
 				<th>Device IP Address</th>
@@ -132,6 +134,7 @@
 					<td>$row->unit_symbol</td>
 					<td>$row->data_type</td>
 					<td>$row->missing_data_value</td>
+					<td><a href=\"$row->licurl\" title=\"$row->licname\">$row->licshortname</a></td>
 					</tr>";
 					//<td>$row->last_IP_Addr</td>
 					//<td>$row->heartbeat_time</td>
