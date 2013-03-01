@@ -12,8 +12,10 @@
 	function hn_ts_meaurementContainerDescription(){
 		?>
 		<div id="icon-themes" class="icon32"></div>
-		<h2><?php _e('Timestreams - Measurement Containers',HN_TS_NAME); ?></h2>
-		<h3><?php _e('Description',HN_TS_NAME); ?></h3>		
+		<h2 ><?php _e('Timestreams - Measurement Containers',HN_TS_NAME); ?></h2><br />
+		<h3 class="ts_description"><?php _e('Description',HN_TS_NAME); ?></h3>
+		<button id="hide_ts_description" class="button-primary"><?php _e('Hide Description',HN_TS_NAME);?></button>
+		<button id="show_ts_description" class="button-primary"><?php _e(' Show Description',HN_TS_NAME);?></button>
 		<p class="ts_description"><?php _e('Measurement containers store sensor data sent to Timestreams. A device such as a weateher station may collect data using multiple sensors (thermometer, barometer, etc.).
 				You have access to any containers that you or others on this blog have added, as well as the ones that have been shared with this blog from other ones. 
 				',HN_TS_NAME);?></p>

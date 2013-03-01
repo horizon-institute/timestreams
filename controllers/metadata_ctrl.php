@@ -95,6 +95,26 @@
 			        <td><input type="text" name="other" 			/></td>
 			        </tr>
 			        
+			        <tr valign="top">
+				        <th scope="row">
+				        <?php 
+				        _e('How do you want to license this data?',HN_TS_NAME);
+				        $db = new Hn_TS_Database();
+				        $rows = $db->hn_ts_select("wp_ts_datalicenses");
+				        ?><br/>
+				        <input class="button-secondary" type="button" onclick="alert(
+				        '<?php hn_ts_explainLicensing()?>')" value="More information">
+				        </th>
+				        <td>
+					        <select id="hn_ts_licensesDD" name="hn_ts_licensesDD">
+					        	<option value="">Standard Licenses</option>
+					        	<?php foreach ($rows as $row){
+			        				echo "<option value=\"$row->id\">$row->name ($row->shortname)</option>";
+								}?>
+					        </select>
+					    </td>
+			        </tr>		
+			        
 			    </table>
 			    
 			    <p class="submit">
@@ -116,7 +136,8 @@
 						$_POST['measurement_type'], $_POST['minimum'], 
 						$_POST['maximum'], $_POST['unit'], $_POST['unit_symbol'], 
 						$_POST['device'], $_POST['other'],$_POST['datatype'],
-						$_POST['missingDataValue'], $_POST['hn_ts_friendlynametb']
+						$_POST['missingDataValue'], $_POST['hn_ts_friendlynametb'], 
+							$_POST['hn_ts_licensesDD']
 					);
 					if(isset($table)){
 						
@@ -158,4 +179,8 @@ function hn_ts_exaplinDatatypes(){
 
 function hn_ts_whereInfo(){
 	_e('You might be able to find this out from the packaging your sensor came in or from the person you received the sensor from.');
+}
+
+function hn_ts_explainLicensing(){
+	_e('Licences are legal instruments that let you permit others to do things with your data that would otherwise infringe on your rights as the data copyright owner. See www.dcc.ac.uk/resources/how-guides/license-research-data for more information about licensing data. If you wish to use use an alternative license, select other and include details about the license (prefereably with a URL to it) in the Any other information? field above.');
 }

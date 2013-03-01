@@ -159,33 +159,31 @@
 			echo "<tr>";
 			
 			echo "<td>";
-			echo "<div id=\"timestream_" . $timestream->timestream_id . "\" style=\"width:800px; height:200px;\"></div>";
+			echo "<div id=\"timestream_" . $timestream->timestream_id . "\" style=\"width:800px; height:200px; \"></div>";
 			echo "<a style=\"padding: 2px;position:absolute; left:30px; margin-top: 5px\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].prev()\">";_e('< prev',HN_TS_NAME); echo "</a> ";
-			echo "<a style=\"padding: 2px;position:absolute; right:340px; margin-top: 5px\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].next()\">";_e('next >',HN_TS_NAME); echo "</a> ";
-			echo "<a style=\"padding: 2px;position:absolute; right:290px; margin-top: 5px;\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].latest()\">";_e('latest',HN_TS_NAME); echo "</a><br />";
+			echo "<a style=\"padding: 2px;position:absolute; left:90px; margin-top: 5px\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].next()\">";_e('next >',HN_TS_NAME); echo "</a> ";
+			echo "<a style=\"padding: 2px;position:absolute; left:150px; margin-top: 5px; \" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].latest()\">";_e('latest',HN_TS_NAME); echo "</a><br />";
 			echo "</td>";
 			
 			echo "<td>";
-			echo "<div style=\"width:200px; height:200px; padding-bottom: 1em;\">";
-			
+			echo "<div style=\"width:200px; height:200px; padding-bottom: 1em;\">";			
 			_e('head time'); echo ": <br>";
 			echo "<a style=\"padding: 2px\" name=\"a.ignore\" class=\"button-secondary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(1)\">";_e('set head',HN_TS_NAME); echo "</a>";
-			echo "<input type=\"text\" name=\"head\" id=\"timestream_" . $timestream->timestream_id . "_head\" ></input><br>";
+			echo "<input style=\"margin-top: 5px;\" type=\"text\" name=\"head\" id=\"timestream_" . $timestream->timestream_id . "_head\" ></input><br>";
 			_e('start time'); echo ": <br>";
-			echo "<a style=\"padding: 2px\" name=\"b.ignore\" class=\"button-secondary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(2)\">";_e('set start',HN_TS_NAME); echo "</a> ";
-			echo "<input value=\"$timestream->starttime \" type=\"text\" name=\"start\" id=\"timestream_" . $timestream->timestream_id . "_start\"></input><br>";
+			echo "<a style=\"padding: 2px; \" name=\"b.ignore\" class=\"button-secondary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(2)\">";_e('set start',HN_TS_NAME); echo "</a> ";
+			echo "<input style=\"margin-top: 5px;\" value=\"$timestream->starttime \" type=\"text\" name=\"start\" id=\"timestream_" . $timestream->timestream_id . "_start\"></input><br>";
 			_e('end time'); echo ": <br>";
 			echo "<a style=\"padding: 2px\" name=\"c.ignore\" class=\"button-secondary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(3)\">";_e('set end',HN_TS_NAME); echo "</a> ";
-			echo "<input value=\"$timestream->starttime \" type=\"text\" name=\"end\" id=\"timestream_" . $timestream->timestream_id . "_end\"></input><br>";
+			echo "<input style=\"margin-top: 5px;\" value=\"$timestream->starttime \" type=\"text\" name=\"end\" id=\"timestream_" . $timestream->timestream_id . "_end\"></input><br>";
 			_e('start / end time disabled'); echo ": <input type=\"checkbox\" name=\"endEnable\" value=\"true\" onclick=timestreams[" . $timestream->timestream_id . "].toggleStartEnd() /><br>";
-			_e('rate'); echo ": <br><input type=\"text\" name=\"rate\" id=\"timestream_" . $timestream->timestream_id . "_rate\" value=\"" . $head->rate . "\"></input>";
-			echo "<a style=\"padding: 2px; margin-left: 5px\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].save()\">";_e('save',HN_TS_NAME); echo "</a> <span id=\"hn_ts_saved\"></span><br /><br />";			
-			
+			_e('rate'); echo ": <br><input style=\"margin-bottom: 5px;\" type=\"text\" name=\"rate\" id=\"timestream_" . $timestream->timestream_id . "_rate\" value=\"" . $head->rate . "\"></input>";
+			echo "<a style=\"padding: 2px; margin-left: 5px;\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].save()\">";_e('save',HN_TS_NAME); echo "</a> <span id=\"hn_ts_saved\"></span><br /><br />";			
 			echo "</div>";
 			echo "</td>";
 
 			echo "</tr>";
-			echo "</table>";
+			echo "</table><br/><br/><br/><hr/>";
 
 			if($metadata!=null && $head!=null)
 			{

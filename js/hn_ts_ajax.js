@@ -93,7 +93,7 @@ jQuery(document).ready(function($) {
 	 	if($(this).val() == 'CO2'){
 	 		$('#hn_ts_unittb').val('text/x-data-CO2');	  
 	 		$('#hn_ts_unitsymboltb').val('ppm');	  
-	 		$('#hn_ts_datatypetb').val('DECIMAL(5,2)');	  
+	 		$('#hn_ts_datatypetb').val('DECIMAL(6,2)');	  
 	 		$('#hn_ts_lowval').val('0');	  	 
 	 		$('#hn_ts_highval').val('5000');	
 	 	}

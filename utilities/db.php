@@ -218,7 +218,7 @@ class Hn_TS_Database {
 	function hn_ts_addMetadataRecord($blog_id='', $measurementType, 
 			$minimumvalue, $maximumvalue,
 			$unit, $unitSymbol, $deviceDetails, $otherInformation, 
-			$dataType,$missingDataValue,$friendlyId=NULL, $siteId=1){
+			$dataType,$missingDataValue,$friendlyId=NULL, $license=NULL, $siteId=1){
 		global $wpdb;
 		if($blog_id==''){
 			global $blog_id;
@@ -277,9 +277,10 @@ class Hn_TS_Database {
 						'missing_data_value' => $missingDataValue,
 						'producer_site_id' => $siteId,
 						'producer_blog_id' => $blog_id,
-						'producer_id' => $current_user->ID),
+						'producer_id' => $current_user->ID,
+						'license' => $license),
 				array( '%s', '%s', '%s', '%s', '%s', '%s', 
-						'%s' , '%s','%s', '%s' , '%s' )
+						'%s' , '%s','%s', '%s' , '%s', '%s' )
 		);
 		
 		if (FALSE != $res && NULL != $friendlyId){				
