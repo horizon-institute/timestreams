@@ -40,7 +40,7 @@
 		    }
 
 			</script>
-			<div id='viz_" . $this->vizId . "'></div>
+			<div id='viz_" . $this->vizId . "'><img id='viz_" . $this->vizId . "_img' src=''></div>
 			<div id='viz_" . $this->vizId . "_meta'></div>			
 			";
 		}

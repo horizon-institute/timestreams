@@ -5,6 +5,7 @@ function SimpleImage(remoteUrl, timestreamId, dataDiv, metaDiv)
 	this.timestreamId = timestreamId;
 	this.dataDiv = dataDiv;
 	this.metaDiv = metaDiv;
+	this.imgDiv = dataDiv+"_img";
 
 	this.init = function()
 	{
@@ -16,7 +17,8 @@ function SimpleImage(remoteUrl, timestreamId, dataDiv, metaDiv)
 		
 	this.onData = function(data)
 	{
-		elem = document.getElementById(this.dataDiv);
+		console.log(this.imgDiv);
+		elem = document.getElementById(this.imgDiv);
 		elem.src = data.value;
 		//document.getElementById(this.dataDiv).src = data.value;
 	}
