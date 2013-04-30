@@ -14,7 +14,7 @@
  */
 function hn_ts_generateKeys(){
 	?>
-		<div id="ts_ds_form">		
+		<div>		
 			<h3><?php _e('API Key Generation'); ?></h3>			
 			<form id="apikeyform" method="post" action="">
 				<input type="submit" name='hn_ts_new_api_key' class="button-primary" value="<?php _e('Create New API Keys',HN_TS_NAME) ?>" />
