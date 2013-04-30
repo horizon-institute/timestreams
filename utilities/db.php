@@ -139,13 +139,24 @@ class Hn_TS_Database {
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
 		$wpdb->query($sql);	
 		
-		$sql = "CREATE TABLE IF NOT EXISTS  `$wpdb->prefix"."ts_datalicenses` (
+		$sql = "CREATE TABLE IF NOT EXISTS `$wpdb->prefix"."ts_datalicenses` (
 		`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   		`name` varchar(100) NOT NULL,
 		`shortname` varchar(20) NOT NULL,
 		`url` varchar(255) NOT NULL,
 		PRIMARY KEY (`id`)
-		) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=10";
+		) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=10;
+		INSERT INTO `$wpdb->prefix"."ts_datalicenses` (`id`, `name`, `shortname`, `url`) VALUES
+		(1, 'Open Data Commons Attribution Licence', 'ODC-By', 'http://opendatacommons.org/licenses/by/'),
+		(2, 'Open Data Commons Open Database Licence', 'ODC-ODbL', 'http://opendatacommons.org/licenses/odbl/'),
+		(3, 'Open Data Commons Database Contents Licence', 'ODC-DbCL', 'http://opendatacommons.org/licenses/dbcl/'),
+		(4, 'Attribution 3.0 Unported', 'CC BY 3.0', 'https://creativecommons.org/licenses/by/3.0/'),
+		(5, 'Attribution-ShareAlike 3.0 Unported', 'CC BY-SA 3.0', 'https://creativecommons.org/licenses/by-sa/3.0/'),
+		(6, 'Attribution-NoDerivs 3.0 Unported', 'CC BY-ND 3.0', 'https://creativecommons.org/licenses/by-nd/3.0/'),
+		(7, 'Attribution-NonCommercial 3.0 Unported', 'CC BY-NC 3.0', 'https://creativecommons.org/licenses/by-nc/3.0/'),
+		(8, 'Attribution-NonCommercial-ShareAlike 3.0 Unported', 'CC BY-NC-SA 3.0', 'https://creativecommons.org/licenses/by-nc-sa/3.0/'),
+		(9, 'Attribution-NonCommercial-NoDerivs 3.0 Unported ', 'CC BY-NC-ND 3.0', 'https://creativecommons.org/licenses/by-nc-nd/3.0/'),
+		(10, 'other', 'other', '');";
 		$wpdb->query($sql);
 		
 		//For some reason dbDelta wasn't working for all of the tables :(
