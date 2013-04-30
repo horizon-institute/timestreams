@@ -65,7 +65,7 @@
 			}
 			$offset = $offset*$limit;
 			//$args = array( username,password,table name,minimum timestamp,maximum timestamp,limit -- optional,offset -- optional);
-			$args = array( null,null,$tablename,$min,$max,$limit,$offset);
+			$args = array( null,null,$tablename,$min,$max,$limit,$offset,"valid_time");
 			$rows = $db->hn_ts_get_readings_from_name($args);
 			if($rows){
 				foreach ( $rows as $row )
