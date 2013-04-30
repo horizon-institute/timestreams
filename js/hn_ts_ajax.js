@@ -99,7 +99,7 @@ jQuery(document).ready(function($) {
 	 	}
 	 	
 	 	if($(this).val() == 'humidity'){
-	 		$('#hn_ts_unittb').val('text/x-data-messages');	  
+	 		$('#hn_ts_unittb').val('text/x-data-percent');	  
 	 		$('#hn_ts_unitsymboltb').val('%');	  
 	 		$('#hn_ts_datatypetb').val('SMALLINT');	  
 	 		$('#hn_ts_lowval').val('0');	  	 
@@ -107,7 +107,7 @@ jQuery(document).ready(function($) {
 	 	}
 	 	
 	 	if($(this).val() == 'temperature'){
-	 		$('#hn_ts_unittb').val('text/x-data-messages');	  
+	 		$('#hn_ts_unittb').val('text/x-data-celsius');	  
 	 		$('#hn_ts_unitsymboltb').val('C');	  
 	 		$('#hn_ts_datatypetb').val('messages');	  
 	 		$('#hn_ts_lowval').val('-40');	  	 
