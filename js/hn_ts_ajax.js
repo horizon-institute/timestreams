@@ -109,7 +109,7 @@ jQuery(document).ready(function($) {
 	 	if($(this).val() == 'temperature'){
 	 		$('#hn_ts_unittb').val('text/x-data-celsius');	  
 	 		$('#hn_ts_unitsymboltb').val('C');	  
-	 		$('#hn_ts_datatypetb').val('messages');	  
+	 		$('#hn_ts_datatypetb').val('DECIMAL(3,1)');	  
 	 		$('#hn_ts_lowval').val('-40');	  	 
 	 		$('#hn_ts_highval').val('125');	
 	 	}
