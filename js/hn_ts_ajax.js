@@ -137,6 +137,38 @@ jQuery(document).ready(function($) {
 	 		$('#hn_ts_lowval').val('');	  	 
 	 		$('#hn_ts_highval').val('');	  
 	 	}
+	 	
+	 	if($(this).val() == 'hive temperature'){
+	 		$('#hn_ts_unittb').val('text/x-data-celsius');	  
+	 		$('#hn_ts_unitsymboltb').val('C');	  
+	 		$('#hn_ts_datatypetb').val('DECIMAL(3,1)');	
+	 		$('#hn_ts_lowval').val('20');	  	 
+	 		$('#hn_ts_highval').val('50');	  
+	 	}
+	 	
+	 	if($(this).val() == 'hive weight'){
+	 		$('#hn_ts_unittb').val('text/x-data-kilograms');	  
+	 		$('#hn_ts_unitsymboltb').val('kg');	  
+	 		$('#hn_ts_datatypetb').val('DECIMAL(4,2)');	
+	 		$('#hn_ts_lowval').val('5');	  	 
+	 		$('#hn_ts_highval').val('50');	  
+	 	}
+	 	
+	 	if($(this).val() == 'hive humidity'){
+	 		$('#hn_ts_unittb').val('text/x-data-percent');	  
+	 		$('#hn_ts_unitsymboltb').val('%');	  
+	 		$('#hn_ts_datatypetb').val('DECIMAL(4,1)');	  
+	 		$('#hn_ts_lowval').val('0');	  	 
+	 		$('#hn_ts_highval').val('100');	
+	 	}
+	 	
+	 	if($(this).val() == 'hive feeder weight'){
+	 		$('#hn_ts_unittb').val('text/x-data-grams');	  
+	 		$('#hn_ts_unitsymboltb').val('kg');	  
+	 		$('#hn_ts_datatypetb').val('DECIMAL(5,1)');	
+	 		$('#hn_ts_lowval').val('0');	  	 
+	 		$('#hn_ts_highval').val('5000');	  
+	 	}
 	});
 });
 

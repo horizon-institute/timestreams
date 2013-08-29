@@ -38,6 +38,10 @@
 					        	<option value="temperature">temperature</option>
 					        	<option value="images">images</option>
 					        	<option value="messages">messages</option>
+					        	<option value="hive temperature">hive temperature</option>
+					        	<option value="hive weight">hive weight</option>
+					        	<option value="hive humidity">hive humidity</option>
+					        	<option value="hive feeder weight">hive feeder weight</option>
 					        </select>
 					    </td>
 			        </tr>		        
