@@ -25,7 +25,9 @@
 				__FILE__.'apikeys','hn_ts_api_admin_page');
 		global $hn_ts_admin_page_repl;
 		$hn_ts_admin_page_repl = add_submenu_page(__FILE__, 'Replication', __('Replication',HN_TS_NAME), 'manage_options',
-				__FILE__.'replication','hn_ts_replication_admin_page');
+				__FILE__.'replication','hn_ts_replication_admin_page');		
+		add_submenu_page(__FILE__, 'Config Generator', __('Config Generator',HN_TS_NAME), 'manage_options',
+				__FILE__.'configGenerator','hn_ts_conf_gen');
 	}
 	
 	/**
@@ -146,6 +148,21 @@
 		?>
 		</div>
 		<?php		
+	}
+	
+	function hn_ts_conf_gen(){		
+		?>
+		<div class="wrap">
+			<div id="icon-edit-pages" class="icon32"></div>
+			<h2 style="padding-bottom: 1em;"><?php _e('Config File Generator',HN_TS_NAME); ?></h2>
+			<h3><?php _e('Description',HN_TS_NAME); ?></h3>
+			<p><?php _e('Use this form to generate a Beelab software configuration file. Once generated, click on the link, save the file to your computer, then point the Beelab software to the file.',HN_TS_NAME); ?></p>
+			<hr />
+		<?php
+			hn_ts_addConfGenCtrl();
+		?>
+		</div>
+		<?php
 	}
 	
 ?>

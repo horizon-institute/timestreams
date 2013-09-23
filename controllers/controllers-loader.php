@@ -18,4 +18,5 @@
 	require_once( HN_TS_CONTROLLERS_DIR . '/replication_ctrl.php'     );
 	require_once( HN_TS_CONTROLLERS_DIR . '/timestreams_ctrl.php'     );
 	require_once( HN_TS_CONTROLLERS_DIR . '/api_key_ctrl.php'     );
+	require_once( HN_TS_CONTROLLERS_DIR . '/hn_ts_conf_gen_ctrl.php'     );
 ?>
