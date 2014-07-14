@@ -1048,7 +1048,7 @@ class Hn_TS_Database {
 				array('%d')
 		);
 			
-		$headId = mysql_insert_id();
+		$headId = $wpdb->insert_id;
 		global $current_user;
 		get_currentuserinfo();
 			
@@ -1098,9 +1098,10 @@ class Hn_TS_Database {
 		global $wpdb;
 		global $current_user;
 		get_currentuserinfo();
-			
-		return $wpdb->get_results($wpdb->prepare("SELECT * FROM wp_ts_timestreams WHERE ".
+		$results=$wpdb->get_results($wpdb->prepare("SELECT * FROM wp_ts_timestreams WHERE ".
 				"user_id = '$current_user->ID' ORDER BY timestream_id DESC"));
+		// echo print_r($results,true);
+		return $results;
 	}
 
 	function hn_ts_getReadHead($headId)

@@ -6,7 +6,6 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	this.remote_username = "username";
 	this.remote_password = "password";
 	this.remote_url = remoteUrl;
-	
 	this.timestreamId = timestreamId;
 	
 	this.head = 0;
@@ -39,17 +38,19 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	//o = _n.getTimezoneOffset();
 	console.log(o);
 	//_en = new Date(end*1000);
-
-	console.log(start);
-	console.log(end);
-	console.log(new Date(start*1000));
-	console.log(new Date(end*1000));*/
+*/
+	
 
 	
 	
 	this.end = (end+this.offset+(_startoffset*60))*1000;	
 	this.start = (start+this.offset+(_endoffset*60))*1000;
 	this.startEndEnabled = true;
+
+	console.log(start);
+	console.log(end);
+	console.log(new Date(start*1000));
+	console.log(new Date(end*1000));
 	
 	this.data = [];
 	this.annotations = [];
@@ -98,11 +99,21 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 			this.isMedia = 2;
 			this.dataLimit = 20;
 		}
-		
+
 		if(this.end > 0)
 		{
-			this.startEndEnabled = true;
+			
+			
+		}else{
+
 		}
+		this.startEndEnabled = true;
+		document.getElementById("timestream_" + this.timestreamId + "_start").disabled = false;
+		document.getElementById("timestream_" + this.timestreamId + "_end").disabled = false;
+		document.getElementById("timestream_" + this.timestreamId + "_start_button").disabled = false;
+		document.getElementById("timestream_" + this.timestreamId + "_end_button").disabled = false;
+		document.getElementById("timestream_" + this.timestreamId + "_startEndEnableCheckbox").checked = false;
+		
 	}
 	
 	this.initDygraph = function()
@@ -186,7 +197,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	this.save = function()
 	{		
 
-		document.getElementById("hn_ts_saved").innerHTML = "Saving...";
+		
 		var _this = this;
 		
 		if(this.newHead==0)
@@ -205,10 +216,17 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		{
 			_start = (this.start/1000) - this.offset;
 			_end = (this.end/1000) - this.offset;
+			if (_head>_end || _head<_start) {
+				alert("Set the playhead inside the interval or check \"start / end time disabled\" to only set a start point");
+				return;
+			};
+		}else{
+			 _start=_head;
+			 _end=-3600;
 		}
 		
 		var _rate = document.getElementById("timestream_"+this.timestreamId+"_rate").value;
-				
+		document.getElementById("hn_ts_saved").innerHTML = "Saving...";
 		jQuery.ajax({
 		    url: this.remote_url + "/timestream/head/"+this.timestreamId,
 		    type: 'PUT',
@@ -239,15 +257,24 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	
 	this.setInteractionMode = function(mode)
 	{
-		this.interactionMode = mode;		
+		if(this.startEndEnabled || mode == 1){
+			this.interactionMode = mode;
+		}else{
+			alert("This function can't be used if \"start / end time disabled\" checkbox is toggled");
+		}
+				
 	}
 	
 	this.toggleStartEnd = function()
 	{
 		this.startEndEnabled = !this.startEndEnabled;
-		
+		if (!this.startEndEnabled) {
+			this.interactionMode = 0;
+		};
 		document.getElementById("timestream_" + this.timestreamId + "_start").disabled = !this.startEndEnabled;
 		document.getElementById("timestream_" + this.timestreamId + "_end").disabled = !this.startEndEnabled;
+		document.getElementById("timestream_" + this.timestreamId + "_start_button").disabled = !this.startEndEnabled;
+		document.getElementById("timestream_" + this.timestreamId + "_end_button").disabled = !this.startEndEnabled;
 	}
 	
 	this.redraw = function()
@@ -282,6 +309,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 
 		ctx.fillStyle = "rgba(255, 0, 0, 1.0)";
 		ctx.fillRect(e.dygraph.toDomXCoord(this.head), 0, 5, 200);
+		console.log(this.head);
 		
 		ctx.fillStyle = "rgba(255, 150, 150, 1.0)";
 		ctx.fillRect(e.dygraph.toDomXCoord(this.newHead), 0, 5, 200);
