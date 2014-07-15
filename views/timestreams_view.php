@@ -164,7 +164,8 @@
 			echo "<div id=\"timestream_" . $timestream->timestream_id . "\" style=\"width:800px; height:200px; \"></div>";
 			echo "<a style=\"padding: 2px;position:absolute; left:30px; margin-top: 5px\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].prev()\">";_e('< prev',HN_TS_NAME); echo "</a> ";
 			echo "<a style=\"padding: 2px;position:absolute; left:90px; margin-top: 5px\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].next()\">";_e('next >',HN_TS_NAME); echo "</a> ";
-			echo "<a style=\"padding: 2px;position:absolute; left:150px; margin-top: 5px; \" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].latest()\">";_e('latest',HN_TS_NAME); echo "</a><br />";
+			echo "<a style=\"padding: 2px;position:absolute; left:150px; margin-top: 5px; \" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].latest()\">";_e('latest',HN_TS_NAME); echo "</a>";
+			echo "<div style=\"visibility:hidden; padding: 2px;position:absolute; left:200px; margin-top: 5px; \" id=\"timestream_" . $timestream->timestream_id . "_loading\" ><img src=\"".site_url()."/wp-content/plugins/timestreams/images/spin-wheel.gif\"/></br>";
 			echo "</td>";
 			
 			echo "<td>";

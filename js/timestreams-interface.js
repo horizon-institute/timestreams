@@ -166,6 +166,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	
 	this.latest = function()
 	{
+		document.getElementById("timestream_" + this.timestreamId + "_loading").style.visibility="visible";
 		this.dataLatest = true;
 		this.dataOffset = 0;
 		this.dataResetOnData = true;
@@ -175,6 +176,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	
 	this.prev = function()
 	{
+		document.getElementById("timestream_" + this.timestreamId + "_loading").style.visibility="visible";
 		this.dataLatest = false;
 		this.dataOffset+=this.dataLimit;
 		this.dataResetOnData = true;
@@ -184,6 +186,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	
 	this.next = function()
 	{
+		document.getElementById("timestream_" + this.timestreamId + "_loading").style.visibility="visible";
 		this.dataLatest = false;
 		this.dataOffset-=this.dataLimit;	
 		this.dataResetOnData = true;	
@@ -310,6 +313,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		
 		ctx.fillStyle = "rgba(255, 150, 150, 1.0)";
 		ctx.fillRect(e.dygraph.toDomXCoord(this.newHead), 0, 5, 200);
+		document.getElementById("timestream_" + this.timestreamId + "_loading").style.visibility="hidden";
 
 	}
 	
@@ -413,6 +417,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	
 	this.dataRpcSuccess = function(data, textStatus, jqXHR)
 	{
+		// document.getElementById("timestream_" + this.timestreamId + "_loading").style.visibility="hidden";
 		var obj = jQuery.parseJSON(data);
 		var readings = obj.measurements;
 		
@@ -482,11 +487,13 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	
 	this.dataRpcComplete = function(jqXHR, textStatus)
 	{
+		// document.getElementById("timestream_" + this.timestreamId + "_loading").style.visibility="hidden";
 		//console.log("dataRpcComplete: " + jqXHR + " "  + textStatus);
 	}
 	
 	this.dataRpcError = function(jqXHR, textStatus, errorThrown)
 	{
+		// document.getElementById("timestream_" + this.timestreamId + "_loading").style.visibility="hidden";
 		console.log("dataRpcError: " + jqXHR + " " + textStatus + " " + errorThrown);
 	}
 	
