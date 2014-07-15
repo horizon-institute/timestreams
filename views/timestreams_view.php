@@ -212,10 +212,7 @@
 
 			<?php
 			}
-			else
-			{
-				echo "NO DATASOURCE!!!!!";
-			}
+			
 		}
 	}
 ?>

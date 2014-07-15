@@ -24,6 +24,7 @@
 	function hn_ts_load_Datasources_scripts($hook){
 		wp_enqueue_script('ts-ajax', '/wp-content/plugins/timestreams/js/hn_ts_ajax.js');
 	}
+
 	
 	add_action('admin_enqueue_scripts', 'hn_ts_load_Datasources_scripts');
 	/**
@@ -89,8 +90,113 @@
 			</div>
 		</div>
 		<hr />
+		<h3>Upload data in CSV format</h3></br>
+		<h4>Please use the format [value],[timestamp];</h4>
+		e.g.: </br></br> 
+		2.345,2012-11-09 12:10:23;</br>
+		13,2012-11-09 12:10:24;</br></br>
+		or</br></br>
+		some text,2012-11-09 12:10:23;</br>
+		some other text,2012-11-09 12:10:24;</br></br>
+		<strong>Notice: the character "," is forbidden inside the fields</strong>
+		<form method="post" action="">
+			<textarea name="csv-upload" id="csv-upload" cols="50" rows="10" tabindex="4"></textarea></br>
+			<button type="submit" id="upload-button" class="button-primary">
+				Upload
+			</button>
+		</form>
+		
 		<?php	
+
+		if(isset($_POST)){
+			addMeasurements($db,$tablename,$_POST['csv-upload']);
+
+		}else{
+			return;
+
+		}
+
 	}
+
+	function checkCSV($text){
+		$data = str_getcsv4($text,";");
+		$counter=0;
+		foreach ($data as $line) {
+			$counter+=1;
+			if(strlen($line)){
+				if(count(explode(',', $line))!=2 ){
+					return false;
+				}
+			}else{
+				if($counter != count($data)){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	function CSV2Obj($text){
+		$data = str_getcsv4($text,";");
+		foreach ($data as $line) {
+			if(strlen($line)){
+				$obj['v']=explode(',', $line)[0];
+				$obj['t']=explode(',', $line)[1];
+				$temp[]=$obj;
+			}
+		}
+		return $temp;
+
+	}
+
+	function str_getcsv4($input, $delimiter = ',', $enclosure = '"') {
+
+	    if( ! preg_match("/[$enclosure]/", $input) ) {
+	      return (array)preg_replace(array("/^\\s*/", "/\\s*$/"), '', explode($delimiter, $input));
+	    }
+
+	    $token = "##"; $token2 = "::";
+	    $t1 = preg_replace(array("/\\\[$enclosure]/", "/$enclosure{2}/",
+	         "/[$enclosure]\\s*[$delimiter]\\s*[$enclosure]\\s*/", "/\\s*[$enclosure]\\s*/"),
+	         array($token2, $token2, $token, $token), trim(trim(trim($input), $enclosure)));
+
+	    $a = explode($token, $t1);
+	    foreach($a as $k=>$v) {
+	        if ( preg_match("/^{$delimiter}/", $v) || preg_match("/{$delimiter}$/", $v) ) {
+	            $a[$k] = trim($v, $delimiter); $a[$k] = preg_replace("/$delimiter/", "$token", $a[$k]); }
+	    }
+	    $a = explode($token, implode($token, $a));
+	    return (array)preg_replace(array("/^\\s/", "/\\s$/", "/$token2/"), array('', '', $enclosure), $a);
+
+	}
+
+	
+
+	function addMeasurements($db,$tablename,$measurements){
+		
+		if(!$tablename){
+			//error no name
+		}else{
+			if(checkCSV($measurements)){
+				$measurements=CSV2Obj($measurements);
+				$sql = "INSERT INTO $tablename (value, valid_time) VALUES ";
+				$args=["username","password",$tablename];
+				foreach($measurements as $m){
+					$args[]=$db->hn_ts_sanitise($m['v']);
+					$args[]=$db->hn_ts_sanitise($m['t']);	
+				}
+
+				$no_rows = $db->hn_ts_insert_readings($args);
+
+			}else{
+				//error no measurements
+			}
+
+		}
+		
+	}
+
+
 	function buildPagination($db, $offset, $limit, $args){
 		$numRows = $db->hn_ts_get_count_from_name($args);
 		if (isset($_GET['pageNum'])) {

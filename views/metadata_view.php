@@ -152,7 +152,7 @@
 				<?php //<a href="#" class="next page-numbers">&raquo;</a> ?>
 			</div>
 		</div>
-		<hr />
+		<hr/>
 		<?php
 		
 			

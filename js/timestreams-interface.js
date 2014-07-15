@@ -40,9 +40,6 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	//_en = new Date(end*1000);
 */
 	
-
-	
-	
 	this.end = (end+this.offset+(_startoffset*60))*1000;	
 	this.start = (start+this.offset+(_endoffset*60))*1000;
 	this.startEndEnabled = true;
