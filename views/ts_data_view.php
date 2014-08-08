@@ -140,8 +140,9 @@
 		$data = str_getcsv4($text,";");
 		foreach ($data as $line) {
 			if(strlen($line)){
-				$obj['v']=explode(',', $line)[0];
-				$obj['t']=explode(',', $line)[1];
+				$foo=explode(',', $line);
+				$obj['v']=$foo[0];
+				$obj['t']=$foo[1];
 				$temp[]=$obj;
 			}
 		}
