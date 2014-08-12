@@ -1,4 +1,5 @@
-<?php/**
+<?php
+/**
  * Functions to generate a config file for Beelab software
  * Author: Jesse Blum (JMB)
  * Date: 2013
@@ -125,4 +126,5 @@ function hn_ts_addConfGenCtrl(){
 				echo '<a href="' . $uploads['url'] . $filename . 
 				'" title="Beelab configuration file">Click here to download configuration file</a>';
 			}	
-	}?>	
+	}
+		
