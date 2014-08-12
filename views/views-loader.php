@@ -21,7 +21,6 @@
 	require_once( HN_TS_VIEWS_DIR . '/replication_view.php'     );
 	require_once( HN_TS_VIEWS_DIR . '/timestreams_view.php'     );
 	require_once( HN_TS_VIEWS_DIR . '/visualisations_view.php'     );
-	require_once( HN_TS_VIEWS_DIR . '/visualisation_loader.php'     );
 	require_once( HN_TS_VIEWS_DIR . '/apikey_view.php'     );
 	
 ?>

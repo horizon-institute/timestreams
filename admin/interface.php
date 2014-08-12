@@ -145,7 +145,6 @@
 			<hr />
 		<?php
 			hn_ts_showVisualisations();
-			hn_ts_visualizationLoader();
 		?>
 		</div>
 		<?php		
