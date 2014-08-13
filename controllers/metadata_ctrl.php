@@ -11,6 +11,8 @@
  * Todo: add validation & make messages stand out more
  */
 	function hn_ts_addMetadataRecord(){
+		global $wpdb;
+
 		?>	<button id="hide_ts_ds_form" class="button-primary"><?php _e('Hide Add Measurement Container Form',HN_TS_NAME);?></button>
 			<button id="show_ts_ds_form" class="button-primary"><?php _e('Add Measurement Container',HN_TS_NAME);?></button>			
 			<div id="ts_ds_form">		
