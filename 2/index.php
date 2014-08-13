@@ -60,7 +60,7 @@ $hn_ts_authenticate = function () {
 	}
 
 	// Select private key for given public key
-	$sql = "SELECT privatekey,userid FROM wp_ts_apikeys WHERE publickey =
+	$sql = "SELECT privatekey,userid FROM ".$wpdb->prefix."apikeys WHERE publickey =
 	'$pub' AND revoked='0'";
 	$rows = querySql($sql);
 	$pri='';
@@ -428,7 +428,7 @@ function hn_ts_sqlblogshare($userId){
 	FROM `wp_bu_blogusers` blogusers
 	JOIN (
 	SELECT table_name, site_id, blog_id
-	FROM `wp_ts_container_shared_with_blog`
+	FROM `".$wpdb->prefix."container_shared_with_blog`
 	) share ON (share.site_id = blogusers.site_id AND
 	share.blog_id = blogusers.blog_id )
 	WHERE blogusers.user_id =$userId
@@ -451,7 +451,7 @@ function hn_ts_sqlblogshare($userId){
 function hn_ts_isTableAccessibleToUser($table){
 	global $hn_tsuserid;
 	$sqlStr = hn_ts_sqlblogshare($hn_tsuserid);
-	$sql = "SELECT COUNT(*) AS count FROM wp_ts_metadata
+	$sql = "SELECT COUNT(*) AS count FROM ".$wpdb->prefix."metadata
 	WHERE tablename = '$table' AND
 	(producer_id=$hn_tsuserid OR $sqlStr) ";
 	$rows = querySql($sql);
@@ -465,15 +465,15 @@ function hn_ts_isTableAccessibleToUser($table){
 /** API Callback functions ***************************************************/
 
 /**
- * Returns wp_ts_metadata entries
+ * Returns ".$wpdb->prefix."metadata entries
  */
 function hn_ts_metadata() {
 	global $hn_tsuserid;
 	$sqlStr = hn_ts_sqlblogshare($hn_tsuserid);
-	$sql = "SELECT wp_ts_metadata.*, wp_ts_metadatafriendlynames.friendlyname
-	FROM wp_ts_metadata
-	LEFT JOIN wp_ts_metadatafriendlynames
-	ON wp_ts_metadatafriendlynames.metadata_id=wp_ts_metadata.metadata_id
+	$sql = "SELECT ".$wpdb->prefix."metadata.*, ".$wpdb->prefix."metadatafriendlynames.friendlyname
+	FROM ".$wpdb->prefix."metadata
+	LEFT JOIN ".$wpdb->prefix."metadatafriendlynames
+	ON ".$wpdb->prefix."metadatafriendlynames.metadata_id=".$wpdb->prefix."metadata.metadata_id
 	WHERE producer_id=$hn_tsuserid OR $sqlStr";
 	echoJsonQuery($sql, "metadata");
 }
@@ -484,11 +484,11 @@ function hn_ts_metadata() {
 function hn_ts_list_mc_names(){
 	global $hn_tsuserid;
 	$sqlStr = hn_ts_sqlblogshare($hn_tsuserid);
-	$sql = "SELECT wp_ts_metadata.metadata_id AS id,
-	wp_ts_metadata.tablename AS name, wp_ts_metadatafriendlynames.friendlyname
-	FROM  wp_ts_metadatafriendlynames
-	RIGHT JOIN wp_ts_metadata
-	ON wp_ts_metadatafriendlynames.metadata_id=wp_ts_metadata.metadata_id
+	$sql = "SELECT ".$wpdb->prefix."metadata.metadata_id AS id,
+	".$wpdb->prefix."metadata.tablename AS name, ".$wpdb->prefix."metadatafriendlynames.friendlyname
+	FROM  ".$wpdb->prefix."metadatafriendlynames
+	RIGHT JOIN ".$wpdb->prefix."metadata
+	ON ".$wpdb->prefix."metadatafriendlynames.metadata_id=".$wpdb->prefix."metadata.metadata_id
 	WHERE producer_id=$hn_tsuserid OR $sqlStr";
 	echoJsonQuery($sql, "measurementContainers");
 }
@@ -518,7 +518,7 @@ $dataType,$missingDataValue, $siteId, $blogId, $friendlyName){
 	//  Ensure friendly name is unique
 	if(	hn_ts_issetRequiredParameter($friendlyName, "name")){
 		$friendlyName = hn_ts_sanitise($friendlyName);
-		$sql = "SELECT * FROM wp_ts_metadatafriendlynames WHERE friendlyname = '$friendlyName'";
+		$sql = "SELECT * FROM ".$wpdb->prefix."metadatafriendlynames WHERE friendlyname = '$friendlyName'";
 		$results = querySql($sql);
 		if(count($results)){
 			hn_ts_error_msg("The name $friendlyName is already used.", 403);
@@ -565,13 +565,13 @@ $dataType,$missingDataValue, $siteId, $blogId, $friendlyName){
 	try {
 		/** Insert record into metadata, create table, and add friendly name record */
 
-		$sql = "SHOW TABLE STATUS LIKE 'wp_ts_metadata';";
+		$sql = "SHOW TABLE STATUS LIKE '".$wpdb->prefix."metadata';";
 		$nextdevice=querySql($sql);
 		$nextdevice=$nextdevice[0]->Auto_increment;
 
 		$tablename = "wp_$blogId"."_ts_$measurementType"."_$nextdevice";
 
-		$sql = "INSERT INTO wp_ts_metadata (tablename, measurement_type, min_value,
+		$sql = "INSERT INTO ".$wpdb->prefix."metadata (tablename, measurement_type, min_value,
 		max_value, unit, unit_symbol, device_details, other_info,
 		data_type, missing_data_value, producer_site_id, producer_blog_id,
 		producer_id) VALUES ('$tablename','$measurementType','$minimumvalue',
@@ -589,7 +589,7 @@ $dataType,$missingDataValue, $siteId, $blogId, $friendlyName){
 			PRIMARY KEY  (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
 			$count0 = $db->exec($sql);
-			$sql = "INSERT INTO  wp_ts_metadatafriendlynames (metadata_id, friendlyname)
+			$sql = "INSERT INTO  ".$wpdb->prefix."metadatafriendlynames (metadata_id, friendlyname)
 			VALUES ('$nextdevice', '$friendlyName');";
 			$db->exec($sql);
 			$db = null;
@@ -758,7 +758,7 @@ function hn_ts_setSitepath(){
  * @param $filename
  */
 function hn_ts_get_filepath_for_table($tablename, $filename){
-	$sql = "SELECT producer_blog_id FROM `wp_ts_metadata` WHERE tablename = '$tablename'";
+	$sql = "SELECT producer_blog_id FROM `".$wpdb->prefix."metadata` WHERE tablename = '$tablename'";
 	$rows = querySql($sql);
 	if(count($rows)){
 		$blogid = $rows[0]->producer_blog_id;
@@ -900,7 +900,7 @@ function hn_ts_select_metadata_by_name($mcName, $limit, $offset){
 			hn_ts_error_msg("Unauthorized access to: ".$mcName , 400);
 		}
 		$limitstatement = hn_ts_getLimitStatement($limit, $offset);
-		$sql = "SELECT * FROM wp_ts_metadata WHERE tablename='$mcName' $limitstatement";
+		$sql = "SELECT * FROM ".$wpdb->prefix."metadata WHERE tablename='$mcName' $limitstatement";
 		echoJsonQuery($sql, "metadata");
 	}else{
 		hn_ts_error_msg("Missing measurement container name.", 400);
@@ -922,7 +922,7 @@ function hn_ts_add_context($context_type, $value, $start, $end, $user_id){
 		$user_id = 0;
 	}
 
-	$sql = "INSERT INTO wp_ts_context (context_type, value, start_time, end_time, user_id) VALUES
+	$sql = "INSERT INTO ".$wpdb->prefix."context (context_type, value, start_time, end_time, user_id) VALUES
 	('$context_type', '$value', '$start', '$end', '$user_id');";
 	sqlInsert($sql);
 }
@@ -981,7 +981,7 @@ function hn_ts_select_contexts($typeParam, $valueParam, $startParam, $endParam, 
 	$limit = hn_ts_sanitise($limit);
 	$offset = hn_ts_sanitise($offset);
 
-	$sql = "SELECT * FROM wp_ts_context ";
+	$sql = "SELECT * FROM ".$wpdb->prefix."context ";
 	$params = array(
 			array("name"=>"context_type","param"=>$typeParam),
 			array("name"=>"value","param"=>$valueParam),
@@ -1024,7 +1024,7 @@ function hn_ts_update_context($context_id, $context_type, $value, $start_time, $
 	if(!strcmp($where,"")){
 		hn_ts_error_msg("Missing parameters.", 400);
 	}
-	$sql = "UPDATE wp_ts_context SET end_time='$end_time' $where";
+	$sql = "UPDATE ".$wpdb->prefix."context SET end_time='$end_time' $where";
 	hn_ts_sqlUpdate($sql);
 }
 
@@ -1040,7 +1040,7 @@ function hn_ts_heartbeat($name, $ipaddress){
 	if(!isset($name) || !isset($ipaddress)){
 		hn_ts_error_msg("Missing name or ip address parameter.", 400);
 	}
-	$sql = "UPDATE wp_ts_metadata SET last_IP_Addr='$ipaddress', heartbeat_time=CURRENT_TIMESTAMP() WHERE tablename='$name'";
+	$sql = "UPDATE ".$wpdb->prefix."metadata SET last_IP_Addr='$ipaddress', heartbeat_time=CURRENT_TIMESTAMP() WHERE tablename='$name'";
 	hn_ts_sqlUpdate($sql);
 }
 
@@ -1066,7 +1066,7 @@ function hn_ts_replicate(){
  */
 function hn_ts_getReadHead($headId)
 {
-	$sql = "SELECT * FROM wp_ts_head WHERE head_id = $headId";
+	$sql = "SELECT * FROM ".$wpdb->prefix."head WHERE head_id = $headId";
 	return querySql($sql);
 }
 
@@ -1089,7 +1089,7 @@ function hn_ts_getTimeNow(){
  */
 function hn_ts_int_get_timestream_head($timestreamId){
 	//global $hn_tsuserid;
-	$sql = "SELECT * FROM wp_ts_timestreams
+	$sql = "SELECT * FROM ".$wpdb->prefix."timestreams
 	WHERE timestream_id = $timestreamId";// AND user_id=$hn_tsuserid";
 	$timestream = querySql($sql);
 	if($timestream==null) {
@@ -1141,7 +1141,7 @@ function hn_ts_int_get_timestream_head($timestreamId){
 	//echo "now " . $now . "\n";
 	//echo "newcur " . $newcurrent . "\n";
 
-	///$wpdb->update('wp_ts_head',
+	///$wpdb->update('".$wpdb->prefix."head',
 	//		array(
 	//				'lasttime' => $lasttime,
 	//				'currenttime' => $currenttime,
@@ -1149,7 +1149,7 @@ function hn_ts_int_get_timestream_head($timestreamId){
 	//		array('head_id' => $timestream->head_id)
 	//);
 	$db = getConnection();
-	$sql = "UPDATE wp_ts_head SET currenttime='$currenttime', lasttime='$lasttime'
+	$sql = "UPDATE ".$wpdb->prefix."head SET currenttime='$currenttime', lasttime='$lasttime'
 	WHERE head_id = $timestream->head_id";
 
 	$count0 = $db->exec($sql);
@@ -1273,7 +1273,7 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 	$endtime = date ("Y-m-d H:i:s", $newEnd);
 	global $hn_tsuserid;
 	
-	$sql = "SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
+	$sql = "SELECT * FROM ".$wpdb->prefix."timestreams WHERE timestream_id = $timestreamId";
 
 	 if(isset($hn_tsuserid)){
 	 	$sql = "$sql AND user_id=$hn_tsuserid";
@@ -1287,7 +1287,7 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 		hn_ts_error_msg("Timestream not found or unauthorised.", 404);
 		return;
 	}
-	/*$wpdb->update('wp_ts_head',
+	/*$wpdb->update('".$wpdb->prefix."head',
 	 array(
 	 		'currenttime' => $currenttime,
 	 		'rate' => $newRate,
@@ -1295,16 +1295,16 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 			array('head_id' => $timestreams->head_id)
 	);*/
 	$id = $timestreams[0]["head_id"];
-	$sql = "UPDATE wp_ts_head SET currenttime='$currenttime', rate='$newRate'
+	$sql = "UPDATE ".$wpdb->prefix."head SET currenttime='$currenttime', rate='$newRate'
 	WHERE head_id = $id";
 
 	$count1 = $db->exec($sql);
-	$sql = "UPDATE wp_ts_timestreams SET starttime='$starttime', endtime='$endtime'
+	$sql = "UPDATE ".$wpdb->prefix."timestreams SET starttime='$starttime', endtime='$endtime'
 	WHERE timestream_id = $timestreamId";
 
 	$count2 = $db->exec($sql);
-	echo '{"updates":[{"table":"wp_ts_head","rows":'.$count1.'},
-	{"table":"wp_ts_timestreams","rows":'.$count2.'}]}';
+	echo '{"updates":[{"table":"".$wpdb->prefix."head","rows":'.$count1.'},
+	{"table":"".$wpdb->prefix."timestreams","rows":'.$count2.'}]}';
 	$db = null;
 }
 
@@ -1323,7 +1323,7 @@ function hn_ts_ext_get_time(){
  */
 function hn_ts_ext_get_timestreams(){
 	global $hn_tsuserid;
-	$sql = "SELECT * FROM wp_ts_timestreams WHERE user_id=$hn_tsuserid";
+	$sql = "SELECT * FROM ".$wpdb->prefix."timestreams WHERE user_id=$hn_tsuserid";
 	echoJsonQuery($sql, "timestreams");
 }
 
@@ -1335,7 +1335,7 @@ function hn_ts_ext_get_timestream_metadata($timestreamId){
 	// mdf - this api call should return the metadata itself, not just the id.
 	global $hn_tsuserid;
 	$sql = "SELECT metadata_id
-	FROM wp_ts_timestreams
+	FROM ".$wpdb->prefix."timestreams
 	WHERE timestream_id = $timestreamId";
     if(isset($hn_tsuserid)){
            $sql .=  "AND user_id=$hn_tsuserid";
@@ -1417,7 +1417,7 @@ function hn_ts_timestream_update($timestream)
 	//echo "now " . $now . "\n";
 	//echo "newcur " . $newcurrent . "\n";
 
-	//$wpdb->update('wp_ts_head',
+	//$wpdb->update('".$wpdb->prefix."head',
 	//		array(
 	//				'lasttime' => $lasttime,
 	//				'currenttime' => $currenttime,
@@ -1426,7 +1426,7 @@ function hn_ts_timestream_update($timestream)
 	//);
 
 	$db = getConnection();
-	$sql = "UPDATE wp_ts_head SET currenttime='$currenttime', lasttime='$lasttime'
+	$sql = "UPDATE ".$wpdb->prefix."head SET currenttime='$currenttime', lasttime='$lasttime'
 	WHERE head_id = $timestream->head_id";
 	$count0 = $db->exec($sql);
 	$db = null;
@@ -1443,7 +1443,7 @@ function hn_ts_timestream_update($timestream)
  */
 function hn_ts_getMetadata($metadataId)
 {
-	$sql = "SELECT * FROM wp_ts_metadata WHERE metadata_id = $metadataId";
+	$sql = "SELECT * FROM ".$wpdb->prefix."metadata WHERE metadata_id = $metadataId";
 	$meta = querySql($sql);
 	if($meta==null) {
 		hn_ts_error_msg("Metadata not found.", 404);
@@ -1468,7 +1468,7 @@ function hn_ts_ext_get_timestream_data($timestreamId, $lastAskTime, $limit, $ord
 		$order = "ASC";
 	}
 
-	$sql = "SELECT * FROM wp_ts_timestreams WHERE timestream_id = $timestreamId";
+	$sql = "SELECT * FROM ".$wpdb->prefix."timestreams WHERE timestream_id = $timestreamId";
 	$timestream = querySql($sql);
 	if($timestream==null) {
 		hn_ts_error_msg("Timestream not found", 404);
