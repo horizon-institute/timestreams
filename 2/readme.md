@@ -1,7 +1,7 @@
 # Timestreams API (v. 2.0.0-Alpha-0.1) #
 
 	    
-The Timestreams API is documented [here](http://timestreams.wp.horizon.ac.uk/wp-content/plugins/timestreams/2).
+The Timestreams API is documented [here](http://www.timestreams.org.uk/wp-content/plugins/timestreams/2/).
 
 This API:
 
