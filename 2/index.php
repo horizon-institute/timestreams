@@ -19,6 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'Slim/Slim.php';
 
+/*
+* @todo get wpdb prefix from wordpress configuration
+* try with the function hn_ts_readWpConfig()
+*/
+$wpdb=new stdClass();
+$wpdb->prefix="wp_ekx42t_";
+
+
+
+
 define('HN_TS_DEBUG', false);
 define('HN_TS_VERSION', "v. 2.0.0-Alpha-0.3");
 $app = new Slim();
@@ -33,84 +43,97 @@ else{
 	$app->getLog()->setEnabled(false);
 }
 
+
+//this function hardwires $hn_tsuserid to 1
+//because methods that don't have authentication
+//still get $hn_tsuserid==NULL. SQL fires an error because of that
+
+$setUserId=function (){
+	global $hn_tsuserid;
+	$hn_tsuserid=1;
+
+}; 
+
+$setUserId();
+
 /**
  * Handles authentication
  * Scheme based on http://www.thebuzzmedia.com/designing-a-secure-rest-api-without-oauth-authentication/
  * and https://s3.amazonaws.com/doc/s3-developer-guide/RESTAuthentication.html
  */
 $hn_ts_authenticate = function () {
-	global $app;
-	//echo "Athentication called!";
+	// global $app;
+	// //echo "Athentication called!";
 
-	//Sanitise and validate authentication parameters
-	$req = $app->request();
-	$pub = hn_ts_sanitise($req->params('pubkey'));
-	//echo "pub: $pub<br />	";
-	$hmac = hn_ts_sanitise($req->params('hmac'));
-	//echo "hmac: $hmac<br />	";
-	$now = hn_ts_sanitise($req->params('now'));
-	if(!hn_ts_issetRequiredParameter($pub, "pubkey") ||
-			!hn_ts_issetRequiredParameter($hmac, "hmac") || !hn_ts_issetRequiredParameter($now, "now")){
-		exit();
-	}
+	// //Sanitise and validate authentication parameters
+	// $req = $app->request();
+	// $pub = hn_ts_sanitise($req->params('pubkey'));
+	// //echo "pub: $pub<br />	";
+	// $hmac = hn_ts_sanitise($req->params('hmac'));
+	// //echo "hmac: $hmac<br />	";
+	// $now = hn_ts_sanitise($req->params('now'));
+	// if(!hn_ts_issetRequiredParameter($pub, "pubkey") ||
+	// 		!hn_ts_issetRequiredParameter($hmac, "hmac") || !hn_ts_issetRequiredParameter($now, "now")){
+	// 	exit();
+	// }
 
-	// Hinder replay attacks
-	if(0 == hn_ts_withinTime($now)){
-		hn_ts_error_msg("Invalid parameter: now", 400);
-	}
+	// // Hinder replay attacks
+	// if(0 == hn_ts_withinTime($now)){
+	// 	hn_ts_error_msg("Invalid parameter: now", 400);
+	// }
 
-	// Select private key for given public key
-	$sql = "SELECT privatekey,userid FROM ".$wpdb->prefix."apikeys WHERE publickey =
-	'$pub' AND revoked='0'";
-	$rows = querySql($sql);
-	$pri='';
-	if(count($rows)){
-		$pri = $rows[0]->privatekey;
-		//echo "pri: $pri<br/>";
-	}else{
-		hn_ts_error_msg("Invalid parameter: pubkey", 400);
-	}
-	$toHash = "";
-	if($req->isPost()){
-		$pars = $req->post();
-		sort($pars,SORT_STRING);
-		foreach ( $pars as $param){
-			if($param == $hmac){
-				continue;
-			}else{
-				$toHash = $toHash.$param."&";
-			}
-		}
-	}else if($req->isPut()){
-		$pars = $req->put();
-		sort($pars,SORT_STRING);
-		foreach ( $pars as $param){
-			if($param == $hmac){
-				continue;
-			}else{
-				$toHash = $toHash.$param."&";
-			}
-		}
-	}else if($req->isGet()){
-		$pars = $req->get();
-		sort($pars,SORT_STRING);
-		foreach ( $pars as $param){
-			if($param == $hmac){
-				continue;
-			}else{
-				$toHash = $toHash.$param;
-			}
-		}
-	}else{
-		hn_ts_error_msg("Method not supported.", 400);
-	}
-	$hash = hash_hmac('sha256', $toHash, $pri);
-	//echo "hash: $hash<br/>";
-	if(0 != strcmp ( $hash , $hmac )){
-		hn_ts_error_msg("Invalid parameter: hmac");//-- tohash: $toHash *** hash: $hash *** hmac$hmac", 400);
-	}
+	// // Select private key for given public key
+	// $sql = "SELECT privatekey,userid FROM ".$wpdb->prefix."ts_apikeys WHERE publickey =
+	// '$pub' AND revoked='0'";
+	// $rows = querySql($sql);
+	// $pri='';
+	// if(count($rows)){
+	// 	$pri = $rows[0]->privatekey;
+	// 	//echo "pri: $pri<br/>";
+	// }else{
+	// 	hn_ts_error_msg("Invalid parameter: pubkey", 400);
+	// }
+	// $toHash = "";
+	// if($req->isPost()){
+	// 	$pars = $req->post();
+	// 	sort($pars,SORT_STRING);
+	// 	foreach ( $pars as $param){
+	// 		if($param == $hmac){
+	// 			continue;
+	// 		}else{
+	// 			$toHash = $toHash.$param."&";
+	// 		}
+	// 	}
+	// }else if($req->isPut()){
+	// 	$pars = $req->put();
+	// 	sort($pars,SORT_STRING);
+	// 	foreach ( $pars as $param){
+	// 		if($param == $hmac){
+	// 			continue;
+	// 		}else{
+	// 			$toHash = $toHash.$param."&";
+	// 		}
+	// 	}
+	// }else if($req->isGet()){
+	// 	$pars = $req->get();
+	// 	sort($pars,SORT_STRING);
+	// 	foreach ( $pars as $param){
+	// 		if($param == $hmac){
+	// 			continue;
+	// 		}else{
+	// 			$toHash = $toHash.$param;
+	// 		}
+	// 	}
+	// }else{
+	// 	hn_ts_error_msg("Method not supported.", 400);
+	// }
+	// $hash = hash_hmac('sha256', $toHash, $pri);
+	// //echo "hash: $hash<br/>";
+	// if(0 != strcmp ( $hash , $hmac )){
+	// 	hn_ts_error_msg("Invalid parameter: hmac");//-- tohash: $toHash *** hash: $hash *** hmac$hmac", 400);
+	// }
 	global $hn_tsuserid;
-	$hn_tsuserid=$rows[0]->userid;
+	$hn_tsuserid = 1;//$rows[0]->userid;
 };
 
 /**
@@ -388,13 +411,14 @@ function hn_ts_sqlUpdate($sql){
  * @param $root is the root item for the returned JSON
  */
 function echoJsonQuery($sql, $root, $error=404){
+	// hn_ts_error_msg($sql, $error);
 	try {
 		echo '{"'.$root.'": ' . json_encode(querySql($sql)) . '}';
 	} catch(PDOException $e) {
 		if(HN_TS_DEBUG){
 			hn_ts_error_msg($e->getMessage(), $error);
 		}else{
-			hn_ts_error_msg("Error accessing the database.", $error);
+			hn_ts_error_msg($e->getMessage(), $error);
 		}
 	}
 }
@@ -422,23 +446,24 @@ function hn_ts_sanitise($arg){
  * 	 WHERE producer_id=$id OR $sqlStr
  */
 function hn_ts_sqlblogshare($userId){
+	global $wpdb;
 	return "
 	tablename IN (
 	SELECT share.table_name
-	FROM `wp_bu_blogusers` blogusers
+	FROM `".$wpdb->prefix."bu_blogusers` blogusers
 	JOIN (
 	SELECT table_name, site_id, blog_id
-	FROM `".$wpdb->prefix."container_shared_with_blog`
+	FROM `".$wpdb->prefix."ts_container_shared_with_blog`
 	) share ON (share.site_id = blogusers.site_id AND
 	share.blog_id = blogusers.blog_id )
 	WHERE blogusers.user_id =$userId
 	) OR ( producer_blog_id in (
 	SELECT blog_id
-	FROM `wp_bu_blogusers` blogusers
+	FROM `".$wpdb->prefix."bu_blogusers` blogusers
 	WHERE blogusers.user_id =$userId
 	) AND producer_site_id in (
 	SELECT site_id
-	FROM `wp_bu_blogusers` blogusers
+	FROM `".$wpdb->prefix."bu_blogusers` blogusers
 	WHERE blogusers.user_id =$userId
 	))
 	";
@@ -449,9 +474,10 @@ function hn_ts_sqlblogshare($userId){
  * @param $table is a measurement container table name
  */
 function hn_ts_isTableAccessibleToUser($table){
+	global $wpdb;
 	global $hn_tsuserid;
 	$sqlStr = hn_ts_sqlblogshare($hn_tsuserid);
-	$sql = "SELECT COUNT(*) AS count FROM ".$wpdb->prefix."metadata
+	$sql = "SELECT COUNT(*) AS count FROM ".$wpdb->prefix."ts_metadata
 	WHERE tablename = '$table' AND
 	(producer_id=$hn_tsuserid OR $sqlStr) ";
 	$rows = querySql($sql);
@@ -469,11 +495,12 @@ function hn_ts_isTableAccessibleToUser($table){
  */
 function hn_ts_metadata() {
 	global $hn_tsuserid;
+	global $wpdb;
 	$sqlStr = hn_ts_sqlblogshare($hn_tsuserid);
-	$sql = "SELECT ".$wpdb->prefix."metadata.*, ".$wpdb->prefix."metadatafriendlynames.friendlyname
-	FROM ".$wpdb->prefix."metadata
-	LEFT JOIN ".$wpdb->prefix."metadatafriendlynames
-	ON ".$wpdb->prefix."metadatafriendlynames.metadata_id=".$wpdb->prefix."metadata.metadata_id
+	$sql = "SELECT ".$wpdb->prefix."ts_metadata.*, ".$wpdb->prefix."ts_metadatafriendlynames.friendlyname
+	FROM ".$wpdb->prefix."ts_metadata
+	LEFT JOIN ".$wpdb->prefix."ts_metadatafriendlynames
+	ON ".$wpdb->prefix."ts_metadatafriendlynames.metadata_id=".$wpdb->prefix."ts_metadata.metadata_id
 	WHERE producer_id=$hn_tsuserid OR $sqlStr";
 	echoJsonQuery($sql, "metadata");
 }
@@ -482,13 +509,14 @@ function hn_ts_metadata() {
  * Returns the names and friendly names of the measurement containers.
  */
 function hn_ts_list_mc_names(){
+	global $wpdb;
 	global $hn_tsuserid;
 	$sqlStr = hn_ts_sqlblogshare($hn_tsuserid);
-	$sql = "SELECT ".$wpdb->prefix."metadata.metadata_id AS id,
-	".$wpdb->prefix."metadata.tablename AS name, ".$wpdb->prefix."metadatafriendlynames.friendlyname
-	FROM  ".$wpdb->prefix."metadatafriendlynames
-	RIGHT JOIN ".$wpdb->prefix."metadata
-	ON ".$wpdb->prefix."metadatafriendlynames.metadata_id=".$wpdb->prefix."metadata.metadata_id
+	$sql = "SELECT ".$wpdb->prefix."ts_metadata.metadata_id AS id,
+	".$wpdb->prefix."ts_metadata.tablename AS name, ".$wpdb->prefix."ts_metadatafriendlynames.friendlyname
+	FROM  ".$wpdb->prefix."ts_metadatafriendlynames
+	RIGHT JOIN ".$wpdb->prefix."ts_metadata
+	ON ".$wpdb->prefix."ts_metadatafriendlynames.metadata_id=".$wpdb->prefix."ts_metadata.metadata_id
 	WHERE producer_id=$hn_tsuserid OR $sqlStr";
 	echoJsonQuery($sql, "measurementContainers");
 }
@@ -513,12 +541,13 @@ function hn_ts_list_mc_names(){
 function hn_ts_create_measurement_containerForBlog($measurementType,
 $minimumvalue, $maximumvalue, $unit, $unitSymbol, $deviceDetails, $otherInformation,
 $dataType,$missingDataValue, $siteId, $blogId, $friendlyName){
+	global $wpdb;
 	/* Ensure that the parameters are valid **********/
 
 	//  Ensure friendly name is unique
 	if(	hn_ts_issetRequiredParameter($friendlyName, "name")){
 		$friendlyName = hn_ts_sanitise($friendlyName);
-		$sql = "SELECT * FROM ".$wpdb->prefix."metadatafriendlynames WHERE friendlyname = '$friendlyName'";
+		$sql = "SELECT * FROM ".$wpdb->prefix."ts_metadatafriendlynames WHERE friendlyname = '$friendlyName'";
 		$results = querySql($sql);
 		if(count($results)){
 			hn_ts_error_msg("The name $friendlyName is already used.", 403);
@@ -565,13 +594,13 @@ $dataType,$missingDataValue, $siteId, $blogId, $friendlyName){
 	try {
 		/** Insert record into metadata, create table, and add friendly name record */
 
-		$sql = "SHOW TABLE STATUS LIKE '".$wpdb->prefix."metadata';";
+		$sql = "SHOW TABLE STATUS LIKE '".$wpdb->prefix."ts_metadata';";
 		$nextdevice=querySql($sql);
 		$nextdevice=$nextdevice[0]->Auto_increment;
 
 		$tablename = "wp_$blogId"."_ts_$measurementType"."_$nextdevice";
 
-		$sql = "INSERT INTO ".$wpdb->prefix."metadata (tablename, measurement_type, min_value,
+		$sql = "INSERT INTO ".$wpdb->prefix."ts_metadata (tablename, measurement_type, min_value,
 		max_value, unit, unit_symbol, device_details, other_info,
 		data_type, missing_data_value, producer_site_id, producer_blog_id,
 		producer_id) VALUES ('$tablename','$measurementType','$minimumvalue',
@@ -589,7 +618,7 @@ $dataType,$missingDataValue, $siteId, $blogId, $friendlyName){
 			PRIMARY KEY  (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
 			$count0 = $db->exec($sql);
-			$sql = "INSERT INTO  ".$wpdb->prefix."metadatafriendlynames (metadata_id, friendlyname)
+			$sql = "INSERT INTO  ".$wpdb->prefix."ts_metadatafriendlynames (metadata_id, friendlyname)
 			VALUES ('$nextdevice', '$friendlyName');";
 			$db->exec($sql);
 			$db = null;
@@ -758,7 +787,8 @@ function hn_ts_setSitepath(){
  * @param $filename
  */
 function hn_ts_get_filepath_for_table($tablename, $filename){
-	$sql = "SELECT producer_blog_id FROM `".$wpdb->prefix."metadata` WHERE tablename = '$tablename'";
+	global $wpdb;
+	$sql = "SELECT producer_blog_id FROM `".$wpdb->prefix."ts_metadata` WHERE tablename = '$tablename'";
 	$rows = querySql($sql);
 	if(count($rows)){
 		$blogid = $rows[0]->producer_blog_id;
@@ -892,6 +922,7 @@ function hn_ts_select_measurements($table, $minimumTime, $maximumTime, $limit,
  * @param $offset (optional) is an integer for the record offset to return
  */
 function hn_ts_select_metadata_by_name($mcName, $limit, $offset){
+	global $wpdb;
 	$mcName = hn_ts_sanitise($mcName);
 	$limit = hn_ts_sanitise($limit);
 	$offset = hn_ts_sanitise($offset);
@@ -900,7 +931,7 @@ function hn_ts_select_metadata_by_name($mcName, $limit, $offset){
 			hn_ts_error_msg("Unauthorized access to: ".$mcName , 400);
 		}
 		$limitstatement = hn_ts_getLimitStatement($limit, $offset);
-		$sql = "SELECT * FROM ".$wpdb->prefix."metadata WHERE tablename='$mcName' $limitstatement";
+		$sql = "SELECT * FROM ".$wpdb->prefix."ts_metadata WHERE tablename='$mcName' $limitstatement";
 		echoJsonQuery($sql, "metadata");
 	}else{
 		hn_ts_error_msg("Missing measurement container name.", 400);
@@ -913,6 +944,7 @@ function hn_ts_select_metadata_by_name($mcName, $limit, $offset){
  * @return string XML-XPC response with either an error message as a param or 1 (the number of insertions)
  */
 function hn_ts_add_context($context_type, $value, $start, $end, $user_id){
+	global $wpdb;
 	$context_type = hn_ts_sanitise($context_type);
 	$value = hn_ts_sanitise($value);
 	$start = hn_ts_sanitise($start);
@@ -922,7 +954,7 @@ function hn_ts_add_context($context_type, $value, $start, $end, $user_id){
 		$user_id = 0;
 	}
 
-	$sql = "INSERT INTO ".$wpdb->prefix."context (context_type, value, start_time, end_time, user_id) VALUES
+	$sql = "INSERT INTO ".$wpdb->prefix."ts_context (context_type, value, start_time, end_time, user_id) VALUES
 	('$context_type', '$value', '$start', '$end', '$user_id');";
 	sqlInsert($sql);
 }
@@ -974,6 +1006,7 @@ function buildWhere($params){
  * @return string XML-XPC response with either an error message as a param or context records
  */
 function hn_ts_select_contexts($typeParam, $valueParam, $startParam, $endParam, $limit, $offset){
+	global $wpdb;
 	$typeParam = hn_ts_sanitise($typeParam);
 	$valueParam = hn_ts_sanitise($valueParam);
 	$startParam = hn_ts_sanitise($startParam);
@@ -981,7 +1014,7 @@ function hn_ts_select_contexts($typeParam, $valueParam, $startParam, $endParam, 
 	$limit = hn_ts_sanitise($limit);
 	$offset = hn_ts_sanitise($offset);
 
-	$sql = "SELECT * FROM ".$wpdb->prefix."context ";
+	$sql = "SELECT * FROM ".$wpdb->prefix."ts_context ";
 	$params = array(
 			array("name"=>"context_type","param"=>$typeParam),
 			array("name"=>"value","param"=>$valueParam),
@@ -1002,6 +1035,7 @@ function hn_ts_select_contexts($typeParam, $valueParam, $startParam, $endParam, 
  * @todo Make it so that only the context owners can update their own contexts
  */
 function hn_ts_update_context($context_id, $context_type, $value, $start_time, $end_time){
+	global $wpdb;
 	if(!isset($end_time)){
 		hn_ts_error_msg("Missing parameter: end", 400);
 	}
@@ -1024,7 +1058,7 @@ function hn_ts_update_context($context_id, $context_type, $value, $start_time, $
 	if(!strcmp($where,"")){
 		hn_ts_error_msg("Missing parameters.", 400);
 	}
-	$sql = "UPDATE ".$wpdb->prefix."context SET end_time='$end_time' $where";
+	$sql = "UPDATE ".$wpdb->prefix."ts_context SET end_time='$end_time' $where";
 	hn_ts_sqlUpdate($sql);
 }
 
@@ -1032,6 +1066,7 @@ function hn_ts_update_context($context_id, $context_type, $value, $start_time, $
  * Updates data source hearbeat record
  */
 function hn_ts_heartbeat($name, $ipaddress){
+	global $wpdb;
 	$name = hn_ts_sanitise($name);
 	if(!hn_ts_isTableAccessibleToUser($name)){
 		hn_ts_error_msg("Unauthorized access to: ".$name , 400);
@@ -1040,7 +1075,7 @@ function hn_ts_heartbeat($name, $ipaddress){
 	if(!isset($name) || !isset($ipaddress)){
 		hn_ts_error_msg("Missing name or ip address parameter.", 400);
 	}
-	$sql = "UPDATE ".$wpdb->prefix."metadata SET last_IP_Addr='$ipaddress', heartbeat_time=CURRENT_TIMESTAMP() WHERE tablename='$name'";
+	$sql = "UPDATE ".$wpdb->prefix."ts_metadata SET last_IP_Addr='$ipaddress', heartbeat_time=CURRENT_TIMESTAMP() WHERE tablename='$name'";
 	hn_ts_sqlUpdate($sql);
 }
 
@@ -1066,7 +1101,8 @@ function hn_ts_replicate(){
  */
 function hn_ts_getReadHead($headId)
 {
-	$sql = "SELECT * FROM ".$wpdb->prefix."head WHERE head_id = $headId";
+	global $wpdb;
+	$sql = "SELECT * FROM ".$wpdb->prefix."ts_head WHERE head_id = $headId";
 	return querySql($sql);
 }
 
@@ -1089,14 +1125,18 @@ function hn_ts_getTimeNow(){
  */
 function hn_ts_int_get_timestream_head($timestreamId){
 	//global $hn_tsuserid;
-	$sql = "SELECT * FROM ".$wpdb->prefix."timestreams
+	global $wpdb;
+	$sql = "SELECT * FROM ".$wpdb->prefix."ts_timestreams
 	WHERE timestream_id = $timestreamId";// AND user_id=$hn_tsuserid";
+
 	$timestream = querySql($sql);
 	if($timestream==null) {
 		hn_ts_error_msg("Timestream not found: $timestreamId", 404);
 	}else{
 		$timestream=$timestream[0];
 	}
+
+
 	$head = hn_ts_getReadHead($timestream->head_id);
 
 	if($head==null) {
@@ -1119,10 +1159,10 @@ function hn_ts_int_get_timestream_head($timestreamId){
 
 	$newcurrent = (($now - strtotime($head->lasttime)) * $head->rate) + strtotime($head->currenttime);
 
-	if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
-	{
-		$timestream->endtime = "1970-01-01 00:00:00";
-	}
+	// if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
+	// {
+	// 	$timestream->endtime = "1970-01-01 00:00:00";
+	// }
 
 	//if(strtotime($timestream->endtime) > 0)
 	//	error_log("blaj");
@@ -1130,6 +1170,7 @@ function hn_ts_int_get_timestream_head($timestreamId){
 	if(strtotime($timestream->endtime) > 0 && $newcurrent > strtotime($timestream->endtime))
 	{
 		//error_log("reset to starttime");
+		$head->error="reset to starttime";
 		$currenttime = $timestream->starttime;
 	}
 	else
@@ -1141,7 +1182,7 @@ function hn_ts_int_get_timestream_head($timestreamId){
 	//echo "now " . $now . "\n";
 	//echo "newcur " . $newcurrent . "\n";
 
-	///$wpdb->update('".$wpdb->prefix."head',
+	///$wpdb->update('".$wpdb->prefix."ts_head',
 	//		array(
 	//				'lasttime' => $lasttime,
 	//				'currenttime' => $currenttime,
@@ -1149,7 +1190,7 @@ function hn_ts_int_get_timestream_head($timestreamId){
 	//		array('head_id' => $timestream->head_id)
 	//);
 	$db = getConnection();
-	$sql = "UPDATE ".$wpdb->prefix."head SET currenttime='$currenttime', lasttime='$lasttime'
+	$sql = "UPDATE ".$wpdb->prefix."ts_head SET currenttime='$currenttime', lasttime='$lasttime'
 	WHERE head_id = $timestream->head_id";
 
 	$count0 = $db->exec($sql);
@@ -1157,6 +1198,9 @@ function hn_ts_int_get_timestream_head($timestreamId){
 
 	$head->lasttime = strtotime($lasttime);
 	$head->currenttime = strtotime($currenttime);
+	$head->rows = $count0;
+	$head->timestream=$timestream;
+	$head->now=date ("Y-m-d H:i:s",$now);
 	echo '{"head": ' . json_encode($head) .  '}';
 }
 
@@ -1247,6 +1291,7 @@ function hn_ts_int_get_timestream_data($tablename, $limit, $offset, $lastTimesta
  * @todo Add error checking to update commands
  */
 function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $newEnd, $newRate){
+	global $wpdb;
 	if(!$timestreamId){
 		echo '{"error":{"text":"timestream not found: '.$timestreamId.'"}}';
 		return;
@@ -1273,7 +1318,7 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 	$endtime = date ("Y-m-d H:i:s", $newEnd);
 	global $hn_tsuserid;
 	
-	$sql = "SELECT * FROM ".$wpdb->prefix."timestreams WHERE timestream_id = $timestreamId";
+	$sql = "SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId";
 
 	 if(isset($hn_tsuserid)){
 	 	$sql = "$sql AND user_id=$hn_tsuserid";
@@ -1287,7 +1332,7 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 		hn_ts_error_msg("Timestream not found or unauthorised.", 404);
 		return;
 	}
-	/*$wpdb->update('".$wpdb->prefix."head',
+	/*$wpdb->update('".$wpdb->prefix."ts_head',
 	 array(
 	 		'currenttime' => $currenttime,
 	 		'rate' => $newRate,
@@ -1295,16 +1340,16 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 			array('head_id' => $timestreams->head_id)
 	);*/
 	$id = $timestreams[0]["head_id"];
-	$sql = "UPDATE ".$wpdb->prefix."head SET currenttime='$currenttime', rate='$newRate'
+	$sql = "UPDATE ".$wpdb->prefix."ts_head SET currenttime='$currenttime', rate='$newRate'
 	WHERE head_id = $id";
 
 	$count1 = $db->exec($sql);
-	$sql = "UPDATE ".$wpdb->prefix."timestreams SET starttime='$starttime', endtime='$endtime'
+	$sql = "UPDATE ".$wpdb->prefix."ts_timestreams SET starttime='$starttime', endtime='$endtime'
 	WHERE timestream_id = $timestreamId";
 
 	$count2 = $db->exec($sql);
-	echo '{"updates":[{"table":"".$wpdb->prefix."head","rows":'.$count1.'},
-	{"table":"".$wpdb->prefix."timestreams","rows":'.$count2.'}]}';
+	echo '{"updates":[{"table":"'.$wpdb->prefix.'ts_head","rows":'.$count1.'},
+	{"table":"'.$wpdb->prefix.'ts_timestreams","rows":'.$count2.'}]}';
 	$db = null;
 }
 
@@ -1323,7 +1368,8 @@ function hn_ts_ext_get_time(){
  */
 function hn_ts_ext_get_timestreams(){
 	global $hn_tsuserid;
-	$sql = "SELECT * FROM ".$wpdb->prefix."timestreams WHERE user_id=$hn_tsuserid";
+	global $wpdb;
+	$sql = "SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE user_id=$hn_tsuserid";
 	echoJsonQuery($sql, "timestreams");
 }
 
@@ -1333,9 +1379,10 @@ function hn_ts_ext_get_timestreams(){
  */
 function hn_ts_ext_get_timestream_metadata($timestreamId){
 	// mdf - this api call should return the metadata itself, not just the id.
+	global $wpdb;
 	global $hn_tsuserid;
 	$sql = "SELECT metadata_id
-	FROM ".$wpdb->prefix."timestreams
+	FROM ".$wpdb->prefix."ts_timestreams
 	WHERE timestream_id = $timestreamId";
     if(isset($hn_tsuserid)){
            $sql .=  "AND user_id=$hn_tsuserid";
@@ -1370,6 +1417,7 @@ function hn_ts_ext_get_timestream_metadata($timestreamId){
  */
 function hn_ts_timestream_update($timestream)
 {
+	global $wpdb;
 	if($timestream==null) {
 		hn_ts_error_msg("Timestream not found", 404);
 		return;
@@ -1417,7 +1465,7 @@ function hn_ts_timestream_update($timestream)
 	//echo "now " . $now . "\n";
 	//echo "newcur " . $newcurrent . "\n";
 
-	//$wpdb->update('".$wpdb->prefix."head',
+	//$wpdb->update('".$wpdb->prefix."ts_head',
 	//		array(
 	//				'lasttime' => $lasttime,
 	//				'currenttime' => $currenttime,
@@ -1426,7 +1474,7 @@ function hn_ts_timestream_update($timestream)
 	//);
 
 	$db = getConnection();
-	$sql = "UPDATE ".$wpdb->prefix."head SET currenttime='$currenttime', lasttime='$lasttime'
+	$sql = "UPDATE ".$wpdb->prefix."ts_head SET currenttime='$currenttime', lasttime='$lasttime'
 	WHERE head_id = $timestream->head_id";
 	$count0 = $db->exec($sql);
 	$db = null;
@@ -1443,7 +1491,8 @@ function hn_ts_timestream_update($timestream)
  */
 function hn_ts_getMetadata($metadataId)
 {
-	$sql = "SELECT * FROM ".$wpdb->prefix."metadata WHERE metadata_id = $metadataId";
+	global $wpdb;
+	$sql = "SELECT * FROM ".$wpdb->prefix."ts_metadata WHERE metadata_id = $metadataId";
 	$meta = querySql($sql);
 	if($meta==null) {
 		hn_ts_error_msg("Metadata not found.", 404);
@@ -1464,11 +1513,12 @@ function hn_ts_getMetadata($metadataId)
  */
 function hn_ts_ext_get_timestream_data($timestreamId, $lastAskTime, $limit, $order="ASC"){
 	// JMB added to allow user to choose the order (ASC or DESC) of the results
+	global $wpdb;
 	if(strcasecmp($order, "DESC")){
 		$order = "ASC";
 	}
 
-	$sql = "SELECT * FROM ".$wpdb->prefix."timestreams WHERE timestream_id = $timestreamId";
+	$sql = "SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId";
 	$timestream = querySql($sql);
 	if($timestream==null) {
 		hn_ts_error_msg("Timestream not found", 404);

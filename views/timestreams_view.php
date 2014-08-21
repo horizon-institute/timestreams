@@ -108,7 +108,7 @@
 		foreach($timestreams as $timestream)
 		{
 			echo "<table><tr>";
-			echo "<td><h4>$timestream->name</h4></td>";
+			echo "<td><h4>ID: $timestream->timestream_id - Name: $timestream->name</h4></td>";
 			echo "<form id=\"timestream_" . $timestream->timestream_id . "_frm\" method=\"post\" action=\"\">";
 			echo "<td><select name=\"timestream_data\">";
 			$head = $db->hn_ts_getReadHead($timestream->head_id);
@@ -169,7 +169,7 @@
 			echo "</td>";
 			
 			echo "<td>";
-			echo "<div style=\"width:200px; height:200px; padding-bottom: 1em;\">";			
+			echo "<div style=\"width:100%; height:100%; padding-bottom: 1em;\">";			
 			_e('head time'); echo ": <br>";
 			echo "<a style=\"padding: 2px\" name=\"a.ignore\" class=\"button-secondary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(1)\">";_e('set head',HN_TS_NAME); echo "</a>";
 			echo "<input style=\"margin-top: 5px;\" type=\"text\" name=\"head\" id=\"timestream_" . $timestream->timestream_id . "_head\" ></input><br>";
