@@ -67,14 +67,12 @@
 	function hn_ts_vizbuttons_register($buttons)
 	{
 		array_push($buttons, "timestreams_button");
-		$GLOBALS['DebugMyPlugin']->panels['main']->addPR('buttons',$buttons);
 		return $buttons;
 	}
 	
 	function hn_ts_vizbuttons_plugin($plugin_array)
 	{
 		$plugin_array['timestreams_button'] = HN_TS_PLUGIN_URL . '/js/timestreams-mce.js';
-		$GLOBALS['DebugMyPlugin']->panels['main']->addPR('plugins',$plugin_array);
 		return $plugin_array;
 	}
 	

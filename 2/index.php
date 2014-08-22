@@ -1385,7 +1385,7 @@ function hn_ts_ext_get_timestream_metadata($timestreamId){
 	FROM ".$wpdb->prefix."ts_timestreams
 	WHERE timestream_id = $timestreamId";
     if(isset($hn_tsuserid)){
-           $sql .=  "AND user_id=$hn_tsuserid";
+           $sql .=  " AND user_id=$hn_tsuserid;";
     }
 	$timestream = querySql($sql);
 
@@ -1915,8 +1915,8 @@ function hn_ts_document_metadata(){
 	</dd>
 	<dt class="url-label">URL Structure</dt>
 	<dd>
-	<pre><a href="./metadata?pubkey=c21fa479e5&now=1354787206&hmac=a1df42ea4a7be73f1becae45e386424413659c223bb2406d8d6264fd569601d8&tsid=1"
-	title="Get metadata">/metadata?pubkey=c21fa479e5&now=1354787206&hmac=a1df42ea4a7be73f1becae45e386424413659c223bb2406d8d6264fd569601d8&tsid=1</a></pre>
+	<pre><a href="./metadata?pubkey=c21fa479e5&now=1354787206&hmac=a1df42ea4a7be73f1becae45e386424413659c223bb2406d8d6264fd569601d8&tsid=11"
+	title="Get metadata">/metadata?pubkey=c21fa479e5&now=1354787206&hmac=a1df42ea4a7be73f1becae45e386424413659c223bb2406d8d6264fd569601d8&tsid=11</a></pre>
 	</dd>
 	<dt>Version 1 API replacement</dt><dd><pre>timestreams.ext_get_timestream_metadata</pre></dd>
 	<dt>Parameters</dt>
@@ -1958,8 +1958,8 @@ function hn_ts_document_metadata(){
 	</dd>
 	<dt class="url-label">URL Structure</dt>
 	<dd>
-	<pre><a href="./metadata/wp_1_ts_temperature_1?pubkey=c21fa479e5&now=1354787337&hmac=86b0d090d125a75597f9ccebe7f61884d2810fdd45ac68e17e1a0f8d60439431"
-	title="Get metadata">/metadata/wp_1_ts_temperature_1?pubkey=c21fa479e5&now=1354787337&hmac=86b0d090d125a75597f9ccebe7f61884d2810fdd45ac68e17e1a0f8d60439431</a></pre>
+	<pre><a href="./metadata/wp_ekx42t_1_ts_CO2_11?pubkey=c21fa479e5&now=1354787337&hmac=86b0d090d125a75597f9ccebe7f61884d2810fdd45ac68e17e1a0f8d60439431"
+	title="Get metadata">/metadata/wp_ekx42t_1_ts_CO2_11?pubkey=c21fa479e5&now=1354787337&hmac=86b0d090d125a75597f9ccebe7f61884d2810fdd45ac68e17e1a0f8d60439431</a></pre>
 	</dd>
 	<dt>Version 1 API replacement</dt><dd><pre>timestreams.select_metadata_by_name</pre></dd>
 	<dt>Parameters</dt>
@@ -2005,7 +2005,7 @@ function hn_ts_document_metadata(){
 	<pre>
 	curl --noproxy 192.168.56.101 -i -H "Accept: application/json" -X PUT -d
 	"ip=192.168.56.101&pubkey=c21fa479e5&now=1354792416&hmac=5cf07dfe405dfaaa7ad6843fe2c8e3852ee1fd06bf3168b98dcc6b7e8a4c6700"
-	http://192.168.56.101/wordpress/wp-content/plugins/timestreams/2/metadata/heartbeat/wp_1_ts_temperature_1
+	http://www.timestreams.org.uk/wp-content/plugins/timestreams/2/metadata/heartbeat/wp_ekx42t_1_ts_CO2_11
 	</pre>
 	</dd>
 	<dt>Version 1 API replacement</dt>
@@ -2106,7 +2106,7 @@ function hn_ts_document_mc(){
 	</dd>
 	<dt class="url-label">URL Structure</dt>
 	<dd>
-	<pre><a href="./measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792709&hmac=3961bb84cf28beda71ccbe02884741e5ad58a17eaf900d9b5c6b77efa8d52e8a" title="Get data">/measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792709&hmac=3961bb84cf28beda71ccbe02884741e5ad58a17eaf900d9b5c6b77efa8d52e8a</a></pre>
+	<pre><a href="./measurement_container/wp_ekx42t_1_ts_CO2_11?pubkey=c21fa479e5&now=1354792709&hmac=3961bb84cf28beda71ccbe02884741e5ad58a17eaf900d9b5c6b77efa8d52e8a" title="Get data">/measurement_container/wp_ekx42t_1_ts_CO2_11?pubkey=c21fa479e5&now=1354792709&hmac=3961bb84cf28beda71ccbe02884741e5ad58a17eaf900d9b5c6b77efa8d52e8a</a></pre>
 	</dd>
 	<dt>Version 1 API replacement</dt><dd><pre>timestreams.select_measurements</pre></dd>
 	<dt>Parameters</dt>
@@ -2174,7 +2174,7 @@ function hn_ts_document_mc(){
 	</dd>
 	<dt class="url-label">URL Structure</dt>
 	<dd>
-	<pre><a href="./measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792793&hmac=4c58970c32fa7a2cbcb683a1726a7aed3d9d4287ed7473d465262752ef33b8c8&action=first" title="Get first data">/measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792793&hmac=4c58970c32fa7a2cbcb683a1726a7aed3d9d4287ed7473d465262752ef33b8c8&action=first</a></pre>
+	<pre><a href="./measurement_container/wp_ekx42t_1_ts_CO2_11?pubkey=c21fa479e5&now=1354792793&hmac=4c58970c32fa7a2cbcb683a1726a7aed3d9d4287ed7473d465262752ef33b8c8&action=first" title="Get first data">/measurement_container/wp_ekx42t_1_ts_CO2_11?pubkey=c21fa479e5&now=1354792793&hmac=4c58970c32fa7a2cbcb683a1726a7aed3d9d4287ed7473d465262752ef33b8c8&action=first</a></pre>
 	</dd>
 	<dt>Version 1 API replacement</dt><dd><pre>timestreams.select_first_measurement</pre></dd>
 	<dt>Parameters</dt>
@@ -2218,7 +2218,7 @@ function hn_ts_document_mc(){
 	</dd>
 	<dt class="url-label">URL Structure</dt>
 	<dd>
-	<pre><a href="./measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792852&hmac=0af68a273dd38a4f2e8a45aa324870039578edf9c2b8c488465fcfc5803ccabf&action=latest" title="Get latest data">/measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792852&hmac=0af68a273dd38a4f2e8a45aa324870039578edf9c2b8c488465fcfc5803ccabf&action=latest</a></pre>
+	<pre><a href="./measurement_container/wp_ekx42t_1_ts_CO2_11?pubkey=c21fa479e5&now=1354792852&hmac=0af68a273dd38a4f2e8a45aa324870039578edf9c2b8c488465fcfc5803ccabf&action=latest" title="Get latest data">/measurement_container/wp_ekx42t_1_ts_CO2_11?pubkey=c21fa479e5&now=1354792852&hmac=0af68a273dd38a4f2e8a45aa324870039578edf9c2b8c488465fcfc5803ccabf&action=latest</a></pre>
 	</dd>
 	<dt>Version 1 API replacement</dt><dd><pre>timestreams.select_latest_measurement</pre></dd>
 	<dt>Parameters</dt>
@@ -2262,7 +2262,7 @@ function hn_ts_document_mc(){
 	</dd>
 	<dt class="url-label">URL Structure</dt>
 	<dd>
-	<pre><a href="./measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792901&hmac=dc6f00de73837cab102730a3c0895d9809c1119cc12f507679cbcce309c040d4&action=count" title="Get latest data">/measurement_container/wp_1_ts_Pressure_25?pubkey=c21fa479e5&now=1354792901&hmac=dc6f00de73837cab102730a3c0895d9809c1119cc12f507679cbcce309c040d4&action=count</a></pre>
+	<pre><a href="./measurement_container/wp_ekx42t_1_ts_CO2_11?pubkey=c21fa479e5&now=1354792901&hmac=dc6f00de73837cab102730a3c0895d9809c1119cc12f507679cbcce309c040d4&action=count" title="Get latest data">/measurement_container/wp_ekx42t_1_ts_CO2_11?pubkey=c21fa479e5&now=1354792901&hmac=dc6f00de73837cab102730a3c0895d9809c1119cc12f507679cbcce309c040d4&action=count</a></pre>
 	</dd>
 	<dt>Version 1 API replacement</dt><dd><pre>timestreams.count_measurements</pre></dd>
 	<dt>Parameters</dt>
