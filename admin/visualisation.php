@@ -66,58 +66,60 @@
 	
 	function hn_ts_vizbuttons_register($buttons)
 	{
-		array_push($buttons, "|", "timestreams_button");
+		array_push($buttons, "timestreams_button");
+		$GLOBALS['DebugMyPlugin']->panels['main']->addPR('buttons',$buttons);
 		return $buttons;
 	}
 	
 	function hn_ts_vizbuttons_plugin($plugin_array)
 	{
-		$plugin_array['timestreams'] = HN_TS_PLUGIN_URL . '/js/timestreams-mce.js';
+		$plugin_array['timestreams_button'] = HN_TS_PLUGIN_URL . '/js/timestreams-mce.js';
+		$GLOBALS['DebugMyPlugin']->panels['main']->addPR('plugins',$plugin_array);
 		return $plugin_array;
 	}
 	
 	add_action('init', 'hn_ts_vizbuttons');
 	
-	function hn_ts_create_post_type()
-	{
-		register_post_type(
-			'timestream',
-			array(
-				'labels' => array(
-					'name' => __( 'Timestream Pages',HN_TS_NAME ),
-					'singular_name' => __( 'Timestream Page',HN_TS_NAME ),
-					'add_new' => __( 'Add A New Timestream Page',HN_TS_NAME ),
-					'add_new_item' => __( 'Add A New Timestream Page',HN_TS_NAME ),
-					'edit' => __( 'Edit Timestream Pages',HN_TS_NAME ),
-					'edit_item' => __( 'Edit Timestream Pages',HN_TS_NAME ),
-					'new_item' => __( 'New Timestream Page',HN_TS_NAME ),
-					'view' => __( 'View This Timestream Page',HN_TS_NAME ),
-					'view_item' => __( 'View This Timestream Page',HN_TS_NAME ),
-					'search_items' => __( 'Search Timestream Page',HN_TS_NAME ),
-					'not_found' => __( 'No Timestream Pages Found',HN_TS_NAME ),
-					'not_found_in_trash' => __( 'No Timestream Pages Found In Trash',HN_TS_NAME ),
-					),
-				'public' => true,
-				'has_archive' => true,
-				'menu_position' => 5,
-				'capability_type' => 'post',
-			)
-		);
-	}
+	// function hn_ts_create_post_type()
+	// {
+	// 	register_post_type(
+	// 		'timestream',
+	// 		array(
+	// 			'labels' => array(
+	// 				'name' => __( 'Timestream Pages',HN_TS_NAME ),
+	// 				'singular_name' => __( 'Timestream Page',HN_TS_NAME ),
+	// 				'add_new' => __( 'Add A New Timestream Page',HN_TS_NAME ),
+	// 				'add_new_item' => __( 'Add A New Timestream Page',HN_TS_NAME ),
+	// 				'edit' => __( 'Edit Timestream Pages',HN_TS_NAME ),
+	// 				'edit_item' => __( 'Edit Timestream Pages',HN_TS_NAME ),
+	// 				'new_item' => __( 'New Timestream Page',HN_TS_NAME ),
+	// 				'view' => __( 'View This Timestream Page',HN_TS_NAME ),
+	// 				'view_item' => __( 'View This Timestream Page',HN_TS_NAME ),
+	// 				'search_items' => __( 'Search Timestream Page',HN_TS_NAME ),
+	// 				'not_found' => __( 'No Timestream Pages Found',HN_TS_NAME ),
+	// 				'not_found_in_trash' => __( 'No Timestream Pages Found In Trash',HN_TS_NAME ),
+	// 				),
+	// 			'public' => true,
+	// 			'has_archive' => true,
+	// 			'menu_position' => 5,
+	// 			'capability_type' => 'post',
+	// 		)
+	// 	);
+	// }
 	
-	add_action( 'init', 'hn_ts_create_post_type' );
+	// add_action( 'init', 'hn_ts_create_post_type' );
 	
-	function hn_ts_add_custom_singletemplate($single_template)
-	{
-		global $post;
+	// function hn_ts_add_custom_singletemplate($single_template)
+	// {
+	// 	global $post;
 		
-		if ($post->post_type == 'timestream')
-		{
-			$single_template = HN_TS_PLUGIN_DIR . '/views/single-visualisation.php';
-		}
-		return $single_template;
-	}
+	// 	if ($post->post_type == 'timestream')
+	// 	{
+	// 		$single_template = HN_TS_PLUGIN_DIR . '/views/single-visualisation.php';
+	// 	}
+	// 	return $single_template;
+	// }
 
-	add_filter( "single_template", "hn_ts_add_custom_singletemplate" ) ;
+	// add_filter( "single_template", "hn_ts_add_custom_singletemplate" ) ;
 	
 ?>

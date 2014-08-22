@@ -7,14 +7,14 @@
 	$timestreams = $db->hn_ts_getTimestreams();
 	
 	?>
-	
+	<form name="timestreampicker" id="timestreamForm" action="#">
 	<table class="form-table">
-		<form name="timestreampicker" id="timestreamForm" action="#">
+		
 		
 		<tr>
 			<th>Select a Timestream</th>
 			<td>
-				<select name="timestream">
+				<select id="timestream" name="timestream">
 					<option value=""> - Select - </option>
 	<?php
 		
@@ -31,7 +31,7 @@
 		<tr>
 			<th>Select a Visualisation</th>
 			<td>
-				<select name="viz">
+				<select id="viz" name="viz">
 					<option value=""> - Select - </option>
 	<?php
 	
@@ -49,8 +49,9 @@
 			</td>
 		</tr>
 
-		</form>
 		</table>
+	</form>
+
 		
 		<p class="submit">
 			<input type="button" class="button-primary" value="Insert Visualisation" onclick="insert()" />
@@ -60,7 +61,7 @@
 
 function insert()
 {
-	tsSelect = timestreamForm.elements["timestream"];
+	tsSelect = document.getElementById("timestreamForm").elements["timestream"];
 	tsId = tsSelect.options[tsSelect.selectedIndex].value;
 
 	vizSelect = timestreamForm.elements["viz"];

@@ -3,14 +3,16 @@
 {
 	tinymce.create('tinymce.plugins.timestreams',
 	{
-		createControl : function(id, controlManager)
+		
+
+		timestreams : function(editor, url)
 		{
-			if (id == 'timestreams_button')
-			{
-				var button = controlManager.createButton('timestreams_button',
+			
+				var button = editor.addButton('timestreams_button',
 				{
 					title : 'Insert Timestream',
-					image : '../wp-includes/images/smilies/icon_smile.gif',
+					image : false,
+					text : 'TS',
 					
 					onclick : function()
 					{
@@ -19,10 +21,12 @@
 				});
 				return button;
 			}
-			return null;
-		}
+		
 	});
 
-	tinymce.PluginManager.add('timestreams', tinymce.plugins.timestreams);
+	tinymce.PluginManager.add('timestreams_button', tinymce.plugins.timestreams);
+
 	
-})()
+})();
+
+
