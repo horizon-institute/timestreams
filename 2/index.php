@@ -63,78 +63,79 @@ $setUserId();
  * and https://s3.amazonaws.com/doc/s3-developer-guide/RESTAuthentication.html
  */
 $hn_ts_authenticate = function () {
-	// global $app;
-	// //echo "Athentication called!";
+	global $app;
+	global $wpdb;
+	//echo "Athentication called!";
 
-	// //Sanitise and validate authentication parameters
-	// $req = $app->request();
-	// $pub = hn_ts_sanitise($req->params('pubkey'));
-	// //echo "pub: $pub<br />	";
-	// $hmac = hn_ts_sanitise($req->params('hmac'));
-	// //echo "hmac: $hmac<br />	";
-	// $now = hn_ts_sanitise($req->params('now'));
-	// if(!hn_ts_issetRequiredParameter($pub, "pubkey") ||
-	// 		!hn_ts_issetRequiredParameter($hmac, "hmac") || !hn_ts_issetRequiredParameter($now, "now")){
-	// 	exit();
-	// }
+	//Sanitise and validate authentication parameters
+	$req = $app->request();
+	$pub = hn_ts_sanitise($req->params('pubkey'));
+	//echo "pub: $pub<br />	";
+	$hmac = hn_ts_sanitise($req->params('hmac'));
+	//echo "hmac: $hmac<br />	";
+	$now = hn_ts_sanitise($req->params('now'));
+	if(!hn_ts_issetRequiredParameter($pub, "pubkey") ||
+			!hn_ts_issetRequiredParameter($hmac, "hmac") || !hn_ts_issetRequiredParameter($now, "now")){
+		exit();
+	}
 
-	// // Hinder replay attacks
-	// if(0 == hn_ts_withinTime($now)){
-	// 	hn_ts_error_msg("Invalid parameter: now", 400);
-	// }
+	// Hinder replay attacks
+	if(0 == hn_ts_withinTime($now)){
+		hn_ts_error_msg("Invalid parameter: now", 400);
+	}
 
-	// // Select private key for given public key
-	// $sql = "SELECT privatekey,userid FROM ".$wpdb->prefix."ts_apikeys WHERE publickey =
-	// '$pub' AND revoked='0'";
-	// $rows = querySql($sql);
-	// $pri='';
-	// if(count($rows)){
-	// 	$pri = $rows[0]->privatekey;
-	// 	//echo "pri: $pri<br/>";
-	// }else{
-	// 	hn_ts_error_msg("Invalid parameter: pubkey", 400);
-	// }
-	// $toHash = "";
-	// if($req->isPost()){
-	// 	$pars = $req->post();
-	// 	sort($pars,SORT_STRING);
-	// 	foreach ( $pars as $param){
-	// 		if($param == $hmac){
-	// 			continue;
-	// 		}else{
-	// 			$toHash = $toHash.$param."&";
-	// 		}
-	// 	}
-	// }else if($req->isPut()){
-	// 	$pars = $req->put();
-	// 	sort($pars,SORT_STRING);
-	// 	foreach ( $pars as $param){
-	// 		if($param == $hmac){
-	// 			continue;
-	// 		}else{
-	// 			$toHash = $toHash.$param."&";
-	// 		}
-	// 	}
-	// }else if($req->isGet()){
-	// 	$pars = $req->get();
-	// 	sort($pars,SORT_STRING);
-	// 	foreach ( $pars as $param){
-	// 		if($param == $hmac){
-	// 			continue;
-	// 		}else{
-	// 			$toHash = $toHash.$param;
-	// 		}
-	// 	}
-	// }else{
-	// 	hn_ts_error_msg("Method not supported.", 400);
-	// }
-	// $hash = hash_hmac('sha256', $toHash, $pri);
-	// //echo "hash: $hash<br/>";
-	// if(0 != strcmp ( $hash , $hmac )){
-	// 	hn_ts_error_msg("Invalid parameter: hmac");//-- tohash: $toHash *** hash: $hash *** hmac$hmac", 400);
-	// }
+	// Select private key for given public key
+	$sql = "SELECT privatekey,userid FROM ".$wpdb->prefix."ts_apikeys WHERE publickey =
+	'$pub' AND revoked='0'";
+	$rows = querySql($sql);
+	$pri='';
+	if(count($rows)){
+		$pri = $rows[0]->privatekey;
+		//echo "pri: $pri<br/>";
+	}else{
+		hn_ts_error_msg("Invalid parameter: pubkey", 400);
+	}
+	$toHash = "";
+	if($req->isPost()){
+		$pars = $req->post();
+		sort($pars,SORT_STRING);
+		foreach ( $pars as $param){
+			if($param == $hmac){
+				continue;
+			}else{
+				$toHash = $toHash.$param."&";
+			}
+		}
+	}else if($req->isPut()){
+		$pars = $req->put();
+		sort($pars,SORT_STRING);
+		foreach ( $pars as $param){
+			if($param == $hmac){
+				continue;
+			}else{
+				$toHash = $toHash.$param."&";
+			}
+		}
+	}else if($req->isGet()){
+		$pars = $req->get();
+		sort($pars,SORT_STRING);
+		foreach ( $pars as $param){
+			if($param == $hmac){
+				continue;
+			}else{
+				$toHash = $toHash.$param;
+			}
+		}
+	}else{
+		hn_ts_error_msg("Method not supported.", 400);
+	}
+	$hash = hash_hmac('sha256', $toHash, $pri);
+	//echo "hash: $hash<br/>";
+	if(0 != strcmp ( $hash , $hmac )){
+		hn_ts_error_msg("Invalid parameter: hmac");//-- tohash: $toHash *** hash: $hash *** hmac$hmac", 400);
+	}
 	global $hn_tsuserid;
-	$hn_tsuserid = 1;//$rows[0]->userid;
+	$hn_tsuserid = $rows[0]->userid;
 };
 
 /**
