@@ -23,8 +23,7 @@ require 'Slim/Slim.php';
 * @todo get wpdb prefix from wordpress configuration
 * try with the function hn_ts_readWpConfig()
 */
-$wpdb=new stdClass();
-$wpdb->prefix="wp_ekx42t_";
+
 
 
 
@@ -34,6 +33,8 @@ define('HN_TS_VERSION', "v. 2.0.0-Alpha-0.3");
 $app = new Slim();
 hn_ts_readWpConfig();
 hn_ts_setSitepath();
+$wpdb=new stdClass();
+$wpdb->prefix=WP_PREFIX;
 $app->response()->header('Access-Control-Allow-Origin', '*');
 $hn_tsuserid=NULL;
 if(HN_TS_DEBUG){
@@ -716,6 +717,8 @@ function hn_ts_readWpConfig($path="../../../../wp-config.php"){
 		define("MULTISITE", FALSE);
 	}
 
+
+
 	// Store database name from wp-config.php
 	//presumes form of: define('DB_NAME', 'database_name_here');
 	if (preg_match("/define\s?\(\s?'DB_NAME'.*\)\s?;/i", $subject, $matches)) {
@@ -723,6 +726,13 @@ function hn_ts_readWpConfig($path="../../../../wp-config.php"){
 		define('DB_NAME', $items[3]);
 	}else{
 		hn_ts_error_msg("Database name not found in wp-config.php.", 400);
+	}
+
+	if (preg_match("/table_prefix.*\=.*;/i", $subject, $matches)) {
+		$items = explode("'", $matches[0]);
+		define('WP_PREFIX', $items[1]);
+	}else{
+		hn_ts_error_msg("Wordpress table prefix not found in wp-config.php.", 400);
 	}
 
 	// Store database user from wp-config.php
