@@ -19,15 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'Slim/Slim.php';
 
-/*
-* @todo get wpdb prefix from wordpress configuration
-* try with the function hn_ts_readWpConfig()
-*/
-
-
-
-
-
 define('HN_TS_DEBUG', false);
 define('HN_TS_VERSION', "v. 2.0.0-Alpha-0.3");
 $app = new Slim();
