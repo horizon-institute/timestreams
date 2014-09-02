@@ -14,8 +14,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	this.rate = rate;
 	
 	now = new Date().getTime() / 1000;
-	this.offset = now - serverTs;
-
+	this.offset = -( now - serverTs);
 	_start = new Date(start*1000);
 	_startoffset = _start.getTimezoneOffset();
 
@@ -99,17 +98,17 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 
 		if(this.end > 0)
 		{
-			
-			
+			this.startEndEnabled = true;
 		}else{
-
+			this.startEndEnabled = false;
+			document.getElementById("timestream_" + this.timestreamId + "_start").value=0;
+			document.getElementById("timestream_" + this.timestreamId + "_end").value=0;
 		}
-		this.startEndEnabled = true;
-		document.getElementById("timestream_" + this.timestreamId + "_start").disabled = false;
-		document.getElementById("timestream_" + this.timestreamId + "_end").disabled = false;
-		document.getElementById("timestream_" + this.timestreamId + "_start_button").disabled = false;
-		document.getElementById("timestream_" + this.timestreamId + "_end_button").disabled = false;
-		document.getElementById("timestream_" + this.timestreamId + "_startEndEnableCheckbox").checked = false;
+		document.getElementById("timestream_" + this.timestreamId + "_start").disabled = !this.startEndEnabled;
+		document.getElementById("timestream_" + this.timestreamId + "_end").disabled = !this.startEndEnabled;
+		document.getElementById("timestream_" + this.timestreamId + "_start_button").disabled = !this.startEndEnabled;
+		document.getElementById("timestream_" + this.timestreamId + "_end_button").disabled = !this.startEndEnabled;
+		document.getElementById("timestream_" + this.timestreamId + "_startEndEnableCheckbox").checked = !this.startEndEnabled;
 		
 	}
 	
@@ -226,7 +225,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		}
 		
 		var _rate = document.getElementById("timestream_"+this.timestreamId+"_rate").value;
-		document.getElementById("hn_ts_saved").innerHTML = "Saving...";
+		document.getElementById(this.timestreamId+"_hn_ts_saved").innerHTML = "Saving...";
 		jQuery.ajax({
 		    url: this.remote_url + "/timestream/head/"+this.timestreamId,
 		    type: 'PUT',
@@ -251,7 +250,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 
 	this.saveRpcComplete = function(jqXHR, textStatus)
 	{
-		document.getElementById("hn_ts_saved").innerHTML = "Saved.";
+		document.getElementById(this.timestreamId+"_hn_ts_saved").innerHTML = "Saved.";
 		console.log("saveRpcComplete: " + jqXHR + " "  + textStatus);
 	}	
 	
@@ -290,7 +289,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		var points = e.points;
 		var y_bottom = e.dygraph.toDomYCoord(0); 
 		 
-		var bar_width = 5; 
+		var bar_width = 3; 
 		ctx.fillStyle = e.color;
 		 
 		for (var i = 0; i < points.length; i++)
@@ -402,6 +401,8 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 		var newhead = (head["currenttime"]+this.offset)*1000;
 		
 		this.head = newhead;
+		// alert(new Date(this.newHead));
+		document.getElementById("timestream_" + timestreamId + "_timestamp").innerHTML = new Date(newhead);
 		this.redraw();
 	}
 

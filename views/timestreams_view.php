@@ -165,7 +165,8 @@
 			echo "<a style=\"padding: 2px;position:absolute; left:30px; margin-top: 5px\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].prev()\">";_e('< prev',HN_TS_NAME); echo "</a> ";
 			echo "<a style=\"padding: 2px;position:absolute; left:90px; margin-top: 5px\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].next()\">";_e('next >',HN_TS_NAME); echo "</a> ";
 			echo "<a style=\"padding: 2px;position:absolute; left:150px; margin-top: 5px; \" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].latest()\">";_e('latest',HN_TS_NAME); echo "</a>";
-			echo "<div style=\"visibility:hidden; padding: 2px;position:absolute; left:200px; margin-top: 5px; \" id=\"timestream_" . $timestream->timestream_id . "_loading\" ><img src=\"".site_url()."/wp-content/plugins/timestreams/images/spin-wheel.gif\"/></br>";
+			echo "<div style=\"visibility:hidden; padding: 2px;position:absolute; left:200px; margin-top: 5px; \" id=\"timestream_" . $timestream->timestream_id . "_loading\" ><img src=\"".site_url()."/wp-content/plugins/timestreams/images/spin-wheel.gif\"/></div>";
+			echo "<div style=\"padding: 2px;position:absolute; left:250px; margin-top: 5px; \" id=\"timestream_" . $timestream->timestream_id . "_timestamp\" ></div></br>";
 			echo "</td>";
 			
 			echo "<td>";
@@ -181,7 +182,7 @@
 			echo "<input style=\"margin-top: 5px;\" value=\"$timestream->starttime \" type=\"text\" name=\"end\" id=\"timestream_" . $timestream->timestream_id . "_end\"></input><br>";
 			_e('start / end time disabled'); echo ": <input type=\"checkbox\" id=\"timestream_" . $timestream->timestream_id . "_startEndEnableCheckbox\" name=\"endEnable\" value=\"true\" onclick=timestreams[" . $timestream->timestream_id . "].toggleStartEnd() /><br>";
 			_e('rate'); echo ": <br><input style=\"margin-bottom: 5px;\" type=\"text\" name=\"rate\" id=\"timestream_" . $timestream->timestream_id . "_rate\" value=\"" . $head->rate . "\"></input>";
-			echo "<a style=\"padding: 2px; margin-left: 5px;\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].save()\">";_e('save',HN_TS_NAME); echo "</a> <span id=\"hn_ts_saved\"></span><br /><br />";			
+			echo "<a style=\"padding: 2px; margin-left: 5px;\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].save()\">";_e('save',HN_TS_NAME); echo "</a> <span id=\"" . $timestream->timestream_id . "_hn_ts_saved\"></span><br /><br />";			
 			echo "</div>";
 			echo "</td>";
 
