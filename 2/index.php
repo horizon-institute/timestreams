@@ -1173,7 +1173,7 @@ function hn_ts_int_get_timestream_head($timestreamId){
 	// distance to move = (now - lasttime) * rate
 
 	$now = hn_ts_getTimeNow();
-	
+
 	$newcurrent = (($now - strtotime($head->lasttime)) * $head->rate) + strtotime($head->currenttime);
 
 	if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
@@ -1470,13 +1470,13 @@ function hn_ts_timestream_update($timestream)
 	$newcurrent = (($now - strtotime($head->lasttime)) * $head->rate) + strtotime($head->currenttime);
 
 	if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0) {
-		$timestream->endtime = "1970-01-01 00:00:00";
+		$timestream->endtime = 0;
 	}
 
 	//if(strtotime($timestream->endtime) > 0)
 	//	error_log("blaj");
 
-	if(strtotime($timestream->endtime) > 0 && $newcurrent > strtotime($timestream->endtime)) {
+	if($timestream->endtime > 0 && $newcurrent > strtotime($timestream->endtime)) {
 		//error_log("reset to starttime");
 		$currenttime = $timestream->starttime;
 	}
