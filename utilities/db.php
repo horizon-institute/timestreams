@@ -71,8 +71,8 @@ class Hn_TS_Database {
 		name varchar(55) COLLATE utf8_unicode_ci NOT NULL,
 		head_id bigint(20) NOT NULL,
 		metadata_id bigint(20) unsigned NOT NULL,
-		starttime DATETIME,
-		endtime DATETIME,
+		starttime DATETIME NOT NULL DEFAULT \'0000-00-00 00:00:00\',
+		endtime DATETIME NOT NULL DEFAULT \'0000-00-00 00:00:00\',
 		PRIMARY KEY  (timestream_id)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
 		$wpdb->query($sql);

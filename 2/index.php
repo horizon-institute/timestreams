@@ -654,12 +654,15 @@ function hn_ts_add_measurement($name, $value, $timestamp){
 	}
 
 	$timestamp = hn_ts_sanitise($timestamp);
+
 	if(!isset($timestamp)){
 		$sql = "SELECT CURRENT_TIMESTAMP";
 		$_now = querySql($sql);
 		$timestamp = $_now[0]->CURRENT_TIMESTAMP;
+	}else{
+		$timestamp = date('Y-m-d G:i:s', $timestamp);
 	}
-	$timestamp = date('Y-m-d G:i:s', $timestamp);
+	
 	$sql = "INSERT INTO $name (value, valid_time) VALUES ('$value', '$timestamp');";
 	sqlInsert($sql);
 }
@@ -1170,7 +1173,7 @@ function hn_ts_int_get_timestream_head($timestreamId){
 	// distance to move = (now - lasttime) * rate
 
 	$now = hn_ts_getTimeNow();
-
+	
 	$newcurrent = (($now - strtotime($head->lasttime)) * $head->rate) + strtotime($head->currenttime);
 
 	if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
@@ -1183,9 +1186,7 @@ function hn_ts_int_get_timestream_head($timestreamId){
 
 	if($timestream->endtime > 0 && $newcurrent > strtotime($timestream->endtime))
 	{
-		$errorMsg = "AUTO-RESET TSID=".$timestreamId." at ".date ("Y-m-d H:i:s", $now);
-		$errorMsg = $errorMsg." ENDTIME = ".$timestream->endtime."\n";
-		$writeLog("logFile.txt",$errorMsg);
+		
 		$head->error="reset to starttime";
 		$currenttime = $timestream->starttime;
 	}
