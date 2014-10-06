@@ -37,8 +37,8 @@ class Hn_TS_Database {
   		user_id bigint(20) NOT NULL,
 		context_type varchar(100) COLLATE utf8_unicode_ci NOT NULL,
 		value varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-		start_time TIMESTAMP NULL DEFAULT 0,
-		end_time TIMESTAMP NULL DEFAULT 0,
+		start_time DATETIME NOT NULL DEFAULT GETDATE(),
+		end_time DATETIME NOT NULL DEFAULT GETDATE(),
 		PRIMARY KEY  (context_id)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
 		$wpdb->query($sql);
@@ -59,7 +59,7 @@ class Hn_TS_Database {
 		data_type varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 		missing_data_value varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
 		last_IP_Addr varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-		heartbeat_time timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		heartbeat_time DATETIME NOT NULL DEFAULT GETDATE() ON UPDATE GETDATE(),
   		license bigint(20) DEFAULT NULL,
 		PRIMARY KEY  (metadata_id)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
@@ -71,8 +71,8 @@ class Hn_TS_Database {
 		name varchar(55) COLLATE utf8_unicode_ci NOT NULL,
 		head_id bigint(20) NOT NULL,
 		metadata_id bigint(20) unsigned NOT NULL,
-		starttime timestamp,
-		endtime timestamp,
+		starttime DATETIME,
+		endtime DATETIME,
 		PRIMARY KEY  (timestream_id)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
 		$wpdb->query($sql);
@@ -86,8 +86,8 @@ class Hn_TS_Database {
 
 		$sql = 'CREATE  TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_head (
 		head_id BIGINT(20) NOT NULL AUTO_INCREMENT,
-		currenttime TIMESTAMP,
-		lasttime TIMESTAMP,
+		currenttime DATETIME,
+		lasttime DATETIME,
 		rate INT(11) NOT NULL,
 		PRIMARY KEY  (head_id)
 		) ENGINE = MyISAM DEFAULT CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;';
@@ -95,7 +95,7 @@ class Hn_TS_Database {
 
 		$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_replication (
 			  `replication_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-			  `mylock` timestamp NULL DEFAULT NULL,
+			  `mylock` DATETIME NOT NULL DEFAULT GETDATE(),
 			  `local_user_id` bigint(20) unsigned NOT NULL,
 			  `local_table` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 			  `remote_user_login` varchar(60) COLLATE utf8_unicode_ci NOT NULL,
@@ -133,7 +133,7 @@ class Hn_TS_Database {
 		  `publickey` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
 		  `privatekey` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
 		  `userid` bigint(20) NOT NULL,
-		  `creation_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		  `creation_date` DATETIME NOT NULL DEFAULT GETDATE(),
 		  `revoked` tinyint(1) NOT NULL DEFAULT '0',
 		  PRIMARY KEY (`publickey`)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
@@ -196,8 +196,8 @@ class Hn_TS_Database {
 		'CREATE TABLE IF NOT EXISTS '.$tablename.' (
 		'.$idName.' bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 		value '.$dataType.' DEFAULT NULL,
-		valid_time timestamp NULL,
-		transaction_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		valid_time DATETIME NOT NULL DEFAULT GETDATE(),
+		transaction_time DATETIME NOT NULL DEFAULT GETDATE(),
 		PRIMARY KEY  ('.$idName.')
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
 		
@@ -1388,13 +1388,13 @@ class Hn_TS_Database {
 
 		if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
 		{
-			$timestream->endtime = "1970-01-01 00:00:00";
+			$timestream->endtime = 0;
 		}
 			
 		//if(strtotime($timestream->endtime) > 0)
 		//	error_log("blaj");
 
-		if(strtotime($timestream->endtime) > 0 && $newcurrent > strtotime($timestream->endtime))
+		if($timestream->endtime > 0 && $newcurrent > strtotime($timestream->endtime))
 		{
 			//error_log("reset to starttime");
 			$currenttime = $timestream->starttime;
