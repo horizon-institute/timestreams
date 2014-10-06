@@ -35,6 +35,12 @@ else{
 	$app->getLog()->setEnabled(false);
 }
 
+$writeLog=function ($filename, $msg){
+	$file=fopen($filename, "a");
+	fwrite($file, $msg);
+	fclose($file);
+};
+
 
 //this function hardwires $hn_tsuserid to 1
 //because methods that don't have authentication
@@ -54,79 +60,79 @@ $setUserId();
  * and https://s3.amazonaws.com/doc/s3-developer-guide/RESTAuthentication.html
  */
 $hn_ts_authenticate = function () {
-	global $app;
-	global $wpdb;
-	//echo "Athentication called!";
+	// global $app;
+	// global $wpdb;
+	// //echo "Athentication called!";
 
-	//Sanitise and validate authentication parameters
-	$req = $app->request();
-	$pub = hn_ts_sanitise($req->params('pubkey'));
-	//echo "pub: $pub<br />	";
-	$hmac = hn_ts_sanitise($req->params('hmac'));
-	//echo "hmac: $hmac<br />	";
-	$now = hn_ts_sanitise($req->params('now'));
-	if(!hn_ts_issetRequiredParameter($pub, "pubkey") ||
-			!hn_ts_issetRequiredParameter($hmac, "hmac") || !hn_ts_issetRequiredParameter($now, "now")){
-		exit();
-	}
+	// //Sanitise and validate authentication parameters
+	// $req = $app->request();
+	// $pub = hn_ts_sanitise($req->params('pubkey'));
+	// //echo "pub: $pub<br />	";
+	// $hmac = hn_ts_sanitise($req->params('hmac'));
+	// //echo "hmac: $hmac<br />	";
+	// $now = hn_ts_sanitise($req->params('now'));
+	// if(!hn_ts_issetRequiredParameter($pub, "pubkey") ||
+	// 		!hn_ts_issetRequiredParameter($hmac, "hmac") || !hn_ts_issetRequiredParameter($now, "now")){
+	// 	exit();
+	// }
 
-	// Hinder replay attacks
-	if(0 == hn_ts_withinTime($now)){
-		hn_ts_error_msg("Invalid parameter: now", 400);
-	}
+	// // Hinder replay attacks
+	// if(0 == hn_ts_withinTime($now)){
+	// 	hn_ts_error_msg("Invalid parameter: now", 400);
+	// }
 
-	// Select private key for given public key
-	$sql = "SELECT privatekey,userid FROM ".$wpdb->prefix."ts_apikeys WHERE publickey =
-	'$pub' AND revoked='0'";
-	$rows = querySql($sql);
-	$pri='';
-	if(count($rows)){
-		$pri = $rows[0]->privatekey;
-		//echo "pri: $pri<br/>";
-	}else{
-		hn_ts_error_msg("Invalid parameter: pubkey", 400);
-	}
-	$toHash = "";
-	if($req->isPost()){
-		$pars = $req->post();
-		sort($pars,SORT_STRING);
-		foreach ( $pars as $param){
-			if($param == $hmac){
-				continue;
-			}else{
-				$toHash = $toHash.$param."&";
-			}
-		}
-	}else if($req->isPut()){
-		$pars = $req->put();
-		sort($pars,SORT_STRING);
-		foreach ( $pars as $param){
-			if($param == $hmac){
-				continue;
-			}else{
-				$toHash = $toHash.$param."&";
-			}
-		}
-	}else if($req->isGet()){
-		$pars = $req->get();
-		sort($pars,SORT_STRING);
-		foreach ( $pars as $param){
-			if($param == $hmac){
-				continue;
-			}else{
-				$toHash = $toHash.$param;
-			}
-		}
-	}else{
-		hn_ts_error_msg("Method not supported.", 400);
-	}
-	$hash = hash_hmac('sha256', $toHash, $pri);
-	//echo "hash: $hash<br/>";
-	if(0 != strcmp ( $hash , $hmac )){
-		hn_ts_error_msg("Invalid parameter: hmac");//-- tohash: $toHash *** hash: $hash *** hmac$hmac", 400);
-	}
-	global $hn_tsuserid;
-	$hn_tsuserid = $rows[0]->userid;
+	// // Select private key for given public key
+	// $sql = "SELECT privatekey,userid FROM ".$wpdb->prefix."ts_apikeys WHERE publickey =
+	// '$pub' AND revoked='0'";
+	// $rows = querySql($sql);
+	// $pri='';
+	// if(count($rows)){
+	// 	$pri = $rows[0]->privatekey;
+	// 	//echo "pri: $pri<br/>";
+	// }else{
+	// 	hn_ts_error_msg("Invalid parameter: pubkey", 400);
+	// }
+	// $toHash = "";
+	// if($req->isPost()){
+	// 	$pars = $req->post();
+	// 	sort($pars,SORT_STRING);
+	// 	foreach ( $pars as $param){
+	// 		if($param == $hmac){
+	// 			continue;
+	// 		}else{
+	// 			$toHash = $toHash.$param."&";
+	// 		}
+	// 	}
+	// }else if($req->isPut()){
+	// 	$pars = $req->put();
+	// 	sort($pars,SORT_STRING);
+	// 	foreach ( $pars as $param){
+	// 		if($param == $hmac){
+	// 			continue;
+	// 		}else{
+	// 			$toHash = $toHash.$param."&";
+	// 		}
+	// 	}
+	// }else if($req->isGet()){
+	// 	$pars = $req->get();
+	// 	sort($pars,SORT_STRING);
+	// 	foreach ( $pars as $param){
+	// 		if($param == $hmac){
+	// 			continue;
+	// 		}else{
+	// 			$toHash = $toHash.$param;
+	// 		}
+	// 	}
+	// }else{
+	// 	hn_ts_error_msg("Method not supported.", 400);
+	// }
+	// $hash = hash_hmac('sha256', $toHash, $pri);
+	// //echo "hash: $hash<br/>";
+	// if(0 != strcmp ( $hash , $hmac )){
+	// 	hn_ts_error_msg("Invalid parameter: hmac");//-- tohash: $toHash *** hash: $hash *** hmac$hmac", 400);
+	// }
+	// global $hn_tsuserid;
+	// $hn_tsuserid = $rows[0]->userid;
 };
 
 /**
@@ -881,7 +887,9 @@ function hn_ts_select_measurements($table, $minimumTime, $maximumTime, $limit,
 		hn_ts_error_msg("Unauthorized access to: ".$name , 400);
 	}
 	$minimumTime = hn_ts_sanitise($minimumTime);
+	$minimumTime = date('Y-m-d G:i:s', $minimumTime);
 	$maximumTime = hn_ts_sanitise($maximumTime);
+	$maximumTime = date('Y-m-d G:i:s', $maximumTime);
 	$limit = hn_ts_sanitise($limit);
 	$offset = hn_ts_sanitise($offset);
 	$sortcolumn = hn_ts_sanitise($sortcolumn);
@@ -913,7 +921,10 @@ function hn_ts_select_measurements($table, $minimumTime, $maximumTime, $limit,
 		$sort .= "ORDER BY id DESC";
 	}
 
+
+
 	$sql = "SELECT * FROM $table $where $sort $limit;";
+	// echo $sql;
 	echoJsonQuery($sql, "data");
 }
 
@@ -1128,6 +1139,7 @@ function hn_ts_getTimeNow(){
 function hn_ts_int_get_timestream_head($timestreamId){
 	//global $hn_tsuserid;
 	global $wpdb;
+	global $writeLog;
 	$sql = "SELECT * FROM ".$wpdb->prefix."ts_timestreams
 	WHERE timestream_id = $timestreamId";// AND user_id=$hn_tsuserid";
 
@@ -1161,17 +1173,19 @@ function hn_ts_int_get_timestream_head($timestreamId){
 
 	$newcurrent = (($now - strtotime($head->lasttime)) * $head->rate) + strtotime($head->currenttime);
 
-	// if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
-	// {
-	// 	$timestream->endtime = "1970-01-01 00:00:00";
-	// }
+	if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
+	{
+		$timestream->endtime = 0;
+	}
 
 	//if(strtotime($timestream->endtime) > 0)
 	//	error_log("blaj");
 
-	if(strtotime($timestream->endtime) > 0 && $newcurrent > strtotime($timestream->endtime))
+	if($timestream->endtime > 0 && $newcurrent > strtotime($timestream->endtime))
 	{
-		//error_log("reset to starttime");
+		$errorMsg = "AUTO-RESET TSID=".$timestreamId." at ".date ("Y-m-d H:i:s", $now);
+		$errorMsg = $errorMsg." ENDTIME = ".$timestream->endtime."\n";
+		$writeLog("logFile.txt",$errorMsg);
 		$head->error="reset to starttime";
 		$currenttime = $timestream->starttime;
 	}
@@ -1294,6 +1308,7 @@ function hn_ts_int_get_timestream_data($tablename, $limit, $offset, $lastTimesta
  */
 function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $newEnd, $newRate){
 	global $wpdb;
+	global $writeLog;
 	if(!$timestreamId){
 		echo '{"error":{"text":"timestream not found: '.$timestreamId.'"}}';
 		return;
@@ -1350,8 +1365,14 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 	WHERE timestream_id = $timestreamId";
 
 	$count2 = $db->exec($sql);
+	$now = hn_ts_getTimeNow();
+	$errorMsg = "MANUAL-RESET TSID=".$timestreamId." at ".date ("Y-m-d H:i:s", $now);
+	$errorMsg = $errorMsg." NEWSTART = ".date ("Y-m-d H:i:s",$newStart)." NEWEND = ".date ("Y-m-d H:i:s",$newEnd)."\n";
+	$writeLog("logFile.txt",$errorMsg);
 	echo '{"updates":[{"table":"'.$wpdb->prefix.'ts_head","rows":'.$count1.'},
 	{"table":"'.$wpdb->prefix.'ts_timestreams","rows":'.$count2.'}]}';
+
+
 	$db = null;
 }
 
@@ -1917,8 +1938,8 @@ function hn_ts_document_metadata(){
 	</dd>
 	<dt class="url-label">URL Structure</dt>
 	<dd>
-	<pre><a href="./metadata?pubkey=c21fa479e5&now=1354787206&hmac=a1df42ea4a7be73f1becae45e386424413659c223bb2406d8d6264fd569601d8&tsid=11"
-	title="Get metadata">/metadata?pubkey=c21fa479e5&now=1354787206&hmac=a1df42ea4a7be73f1becae45e386424413659c223bb2406d8d6264fd569601d8&tsid=11</a></pre>
+	<pre><a href="./metadata?pubkey=c21fa479e5&now=1354787206&hmac=a1df42ea4a7be73f1becae45e386424413659c223bb2406d8d6264fd569601d8&tsid=16"
+	title="Get metadata">/metadata?pubkey=c21fa479e5&now=1354787206&hmac=a1df42ea4a7be73f1becae45e386424413659c223bb2406d8d6264fd569601d8&tsid=16</a></pre>
 	</dd>
 	<dt>Version 1 API replacement</dt><dd><pre>timestreams.ext_get_timestream_metadata</pre></dd>
 	<dt>Parameters</dt>
@@ -2975,7 +2996,7 @@ function hn_ts_document_timestream(){
 	</dd>
 	<dt class="url-label">URL Structure</dt>
 	<dd>
-	<pre><a href="./timestream/name/wp_1_ts_temperature_23" title="Get Timestream">/timestream/name/[name]</a></pre>
+	<pre><a href="./timestream/name/wp_ekx42t_1_ts_CO2_2" title="Get Timestream">/timestream/name/[name]</a></pre>
 	</dd>
 	<dt>Version 1 API replacement</dt>
 	<dd>
@@ -3068,7 +3089,7 @@ function hn_ts_document_timestream(){
 	</dd>
 	<dt class="url-label">URL Structure</dt>
 	<dd>
-	<pre><a href="./timestream/head/1?pubkey=c21fa479e5&now=1354794437&hmac=539fd701c0967d68424c7dc999c0bcab5343dc07c45ae48d13a07b876567bfaf" title="Get time">/timestream/head/1?pubkey=c21fa479e5&now=1354794437&hmac=539fd701c0967d68424c7dc999c0bcab5343dc07c45ae48d13a07b876567bfaf</a></pre>
+	<pre><a href="./timestream/head/16?pubkey=c21fa479e5&now=1354794437&hmac=539fd701c0967d68424c7dc999c0bcab5343dc07c45ae48d13a07b876567bfaf" title="Get time">/timestream/head/1?pubkey=c21fa479e5&now=1354794437&hmac=539fd701c0967d68424c7dc999c0bcab5343dc07c45ae48d13a07b876567bfaf</a></pre>
 	</dd>
 	<dt>Version 1 API replacement</dt>
 	<dd>

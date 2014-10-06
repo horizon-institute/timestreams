@@ -14,12 +14,13 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	this.rate = rate;
 	
 	now = new Date().getTime() / 1000;
-	this.offset = -( now - serverTs);
+	this.offset = 0;// -(now - serverTs);
 	_start = new Date(start*1000);
-	_startoffset = _start.getTimezoneOffset();
+	_startoffset = 0;// _start.getTimezoneOffset();
 
 	_end = new Date(end*1000);
-	_endoffset = _end.getTimezoneOffset();
+	_endoffset = 0;// _end.getTimezoneOffset();
+
 	
 	/*
 	console.log(this.offset);
