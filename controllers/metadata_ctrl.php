@@ -158,7 +158,6 @@
 						}
 						
 					}
-					$GLOBALS['DebugMyPlugin']->panels['main']->addPR('db objedct',$db); 
 					echo "Unable to add record.";
 				}	
 			}
