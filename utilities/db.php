@@ -37,8 +37,8 @@ class Hn_TS_Database {
   		user_id bigint(20) NOT NULL,
 		context_type varchar(100) COLLATE utf8_unicode_ci NOT NULL,
 		value varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-		start_time DATETIME NOT NULL DEFAULT GETDATE(),
-		end_time DATETIME NOT NULL DEFAULT GETDATE(),
+		start_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		end_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		PRIMARY KEY  (context_id)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
 		$wpdb->query($sql);
@@ -59,7 +59,7 @@ class Hn_TS_Database {
 		data_type varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 		missing_data_value varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
 		last_IP_Addr varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-		heartbeat_time DATETIME NOT NULL DEFAULT GETDATE() ON UPDATE GETDATE(),
+		heartbeat_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   		license bigint(20) DEFAULT NULL,
 		PRIMARY KEY  (metadata_id)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;';
@@ -95,7 +95,7 @@ class Hn_TS_Database {
 
 		$sql = 'CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_replication (
 			  `replication_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-			  `mylock` DATETIME NOT NULL DEFAULT GETDATE(),
+			  `mylock` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			  `local_user_id` bigint(20) unsigned NOT NULL,
 			  `local_table` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 			  `remote_user_login` varchar(60) COLLATE utf8_unicode_ci NOT NULL,
@@ -133,7 +133,7 @@ class Hn_TS_Database {
 		  `publickey` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
 		  `privatekey` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
 		  `userid` bigint(20) NOT NULL,
-		  `creation_date` DATETIME NOT NULL DEFAULT GETDATE(),
+		  `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		  `revoked` tinyint(1) NOT NULL DEFAULT '0',
 		  PRIMARY KEY (`publickey`)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
@@ -196,8 +196,8 @@ class Hn_TS_Database {
 		'CREATE TABLE IF NOT EXISTS '.$tablename.' (
 		'.$idName.' bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 		value '.$dataType.' DEFAULT NULL,
-		valid_time DATETIME NOT NULL DEFAULT GETDATE(),
-		transaction_time DATETIME NOT NULL DEFAULT GETDATE(),
+		valid_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		transaction_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		PRIMARY KEY  ('.$idName.')
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
 		

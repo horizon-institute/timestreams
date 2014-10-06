@@ -659,7 +659,7 @@ function hn_ts_add_measurement($name, $value, $timestamp){
 		$_now = querySql($sql);
 		$timestamp = $_now[0]->CURRENT_TIMESTAMP;
 	}
-
+	$timestamp = date('Y-m-d G:i:s', $timestamp);
 	$sql = "INSERT INTO $name (value, valid_time) VALUES ('$value', '$timestamp');";
 	sqlInsert($sql);
 }
