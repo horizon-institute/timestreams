@@ -124,17 +124,19 @@
 				$metadata->max_value = 1;
 			}
 			
-			if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
-			{
-				$timestream->endtime = "1970-01-01 00:00:00";
-			}
+			// if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
+			// {
+			// 	$timestream->endtime = "0";
+			// }
 
 
 			
 			if(strcmp($timestream->starttime, "0000-00-00 00:00:00")==0)
 			{
-				$timestream->starttime = "1970-01-01 00:00:00";
+				$timestream->starttime = "0";
 			}
+
+
 			
 			foreach($metarows as $meta)
 			{
@@ -151,6 +153,7 @@
 				echo "<option " . $selected . " value=\"" . $meta->metadata_id . "\">" . "container: " . $meta->friendlyname . " | type: " . $meta->measurement_type . " | table: " . $meta->tablename . "</option>";					
 			}
 			
+
 			echo "</select></td>";
 			echo "<input type=\"hidden\" name=\"timestream_id\" value=\"" . $timestream->timestream_id . "\">";
 			echo "<td><input type=\"submit\" name=\"command\" class=\"button-primary\" value=\""; _e('update',HN_TS_NAME); echo "\"></td>";
@@ -176,10 +179,10 @@
 			echo "<input style=\"margin-top: 5px;\" type=\"text\" name=\"head\" id=\"timestream_" . $timestream->timestream_id . "_head\" ></input><br>";
 			_e('start time'); echo ": <br>";
 			echo "<a style=\"padding: 2px; \" id=\"timestream_" . $timestream->timestream_id . "_start_button\" name=\"b.ignore\" class=\"button-secondary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(2)\">";_e('set start',HN_TS_NAME); echo "</a> ";
-			echo "<input style=\"margin-top: 5px;\" value=\"$timestream->starttime \" type=\"text\" name=\"start\" id=\"timestream_" . $timestream->timestream_id . "_start\"></input><br>";
+			echo "<input style=\"margin-top: 5px;\" value=\"$timestream->starttime\" type=\"text\" name=\"start\" id=\"timestream_" . $timestream->timestream_id . "_start\"></input><br>";
 			_e('end time'); echo ": <br>";
 			echo "<a style=\"padding: 2px\"  id=\"timestream_" . $timestream->timestream_id . "_end_button\" name=\"c.ignore\" class=\"button-secondary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].setInteractionMode(3)\">";_e('set end',HN_TS_NAME); echo "</a> ";
-			echo "<input style=\"margin-top: 5px;\" value=\"$timestream->starttime \" type=\"text\" name=\"end\" id=\"timestream_" . $timestream->timestream_id . "_end\"></input><br>";
+			echo "<input style=\"margin-top: 5px;\" value=\"$timestream->endtime\" type=\"text\" name=\"end\" id=\"timestream_" . $timestream->timestream_id . "_end\"></input><br>";
 			_e('start / end time disabled'); echo ": <input type=\"checkbox\" id=\"timestream_" . $timestream->timestream_id . "_startEndEnableCheckbox\" name=\"endEnable\" value=\"true\" onclick=timestreams[" . $timestream->timestream_id . "].toggleStartEnd() /><br>";
 			_e('rate'); echo ": <br><input style=\"margin-bottom: 5px;\" type=\"text\" name=\"rate\" id=\"timestream_" . $timestream->timestream_id . "_rate\" value=\"" . $head->rate . "\"></input>";
 			echo "<a style=\"padding: 2px; margin-left: 5px;\" class=\"button-primary\" href=\"javascript:onclick=timestreams[" . $timestream->timestream_id . "].save()\">";_e('save',HN_TS_NAME); echo "</a> <span id=\"" . $timestream->timestream_id . "_hn_ts_saved\"></span><br /><br />";			

@@ -857,8 +857,10 @@ function hn_ts_add_measurements($name, $measurements){
 	foreach($measurements as $m){
 		foreach($m as $m1){
 			$v = hn_ts_sanitise($m1['v']);
+			$t = hn_ts_sanitise($m1['t']);
+			$t = date('Y-m-d G:i:s', $t);
 			if(isset($v)){
-				$sql=$sql."('".$v."', '".hn_ts_sanitise($m1['t'])."'),";
+				$sql=$sql."('".$v."', '".$t."'),";
 			}
 
 		}
@@ -1333,7 +1335,12 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 
 	$currenttime = date ("Y-m-d H:i:s", $newHead);
 	$starttime = date ("Y-m-d H:i:s", $newStart);
-	$endtime = date ("Y-m-d H:i:s", $newEnd);
+	if ($newEnd==-30610224000) {
+		$endtime="0000-00-00 00:00:00";
+	}else{
+		$endtime = date ("Y-m-d H:i:s", $newEnd);
+	}
+	
 	global $hn_tsuserid;
 	
 	$sql = "SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId";
@@ -1364,7 +1371,7 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 	$count1 = $db->exec($sql);
 	$sql = "UPDATE ".$wpdb->prefix."ts_timestreams SET starttime='$starttime', endtime='$endtime'
 	WHERE timestream_id = $timestreamId";
-
+	echo $sql;
 	$count2 = $db->exec($sql);
 	$now = hn_ts_getTimeNow();
 	$errorMsg = "MANUAL-RESET TSID=".$timestreamId." at ".date ("Y-m-d H:i:s", $now);

@@ -12,7 +12,10 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 	this.newHead = 0;
 	
 	this.rate = rate;
-	
+
+	// start=Math.round(new Date(start).getTime()/1000);
+	// end=Math.round(new Date(end).getTime()/1000);
+	// alert("start: "+new Date(start*1000)+"  end: "+new Date(end*1000));
 	now = new Date().getTime() / 1000;
 	this.offset = 0;// -(now - serverTs);
 	_start = new Date(start*1000);
@@ -97,7 +100,8 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 			this.dataLimit = 20;
 		}
 
-		if(this.end > 0)
+
+		if(this.end > -30610224000000)
 		{
 			this.startEndEnabled = true;
 		}else{
@@ -222,7 +226,7 @@ function Timestream(remoteUrl, timestreamId, dataSource, serverTs, start, end, r
 			};
 		}else{
 			 _start=_head;
-			 _end=-3600;
+			 _end=-30610224000;
 		}
 		
 		var _rate = document.getElementById("timestream_"+this.timestreamId+"_rate").value;
