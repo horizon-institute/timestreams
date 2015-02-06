@@ -69,7 +69,7 @@
 		
 		// Path and URL
 		if ( !defined( 'HN_TS_PLUGIN_DIR' ) )
-			define( 'HN_TS_PLUGIN_DIR', WP_PLUGIN_DIR . '/timestreams' );
+			define( 'HN_TS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 		
 		if ( !defined( 'HN_TS_PLUGIN_URL' ) )
 			define( 'HN_TS_PLUGIN_URL', plugins_url( 'timestreams' ) );
