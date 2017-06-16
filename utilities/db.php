@@ -266,7 +266,7 @@ class Hn_TS_Database {
 		}
 
 		global $current_user;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 		//Ensure frinedlyname is unique
 		if(NULL != $friendlyId){
 			$sql = "SELECT COUNT(*) FROM ".$wpdb->prefix."ts_metadatafriendlynames
@@ -474,7 +474,7 @@ class Hn_TS_Database {
 	function hn_ts_select_viewable_metadata_multisite(){
 		global $current_user;
 		global $wpdb;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 		$blogId = get_current_blog_id();
 		$siteId = get_current_site();
 		$siteId = $siteId->id;
@@ -505,7 +505,7 @@ class Hn_TS_Database {
 	function hn_ts_select_viewable_metadata_singlesite(){
 		global $current_user;
 		global $wpdb;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 		$blogId = get_current_blog_id();
 		$sql = "SELECT ".$wpdb->prefix."ts_metadata . * , ".$wpdb->prefix."ts_metadatafriendlynames.friendlyname
 				FROM ".$wpdb->prefix."ts_metadata
@@ -543,7 +543,7 @@ class Hn_TS_Database {
 	function hn_ts_isTableOwnedByBlogOrUserMultisite($tableIn){
 		global $current_user;
 		global $wpdb;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 		$blogId = get_current_blog_id();
 		$siteId = get_current_site();
 		$siteId = $siteId->id;
@@ -571,7 +571,7 @@ class Hn_TS_Database {
 	function hn_ts_isTableOwnedByBlogOrUserSinglesite($tableIn){
 		global $current_user;
 		global $wpdb;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 		$blogId = get_current_blog_id();
 		if(!isset($tableIn)){
 			return false;
@@ -811,7 +811,7 @@ class Hn_TS_Database {
 		global $wpdb;
 		if(count($args)>= 9){
 			global $current_user;
-			get_currentuserinfo();
+			$current_user = wp_get_current_user();
 			return $wpdb->insert( $wpdb->prefix.'ts_replication',
 					array('local_user_id' => $current_user->ID,
 				 		'local_table' => $args[2],
@@ -1050,7 +1050,7 @@ class Hn_TS_Database {
 
 		$headId = $wpdb->insert_id;
 		global $current_user;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 
 		// create timestream
 		$wpdb->insert($wpdb->prefix.'ts_timestreams',
@@ -1097,7 +1097,7 @@ class Hn_TS_Database {
 	{
 		global $wpdb;
 		global $current_user;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 		$results=$wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE ".
 				"user_id = '$current_user->ID' ORDER BY timestream_id DESC"));
 		// echo print_r($results,true);
@@ -1460,7 +1460,7 @@ class Hn_TS_Database {
 		global $wpdb;
 		global $current_user;
 		global $wpdb;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 		$blogId = get_current_blog_id();
 		$siteId = get_current_site();
 		$siteId = $siteId->id;
@@ -1476,7 +1476,7 @@ class Hn_TS_Database {
 		global $wpdb;
 		$table = $wpdb->base_prefix.'ts_apikeys';
 		global $current_user;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 
 		$wpdb->insert(
 				$table,
@@ -1494,7 +1494,7 @@ class Hn_TS_Database {
 	function hn_ts_select_apiKeys(){
 		global $current_user;
 		global $wpdb;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 		$sql = "SELECT publickey, userid, creation_date FROM `".$wpdb->prefix."ts_apikeys`
 		WHERE userid='$current_user->ID' AND revoked=0
 		ORDER BY creation_date DESC;";
@@ -1508,7 +1508,7 @@ class Hn_TS_Database {
 	function hn_ts_revealPrivateAPIKey($pubkey){
 		global $current_user;
 		global $wpdb;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 		$sql = "SELECT privatekey FROM `".$wpdb->prefix."ts_apikeys`
 		WHERE userid='$current_user->ID' AND
 		revoked=0 AND publickey='$pubkey';";
@@ -1518,7 +1518,7 @@ class Hn_TS_Database {
 	function hn_ts_revokeAPIKey($pubkey){
 		global $wpdb;
 		global $current_user;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 		return $wpdb->update(
 				$wpdb->prefix.'ts_apikeys',
 				array( 'revoked' => 1),
