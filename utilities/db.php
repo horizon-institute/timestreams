@@ -147,6 +147,8 @@ class Hn_TS_Database {
 		PRIMARY KEY (`id`)
 		) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=10;";
 		$wpdb->query($sql);
+		$sql = "TRUNCATE TABLE `$wpdb->prefix"."ts_datalicenses`;";
+		$wpdb->query($sql);
 		$sql = "INSERT INTO `$wpdb->prefix"."ts_datalicenses` (`id`, `name`, `shortname`, `url`) VALUES
 		(1, 'Open Data Commons Attribution Licence', 'ODC-By', 'http://opendatacommons.org/licenses/by/'),
 		(2, 'Open Data Commons Open Database Licence', 'ODC-ODbL', 'http://opendatacommons.org/licenses/odbl/'),
