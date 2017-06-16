@@ -505,7 +505,7 @@ class Hn_TS_Database {
 		global $wpdb;
 		$current_user = wp_get_current_user();
 		$blogId = get_current_blog_id();
-		$sql = "SELECT ".$wpdb->prefix."ts_metadata . * , ".$wpdb->prefix."ts_metadatafriendlynames.friendlyname
+		$sql = "SELECT ".$wpdb->prefix."ts_metadata . * , ".$wpdb->prefix."ts_metadatafriendlynames.friendlyname,
 		    ".$wpdb->prefix."ts_datalicenses.name AS licname, ".$wpdb->prefix."ts_datalicenses.shortname AS licshortname,
 				".$wpdb->prefix."ts_datalicenses.url AS licurl
 				FROM ".$wpdb->prefix."ts_metadata
