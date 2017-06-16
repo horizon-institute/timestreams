@@ -7,17 +7,17 @@
  */
 
 	/**
-	 * Retrieves the given $_GET variable and checks for its existence 
+	 * Retrieves the given $_GET variable and checks for its existence
 	 * @return the value or null, if not found.
 	 */
-	function hn_ts_setVar($varToCheck){			
+	function hn_ts_setVar($varToCheck){
 		if(isset($_GET["$varToCheck"]) && !($_GET["$varToCheck"] === "") ){
 			return $_GET["$varToCheck"];
 		}
 		return null;
 	}
-	
-	
+
+
 	/**
 	 * Enqueue javascript scripts
 	 */
@@ -25,15 +25,15 @@
 		wp_enqueue_script('ts-ajax', '/wp-content/plugins/timestreams/js/hn_ts_ajax.js');
 	}
 
-	
+
 	add_action('admin_enqueue_scripts', 'hn_ts_load_Datasources_scripts');
 	/**
 	 * Displays data in a table from the given name of the table
 	 * To do: Complete pagination functionality.
-	 * @param String $tablename is the name of the table to display. 
+	 * @param String $tablename is the name of the table to display.
 	 * The table is expected to be a data table with a name in the format of
 	 * wp_<site_id>_ts_<measurement_type>_<device_id>
-	 */	
+	 */
 	 function hn_ts_showDataRecord($tablename){
 		?>
 		<table class="widefat">
@@ -52,7 +52,7 @@
 				</tr>
 			</tfoot>
 			<tbody>
-			<?php 
+			<?php
 			$db = new Hn_TS_Database();
 			$max=hn_ts_setVar('max');
 			$min=hn_ts_setVar('min');
@@ -92,7 +92,7 @@
 		<hr />
 		<h3>Upload data in CSV format</h3></br>
 		<h4>Please use the format [value],[timestamp];</h4>
-		e.g.: </br></br> 
+		e.g.: </br></br>
 		2.345,2012-11-09 12:10:23;</br>
 		13,2012-11-09 12:10:24;</br></br>
 		or</br></br>
@@ -105,10 +105,10 @@
 				Upload
 			</button>
 		</form>
-		
-		<?php	
 
-		if(isset($_POST)){
+		<?php
+
+		if( isset($_POST) && array_key_exists( 'csv-upload', $_POST ) ){
 			addMeasurements($db,$tablename,$_POST['csv-upload']);
 
 		}else{
@@ -138,6 +138,7 @@
 
 	function CSV2Obj($text){
 		$data = str_getcsv4($text,";");
+		$temp = array();
 		foreach ($data as $line) {
 			if(strlen($line)){
 				$foo=explode(',', $line);
@@ -171,10 +172,10 @@
 
 	}
 
-	
+
 
 	function addMeasurements($db,$tablename,$measurements){
-		
+
 		if(!$tablename){
 			//error no name
 		}else{
@@ -184,7 +185,7 @@
 				$args=["username","password",$tablename];
 				foreach($measurements as $m){
 					$args[]=$db->hn_ts_sanitise($m['v']);
-					$args[]=$db->hn_ts_sanitise($m['t']);	
+					$args[]=$db->hn_ts_sanitise($m['t']);
 				}
 
 				$no_rows = $db->hn_ts_insert_readings($args);
@@ -194,7 +195,7 @@
 			}
 
 		}
-		
+
 	}
 
 
@@ -214,7 +215,7 @@
 		if ($pageNum < 1) {
 			$pageNum = 1;
 		}
-		
+
 		$max=$offset+$limit;
 		if($max > $numRows){
 			$max = $numRows;
