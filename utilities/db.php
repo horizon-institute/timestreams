@@ -107,9 +107,9 @@ class Hn_TS_Database {
   			  `blog_id` bigint(20) DEFAULT NULL,
 			  `last_replication` varchar(75) COLLATE utf8_unicode_ci DEFAULT NULL,
 			  PRIMARY KEY (`replication_id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';			
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
 		$wpdb->query($sql);
-		
+
 		$sql = 'CREATE  TABLE IF NOT EXISTS '.$wpdb->prefix.'ts_container_shared_with_blog (
 		id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 		table_name varchar(45) COLLATE utf8_unicode_ci NOT NULL COMMENT \'Table name for a measurement container\',
@@ -118,7 +118,7 @@ class Hn_TS_Database {
 		PRIMARY KEY  (id)
 		) ENGINE = MyISAM DEFAULT CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;';
 		$wpdb->query($sql);
-		
+
 		// Note that not non-autoincrement primary key is intentional as it should correspond
 		//	to an existing wp_ts_metadata id
 		$sql = 'CREATE TABLE IF NOT EXISTS `'.$wpdb->prefix.'ts_metadatafriendlynames` (
@@ -128,7 +128,7 @@ class Hn_TS_Database {
 		  UNIQUE KEY `friendlyname` (`friendlyname`)
 		) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT=\'Associates friendly names to metadata rows. Legacy data work\';';
 		$wpdb->query($sql);
-		
+
 		$sql = "CREATE TABLE IF NOT EXISTS  `$wpdb->prefix"."ts_apikeys` (
 		  `publickey` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
 		  `privatekey` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
@@ -137,16 +137,17 @@ class Hn_TS_Database {
 		  `revoked` tinyint(1) NOT NULL DEFAULT '0',
 		  PRIMARY KEY (`publickey`)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-		$wpdb->query($sql);	
-		
+		$wpdb->query($sql);
+
 		$sql = "CREATE TABLE IF NOT EXISTS `$wpdb->prefix"."ts_datalicenses` (
 		`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  		`name` varchar(100) NOT NULL,
+  	`name` varchar(100) NOT NULL,
 		`shortname` varchar(20) NOT NULL,
 		`url` varchar(255) NOT NULL,
 		PRIMARY KEY (`id`)
-		) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=10;
-		INSERT INTO `$wpdb->prefix"."ts_datalicenses` (`id`, `name`, `shortname`, `url`) VALUES
+		) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=10;";
+		$wpdb->query($sql);
+		$sql = "INSERT INTO `$wpdb->prefix"."ts_datalicenses` (`id`, `name`, `shortname`, `url`) VALUES
 		(1, 'Open Data Commons Attribution Licence', 'ODC-By', 'http://opendatacommons.org/licenses/by/'),
 		(2, 'Open Data Commons Open Database Licence', 'ODC-ODbL', 'http://opendatacommons.org/licenses/odbl/'),
 		(3, 'Open Data Commons Database Contents Licence', 'ODC-DbCL', 'http://opendatacommons.org/licenses/dbcl/'),
@@ -158,10 +159,10 @@ class Hn_TS_Database {
 		(9, 'Attribution-NonCommercial-NoDerivs 3.0 Unported ', 'CC BY-NC-ND 3.0', 'https://creativecommons.org/licenses/by-nc-nd/3.0/'),
 		(10, 'other', 'other', '');";
 		$wpdb->query($sql);
-		
+
 		//For some reason dbDelta wasn't working for all of the tables :(
 	}
-	
+
 	/**
 	 * Really simple sanitisation for input parameters.
 	 * @param is a String to be sanitized $arg
@@ -175,7 +176,7 @@ class Hn_TS_Database {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Creates a sensor measurement table for a site.
 	 * @param $blogId is the id for the site that the sensor belongs to
@@ -200,12 +201,12 @@ class Hn_TS_Database {
 		transaction_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		PRIMARY KEY  ('.$idName.')
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;';
-		
-		if(1 == $wpdb->query($sql)){ // using query instead of dbDelta for consistent return type 
+
+		if(1 == $wpdb->query($sql)){ // using query instead of dbDelta for consistent return type
 			return $tablename;
 		} else{
 			return null;
-		}			
+		}
 	}
 
 	/**
@@ -226,9 +227,9 @@ class Hn_TS_Database {
 	 * @change 19/12/2012 - Modified by JMB to handle invalid characters and sanitisation correctly
 	 * @change 19/02/2013 - Modified by JMB to allow friendlyId
 	 */
-	function hn_ts_addMetadataRecord($blog_id='', $measurementType, 
+	function hn_ts_addMetadataRecord($blog_id='', $measurementType,
 			$minimumvalue, $maximumvalue,
-			$unit, $unitSymbol, $deviceDetails, $otherInformation, 
+			$unit, $unitSymbol, $deviceDetails, $otherInformation,
 			$dataType,$missingDataValue,$friendlyId=NULL, $license=NULL, $siteId=1){
 		global $wpdb;
 		if($blog_id==''){
@@ -261,7 +262,7 @@ class Hn_TS_Database {
 		if($tablename == null){
 			return null;
 		}
-		
+
 		global $current_user;
 		get_currentuserinfo();
 		//Ensure frinedlyname is unique
@@ -288,10 +289,10 @@ class Hn_TS_Database {
 						'producer_blog_id' => $blog_id,
 						'producer_id' => $current_user->ID,
 						'license' => $license),
-				array( '%s', '%s', '%s', '%s', '%s', '%s', 
+				array( '%s', '%s', '%s', '%s', '%s', '%s',
 						'%s' , '%s','%s', '%s' , '%s', '%s' )
 		);
-		if (FALSE != $res && NULL != $friendlyId){				
+		if (FALSE != $res && NULL != $friendlyId){
 			$wpdb->insert(
 					''.$wpdb->prefix.'ts_metadatafriendlynames',
 					array( 	'metadata_id' => $wpdb->insert_id,
@@ -350,7 +351,7 @@ class Hn_TS_Database {
 		$sortcolumn=(count($args) > 7 ? $args[7] : "");
 		$descending=(count($args) > 8 ? $args[8] : "");
 		$sort = "";
-			
+
 		if($minimumTime){
 			$where=$where."valid_time >= '$minimumTime' ";
 
@@ -360,17 +361,17 @@ class Hn_TS_Database {
 		}else if($maximumTime){
 			$where=$where."valid_time <= '$maximumTime'";
 		}
-			
+
 		if(0==strcmp($where,"WHERE ")){
 			$where="";
 		}
-			
+
 		if($sortcolumn) {
 			$sort = "ORDER BY " . $sortcolumn;
 			if($descending)
 				$sort .= " DESC";
 		}
-		
+
 		return $wpdb->get_results("SELECT * FROM $table $where $sort $limit;");
 	}
 
@@ -407,7 +408,7 @@ class Hn_TS_Database {
 		}else if($maximumTime){
 			$where=$where."valid_time < '$maximumTime'";
 		}
-			
+
 		if(0==strcmp($where,"WHERE ")){
 			$where="";
 		}
@@ -431,13 +432,13 @@ class Hn_TS_Database {
 		if(count($args) != 3){
 			return $this->missingcontainername;
 		}
-		
+
 		$argcount=0;
 		foreach($args as $arg){
 			$args[$argcount++]=$this->hn_ts_sanitise($arg);
 		}
 		$table=$args[2];
-			
+
 		return $wpdb->get_row( 	$wpdb->prepare("SELECT * FROM
 				$table WHERE id = ( SELECT MAX( id ) FROM $table ) " )	);
 	}
@@ -450,8 +451,8 @@ class Hn_TS_Database {
 		global $wpdb;
 		$sql="SELECT * FROM $table;";
 		return $wpdb->get_results($wpdb->prepare($sql));
-	}	
-	
+	}
+
 	/**
 	 * Select metadata for viewable tables
 	 * Viewables tables are either owned or shared with the current user or the current blog/site
@@ -463,7 +464,7 @@ class Hn_TS_Database {
 			return $this->hn_ts_select_viewable_metadata_singlesite();
 		}
 	}
-	
+
 	/**
 	 * Select metadata for viewable tables from multisite wordpress instance
 	 * Viewables tables are either owned or shared with the current user or the current blog/site
@@ -475,8 +476,8 @@ class Hn_TS_Database {
 		$blogId = get_current_blog_id();
 		$siteId = get_current_site();
 		$siteId = $siteId->id;
-		$sql = "SELECT ".$wpdb->prefix."ts_metadata . * , ".$wpdb->prefix."ts_metadatafriendlynames.friendlyname, 
-				".$wpdb->prefix."ts_datalicenses.name AS licname, ".$wpdb->prefix."ts_datalicenses.shortname AS licshortname, 
+		$sql = "SELECT ".$wpdb->prefix."ts_metadata . * , ".$wpdb->prefix."ts_metadatafriendlynames.friendlyname,
+				".$wpdb->prefix."ts_datalicenses.name AS licname, ".$wpdb->prefix."ts_datalicenses.shortname AS licshortname,
 				".$wpdb->prefix."ts_datalicenses.url AS licurl
 				FROM ".$wpdb->prefix."ts_metadata
 				LEFT JOIN ".$wpdb->prefix."ts_metadatafriendlynames ON ".$wpdb->prefix."ts_metadata.metadata_id = ".$wpdb->prefix."ts_metadatafriendlynames.metadata_id
@@ -484,17 +485,17 @@ class Hn_TS_Database {
 				WHERE (
 				".$wpdb->prefix."ts_metadata.producer_id = $current_user->ID OR (
 					".$wpdb->prefix."ts_metadata.producer_blog_id = $blogId AND ".$wpdb->prefix."ts_metadata.producer_site_id = $siteId
-				) OR 
+				) OR
 				tablename IN (
-					SELECT `".$wpdb->prefix."ts_container_shared_with_blog`.table_name 
-					FROM `".$wpdb->prefix."ts_container_shared_with_blog` WHERE 
-					`".$wpdb->prefix."ts_container_shared_with_blog`.blog_id = $blogId AND 
+					SELECT `".$wpdb->prefix."ts_container_shared_with_blog`.table_name
+					FROM `".$wpdb->prefix."ts_container_shared_with_blog` WHERE
+					`".$wpdb->prefix."ts_container_shared_with_blog`.blog_id = $blogId AND
 					`".$wpdb->prefix."ts_container_shared_with_blog`.site_id = $siteId
 				)
 			) ORDER BY metadata_id ASC";
 		return $wpdb->get_results($wpdb->prepare($sql));
 	}
-	
+
 	/**
 	 * Select metadata for viewable tables from singlesite wordpress instance
 	 * Viewables tables are either owned or shared with the current user or the current blog/site
@@ -504,22 +505,22 @@ class Hn_TS_Database {
 		global $wpdb;
 		get_currentuserinfo();
 		$blogId = get_current_blog_id();
-		$sql = "SELECT ".$wpdb->prefix."ts_metadata . * , ".$wpdb->prefix."ts_metadatafriendlynames.friendlyname 
+		$sql = "SELECT ".$wpdb->prefix."ts_metadata . * , ".$wpdb->prefix."ts_metadatafriendlynames.friendlyname
 				FROM ".$wpdb->prefix."ts_metadata
 				LEFT JOIN ".$wpdb->prefix."ts_metadatafriendlynames ON ".$wpdb->prefix."ts_metadata.metadata_id = ".$wpdb->prefix."ts_metadatafriendlynames.metadata_id
 				WHERE (
-					".$wpdb->prefix."ts_metadata.producer_id = $current_user->ID OR 
+					".$wpdb->prefix."ts_metadata.producer_id = $current_user->ID OR
 					".$wpdb->prefix."ts_metadata.producer_blog_id = $blogId
-				OR 
+				OR
 				tablename IN (
-					SELECT `".$wpdb->prefix."ts_container_shared_with_blog`.table_name 
-					FROM `".$wpdb->prefix."ts_container_shared_with_blog` WHERE 
+					SELECT `".$wpdb->prefix."ts_container_shared_with_blog`.table_name
+					FROM `".$wpdb->prefix."ts_container_shared_with_blog` WHERE
 					`".$wpdb->prefix."ts_container_shared_with_blog`.blog_id = $blogId
 				)
 			) ORDER BY metadata_id ASC";
 		return $wpdb->get_results($wpdb->prepare($sql));
-	}	
-	
+	}
+
 	/**
 	 * Determines if the current user or the current blog is owner of
 	 * the given measurement container
@@ -532,7 +533,7 @@ class Hn_TS_Database {
 			return $this->hn_ts_isTableOwnedByBlogOrUserSinglesite($tableIn);
 		}
 	}
-	
+
 	/**
 	 * Multissite variant of hn_ts_isTableOwnedByBlogOrUser
 	 * @return bool true if table is owned by blog or user
@@ -549,8 +550,8 @@ class Hn_TS_Database {
 		}
 		global $wpdb;
 		$sql = "SELECT COUNT(*) FROM `".$wpdb->prefix."ts_metadata` WHERE tablename = '$tableIn' AND (" .
-			" producer_id = $current_user->ID OR (". 
-				" producer_blog_id = $blogId AND producer_site_id = $siteId". 
+			" producer_id = $current_user->ID OR (".
+				" producer_blog_id = $blogId AND producer_site_id = $siteId".
 			" ) " .
 		")";
 		$count = $wpdb->get_var($wpdb->prepare($sql) );
@@ -560,7 +561,7 @@ class Hn_TS_Database {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Singlesite variant of hn_ts_isTableOwnedByBlogOrUser
 	 * @return bool true if table is owned by blog or user
@@ -575,8 +576,8 @@ class Hn_TS_Database {
 		}
 		global $wpdb;
 		$sql = "SELECT COUNT(*) FROM `".$wpdb->prefix."ts_metadata` WHERE (" .
-		" producer_id = $current_user->ID OR ". 
-			" producer_blog_id = $blogId )". 
+		" producer_id = $current_user->ID OR ".
+			" producer_blog_id = $blogId )".
 		" AND tablename = '$tableIn'";
 		$count = $wpdb->get_var($wpdb->prepare($sql) );
 		if($count > 0){
@@ -585,7 +586,7 @@ class Hn_TS_Database {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Determines if given table has been shared with the given site/blog
 	 * @return bool true if table is shared or false otherwise
@@ -615,9 +616,9 @@ class Hn_TS_Database {
 	 */
 	function hn_ts_select_context($args){
 		global $wpdb;
-			
+
 		$limit=$this->hn_ts_getLimitStatement($args[0], $args[1]);
-			
+
 		$sql="SELECT * FROM ".$wpdb->prefix."ts_context $limit;";
 		return $wpdb->get_results($wpdb->prepare($sql));
 	}
@@ -634,9 +635,9 @@ class Hn_TS_Database {
 		if(count($args) < 3){
 			return $this->missingParameters;
 		}
-			
+
 		$limit=$this->hn_ts_getLimitStatement($args[3], $args[4]);
-			
+
 		$sql="SELECT *  FROM ".$wpdb->prefix."ts_context WHERE context_type='$args[2]' $limit;";
 		return $wpdb->get_results($wpdb->prepare($sql));
 	}
@@ -650,7 +651,7 @@ class Hn_TS_Database {
 	 */
 	function hn_ts_get_context_by_value($args){
 		global $wpdb;
-			
+
 		if(count($args) < 3){
 			return $this->missingParameters;
 		}
@@ -669,12 +670,12 @@ class Hn_TS_Database {
 	 */
 	function hn_ts_get_context_by_type_and_value($args){
 		global $wpdb;
-			
+
 		if(count($args) < 4){
 			return $this->missingParameters;
 		}
 		$limit=$this->hn_ts_getLimitStatement($args[4], $args[5]);
-			
+
 		$sql="SELECT *  FROM ".$wpdb->prefix."ts_context WHERE context_type='$args[2]' AND value='$args[3]' $limit;";
 		return $wpdb->get_results($wpdb->prepare($sql));
 	}
@@ -691,7 +692,7 @@ class Hn_TS_Database {
 		global $wpdb;
 		//$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]' AND value='$args[3]'";
 		//return $wpdb->get_results($wpdb->prepare($sql));
-			
+
 		if(count($args) < 4){
 			return $this->missingParameters;
 		}
@@ -700,7 +701,7 @@ class Hn_TS_Database {
 		}else{
 			$limit="";
 		}
-			
+
 		$startTime=$args[2];
 		$endTime=$args[3];
 		$where="WHERE ";
@@ -780,7 +781,7 @@ class Hn_TS_Database {
 			do_action('hn_ts_replicate_readings', $args[2], $readings);
 		}
 		return "Number of insertions: $retval";
-			
+
 	}
 
 	/**
@@ -840,7 +841,7 @@ class Hn_TS_Database {
 		}
 		$baseVals = array( 	'context_type' => $args[2], 'value' => $args[3]);
 		$baseTypes=array( '%s', '%s');
-			
+
 		if(!(0 == strcmp($args[4], "") || 0 == strcmp($args[4], "NULL"))){
 			$baseVals['start_time']= $args[4];
 			array_push($baseTypes, '%s');
@@ -850,7 +851,7 @@ class Hn_TS_Database {
 			$baseVals['end_time']=$args[5];
 			array_push($baseTypes, '%s');
 		}
-			
+
 		return $wpdb->insert( $wpdb->prefix.'ts_context',  $baseVals, $baseTypes  );
 	}
 
@@ -862,7 +863,7 @@ class Hn_TS_Database {
 	 */
 	function hn_ts_addContextRecord($context_type, $context_value){
 		global $wpdb;
-			
+
 		return $wpdb->insert(
 				$wpdb->prefix.'ts_context',
 				array( 	'context_type' => $context_type,
@@ -896,29 +897,29 @@ class Hn_TS_Database {
 			$where = array( 	'context_type' => $args[2],
 					'value' => $args[3]);
 		}
-			
+
 		return $wpdb->update(
 				$wpdb->prefix.'ts_context',  array( 'end_time' => $args[5]), $where,'%s','%s'
 		);
 	}
-	
+
 	/**
-	 * Updates wp_ts_container_shared_with_blog based on an array of items 
-	 * which should have array elements in the form [yes|no]:[siteId]:[blogId] 
-	 * The wp_ts_container_shared_with_blog model should be updated to remove any 
+	 * Updates wp_ts_container_shared_with_blog based on an array of items
+	 * which should have array elements in the form [yes|no]:[siteId]:[blogId]
+	 * The wp_ts_container_shared_with_blog model should be updated to remove any
 	 * no entries for the given tablename and add any unpresent yes entries.
-	 * @param $tablename is the measurement container table name to insert and remove 
+	 * @param $tablename is the measurement container table name to insert and remove
 	 * records for
 	 * To do: make this all happen in a single database transaction
 	 */
-	function updateWp_ts_container_shared_with_blog($tablename, $responseArray){		
+	function updateWp_ts_container_shared_with_blog($tablename, $responseArray){
 		global $wpdb;
 		foreach ($responseArray as $response){
 			list($answer, $siteId, $blogId) = explode(":",$response);
 			if(!strcasecmp("yes",$answer)){
 				// Add yes items to database if they aren't already present
 				$sql="SELECT COUNT(*) FROM ".$wpdb->prefix."ts_container_shared_with_blog WHERE ".
-						"table_name='$tablename' AND ". 
+						"table_name='$tablename' AND ".
 						"site_id = '$siteId' AND blog_id = '$blogId';";
 				$thecount = $wpdb->get_var($wpdb->prepare($sql));
 				if($thecount <= 0){
@@ -931,15 +932,15 @@ class Hn_TS_Database {
 					);
 				}
 			} else if(!strcasecmp("no",$answer)){
-				// Remove no items from database	
+				// Remove no items from database
 				$sql="DELETE FROM ".$wpdb->prefix."ts_container_shared_with_blog WHERE ".
-						"table_name='$tablename' AND ". 
+						"table_name='$tablename' AND ".
 						"site_id = '$siteId' AND blog_id = '$blogId';";
 				$wpdb->query( $wpdb->prepare($sql));
 			}
-		}		
+		}
 	}
-	
+
 	/**
 	 * Records that a file was uploaded. The timestamp is the time the file was last modified prior to upload
 	 * Todo: handle write permissions from username and password
@@ -955,7 +956,7 @@ class Hn_TS_Database {
 	 */
 	function hn_ts_upload_reading_file($args){
 		global $wpdb, $blog_id;
-			
+
 		if(count($args) < 4){
 			return $this->missingParameters;
 		}
@@ -974,7 +975,7 @@ class Hn_TS_Database {
 		}else{
 			return $uploadedFile;
 		}
-			
+
 	}
 	/**
 	 * Records that a file was uploaded. The timestamp is the time the file was last modified prior to upload
@@ -990,11 +991,11 @@ class Hn_TS_Database {
 	 */
 	function hn_ts_upload_reading_files($args){
 		global $wpdb, $blog_id;
-			
+
 		if(count($args) < 4){
 			return $this->missingParameters;
 		}
-			
+
 		$fileCount = 0;
 		foreach($args[3] as $aFile){
 			$aFile['name']=$args[2].'_'.$aFile['name'];
@@ -1024,7 +1025,7 @@ class Hn_TS_Database {
 	 */
 	function hn_ts_update_heartbeat($args){
 		global $wpdb, $blog_id;
-			
+
 		$where = array( 'tablename' => $args[2]);
 		$date = new DateTime();
 		return $wpdb->update(
@@ -1038,17 +1039,17 @@ class Hn_TS_Database {
 	function hn_ts_addTimestream($timestreamName, $metadataId)
 	{
 		global $wpdb;
-			
+
 		// create head
 		$wpdb->insert($wpdb->prefix.'ts_head',
 				array('rate' => 1),
 				array('%d')
 		);
-			
+
 		$headId = $wpdb->insert_id;
 		global $current_user;
 		get_currentuserinfo();
-			
+
 		// create timestream
 		$wpdb->insert($wpdb->prefix.'ts_timestreams',
 				array(	'head_id' => $headId,
@@ -1058,14 +1059,14 @@ class Hn_TS_Database {
 				),
 				array('%s', '%s', '%s', '%s')
 		);
-			
+
 		$timestreamId = mysql_insert_id();
 	}
 
 	function hn_ts_updateTimestream($timestreamId, $metadataId)
 	{
 		global $wpdb;
-			
+
 		$wpdb->update($wpdb->prefix.'ts_timestreams',
 				array(
 						'metadata_id' => $metadataId,
@@ -1077,9 +1078,9 @@ class Hn_TS_Database {
 	function hn_ts_deleteTimestream($timestreamId)
 	{
 		global $wpdb;
-			
+
 		$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId"));
-			
+
 		if($timestream != null)
 		{
 			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."ts_head WHERE head_id = $timestream->head_id"));
@@ -1104,21 +1105,21 @@ class Hn_TS_Database {
 	function hn_ts_getReadHead($headId)
 	{
 		global $wpdb;
-			
+
 		return $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_head WHERE head_id = $headId"));
 	}
 
 	function hn_ts_getMetadata($metadataId)
 	{
 		global $wpdb;
-			
+
 		return $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_metadata WHERE metadata_id = $metadataId"));
 	}
 
 	function hn_ts_get_timestreams($args)
 	{
 		global $wpdb;
-			
+
 		return $wpdb->get_results( 	$wpdb->prepare(
 				"SELECT * FROM ".$wpdb->prefix."ts_timestreams" )	);
 	}
@@ -1130,7 +1131,7 @@ class Hn_TS_Database {
 		// username
 		// password
 		$timestreamId = $args[2];
-			
+
 		return $this->hn_ts_timestream_update($timestreamId);
 	}
 
@@ -1143,19 +1144,19 @@ class Hn_TS_Database {
 		$newStart = $args[4];
 		$newEnd = $args[5];
 		$newRate = $args[6];
-			
+
 		global $wpdb;
-			
+
 		$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId"));
-			
+
 		if($timestream==null)
 		{
 			error_log("timestream not found " . $timestreamId);
 			return -1;
 		}
-			
+
 		$currenttime = date ("Y-m-d H:i:s", $newHead);
-			
+
 		$wpdb->update($wpdb->prefix.'ts_head',
 				array(
 						'currenttime' => $currenttime,
@@ -1163,10 +1164,10 @@ class Hn_TS_Database {
 				),
 				array('head_id' => $timestream->head_id)
 		);
-			
+
 		$starttime = date ("Y-m-d H:i:s", $newStart);
 		$endtime = date ("Y-m-d H:i:s", $newEnd);
-			
+
 		$wpdb->update($wpdb->prefix.'ts_timestreams',
 				array(
 						'starttime' => $starttime,
@@ -1174,7 +1175,7 @@ class Hn_TS_Database {
 				),
 				array('timestream_id' => $timestreamId)
 		);
-			
+
 		return 1;
 	}
 
@@ -1185,33 +1186,33 @@ class Hn_TS_Database {
 		$limit = $args[3];
 		$offset = $args[4];
 		$lastTimestamp = $args[5];
-			
+
 		//error_log($lastTimestamp);
 
 		global $wpdb;
-			
+
 		$where = "";
-			
+
 		if($lastTimestamp)
 		{
 			$timeStr = date ("Y-m-d H:i:s", $lastTimestamp);
 			$where = "WHERE valid_time > \"$timeStr\"";
 		}
-			
+
 		$sql = "SELECT * FROM (SELECT * FROM $tablename $where ORDER BY valid_time DESC LIMIT $offset,$limit) AS T1 ORDER BY valid_time ASC";
-			
+
 		//error_log($sql);
-			
+
 		$readings = $wpdb->get_results($wpdb->prepare($sql));
-			
+
 		for($i = 0; $i < count($readings); $i++)
 		{
 			$newts = strtotime($readings[$i]->valid_time);
 			$readings[$i]->timestamp = $newts;
 		}
-			
+
 		//error_log(count($readings));
-			
+
 		return $readings;
 	}
 
@@ -1232,7 +1233,7 @@ class Hn_TS_Database {
 	function hn_ts_ext_get_timestreams($args)
 	{
 		global $wpdb;
-			
+
 		return $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams"));
 	}
 
@@ -1240,12 +1241,12 @@ class Hn_TS_Database {
 	function hn_ts_ext_get_timestream_meta($args)
 	{
 		$timestreamId = $args[2];
-			
+
 		// for specific timestream
 		global $wpdb;
-			
+
 		$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId"));
-			
+
 		if($timestream==null)
 		{
 			error_log("timestream not found " . $timestreamId);
@@ -1259,7 +1260,7 @@ class Hn_TS_Database {
 	function hn_ts_ext_get_timestream_data($args)
 	{
 		// TODO return current server time for initial request sync
-			
+
 		$timestreamId = $args[2];
 		$lastAskTime = $args[3];
 		$limit = $args[4];
@@ -1272,63 +1273,63 @@ class Hn_TS_Database {
 		} else{
 			$order = "DESC";
 		}
-			
+
 		$this->hn_ts_timestream_update($timestreamId);
-			
+
 		global $wpdb;
-			
+
 		$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId"));
-			
+
 		if($timestream==null)
 		{
 			error_log("timestream not found " . $timestreamId);
 			return new IXR_Error(403, __('Timestream not found.',HN_TS_NAME));
 		}
-			
+
 		$head = $this->hn_ts_getReadHead($timestream->head_id);
-			
+
 		if($head==null)
 		{
 			error_log("head not found " . $timestream->head_id);
 			return new IXR_Error(403, __('Head not found.',HN_TS_NAME));
 		}
-			
+
 		$metadata = $this->hn_ts_getMetadata($timestream->metadata_id);
-			
+
 		if($metadata==null)
 		{
 			error_log("metadata not found " . $timestream->metadata_id);
 			return new IXR_Error(403, __('Metadata not found.',HN_TS_NAME));
 		}
-			
+
 		// how much timestream has elapsed since last ask
 		if($head->rate==0)
 		{
 			// no data, stopped
 			return new IXR_Error(403, __('Data not found.',HN_TS_NAME));
 		}
-			
+
 		$_now = $wpdb->get_var($wpdb->prepare("SELECT CURRENT_TIMESTAMP"));
 		$now = strtotime($_now);
-			
+
 		//echo "now " . $now . "\n";
 		//echo "lastask " . $lastAskTime . "\n";
-			
+
 		$elapsed = ($now - $lastAskTime) * $head->rate;
-			
+
 		//echo "head ct " . $head->currenttime . "\n";
 		//echo "elapsed since last ask " . $elapsed . "\n";
-			
+
 		// get data between head->currenttime and head->currenttime - elapsed
 		$maxdate = $head->currenttime;
 		$mindate = date ("Y-m-d H:i:s", strtotime($head->currenttime) - $elapsed);
-			
+
 		//echo "maxdate " . $maxdate . "\n";
 		//echo "mindate " . $mindate . "\n";
 		//echo $metadata->tablename . "\n";
-			
+
 		$limitstr = "";
-			
+
 		if($limit!=0)
 		{
 		/*	if($order == "ASC"){
@@ -1340,9 +1341,9 @@ class Hn_TS_Database {
 			$limitstr = " LIMIT 0 , $limit";
 			//}
 		}
-			
+
 		$ret = $wpdb->get_results($wpdb->prepare("SELECT * FROM $metadata->tablename WHERE valid_time > '$mindate' AND valid_time <= '$maxdate' ORDER BY valid_time DESC $limitstr", ARRAY_N));
-		
+
 		if(!strcmp($order,'ASC')){
 			return array_reverse($ret);
 		}else return $ret;
@@ -1352,45 +1353,45 @@ class Hn_TS_Database {
 	function hn_ts_timestream_update($timestreamId)
 	{
 		global $wpdb;
-			
+
 		$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId"));
-			
+
 		if($timestream==null)
 		{
 			error_log("timestream not found " . $timestreamId);
 			return new IXR_Error(403, __('Timestream not found.',HN_TS_NAME));
 		}
-			
+
 		$head = $this->hn_ts_getReadHead($timestream->head_id);
-			
+
 		if($head==null)
 		{
 			error_log("head not found " . $timestream->head_id);
 			return null;
 		}
-			
+
 		// TODO ratelimit?
 		// TODO rate should be a float
-			
+
 		// update/move read head based on timestream time
-			
+
 		// currenttime = time in data source frame
 		// lasttime = real time head last moved
 		// distance to move = (now - lasttime) * rate
-			
+
 		$_now = $wpdb->get_var($wpdb->prepare("SELECT CURRENT_TIMESTAMP"));
 		$now = strtotime($_now);
-			
+
 		//echo "head->lasttime " . $head->lasttime . "\n";
 		//echo "head->lasttime ut " . strtotime($head->lasttime) . "\n";
-			
+
 		$newcurrent = (($now - strtotime($head->lasttime)) * $head->rate) + strtotime($head->currenttime);
 
 		if(strcmp($timestream->endtime, "0000-00-00 00:00:00")==0)
 		{
 			$timestream->endtime = "1970-01-01 00:00:00";
 		}
-			
+
 		//if(strtotime($timestream->endtime) > 0)
 		//	error_log("blaj");
 
@@ -1418,7 +1419,7 @@ class Hn_TS_Database {
 
 		$head->lasttime = strtotime($lasttime);
 		$head->currenttime = strtotime($currenttime);
-			
+
 		return $head;
 	}
 
@@ -1445,7 +1446,7 @@ class Hn_TS_Database {
 				array( 'last_replication' => $value), array( 'replication_id' => $replRowId),
 				'%s','%s');
 	}
-	
+
 	/**
 	 * Returns a list of all blogs excluding the current one ordered by site id then blog id
 	 * Returns NULL for non multisite blogs.
@@ -1461,11 +1462,11 @@ class Hn_TS_Database {
 		$blogId = get_current_blog_id();
 		$siteId = get_current_site();
 		$siteId = $siteId->id;
-		return $wpdb->get_results( 
-				$wpdb->prepare( "SELECT blog_id, site_id, domain, path FROM ".$wpdb->prefix."blogs WHERE (blog_id <> $blogId OR site_id <> $siteId) AND deleted = '0' AND spam = '0' AND archived = '0' ORDER BY site_id, blog_id" ) 
+		return $wpdb->get_results(
+				$wpdb->prepare( "SELECT blog_id, site_id, domain, path FROM ".$wpdb->prefix."blogs WHERE (blog_id <> $blogId OR site_id <> $siteId) AND deleted = '0' AND spam = '0' AND archived = '0' ORDER BY site_id, blog_id" )
 		);
 	}
-	
+
 	/**
 	 * Generates new public and private keys and adds them to the database
 	 */
@@ -1474,7 +1475,7 @@ class Hn_TS_Database {
 		$table = $wpdb->base_prefix.'ts_apikeys';
 		global $current_user;
 		get_currentuserinfo();
-		
+
 		$wpdb->insert(
 				$table,
 				array( 	'publickey' => substr(MD5(microtime()), 0, 10),
@@ -1484,7 +1485,7 @@ class Hn_TS_Database {
 		);
 		echo '<h4>Added new keys.</h4>';
 	}
-	
+
 	/**
 	 * Retrieves API Key information
 	 */
@@ -1492,12 +1493,12 @@ class Hn_TS_Database {
 		global $current_user;
 		global $wpdb;
 		get_currentuserinfo();
-		$sql = "SELECT publickey, userid, creation_date FROM `".$wpdb->prefix."ts_apikeys` 
-		WHERE userid='$current_user->ID' AND revoked=0 
+		$sql = "SELECT publickey, userid, creation_date FROM `".$wpdb->prefix."ts_apikeys`
+		WHERE userid='$current_user->ID' AND revoked=0
 		ORDER BY creation_date DESC;";
 		return $wpdb->get_results($wpdb->prepare($sql));
 	}
-	
+
 	/**
 	 * Retrieves API private key for a given public key
 	 * @param $pubkey should be a valid key
@@ -1506,12 +1507,12 @@ class Hn_TS_Database {
 		global $current_user;
 		global $wpdb;
 		get_currentuserinfo();
-		$sql = "SELECT privatekey FROM `".$wpdb->prefix."ts_apikeys` 
-		WHERE userid='$current_user->ID' AND 
+		$sql = "SELECT privatekey FROM `".$wpdb->prefix."ts_apikeys`
+		WHERE userid='$current_user->ID' AND
 		revoked=0 AND publickey='$pubkey';";
 		return $wpdb->get_var( $wpdb->prepare($sql));
 	}
-	
+
 	function hn_ts_revokeAPIKey($pubkey){
 		global $wpdb;
 		global $current_user;
@@ -1523,33 +1524,33 @@ class Hn_TS_Database {
 						'publickey' => $pubkey)
 		);
 	}
-	
+
 	function hn_ts_replLock($rowId){
 		global $wpdb;
 		return $wpdb->query(
 				"
-					UPDATE ".$wpdb->prefix."ts_replication 
-					SET mylock = NOW() 
-					WHERE replication_id = $rowId 
+					UPDATE ".$wpdb->prefix."ts_replication
+					SET mylock = NOW()
+					WHERE replication_id = $rowId
 					AND (mylock IS NULL OR now( ) - mylock >10)
 				"
 		);
 	}
-	
+
 	function hn_ts_replUnlock($rowId){
 		global $wpdb;
 		return $wpdb->query(
 				"
-					UPDATE ".$wpdb->prefix."ts_replication 
-					SET mylock = NULL 
+					UPDATE ".$wpdb->prefix."ts_replication
+					SET mylock = NULL
 					WHERE replication_id = $rowId
 				"
 		);
 	}
-		
+
 	function hn_ts_removeReplicationRecord(){
 		global $wpdb;
-		return $wpdb->query($wpdb->prepare( 
+		return $wpdb->query($wpdb->prepare(
 				"
 				DELETE FROM ".$wpdb->prefix."ts_replication
 				WHERE replication_id = %d
@@ -1557,15 +1558,15 @@ class Hn_TS_Database {
 				)
 		);
 	}
-	
+
 	/**
-	 * Returns the unit (mime type) from the metadata for a given measurement container 
+	 * Returns the unit (mime type) from the metadata for a given measurement container
 	 * @param $mc is a measurement container table name
 	 */
 	function hn_ts_getUnitForReplicationTable($mc){
 		global $wpdb;
 		return $wpdb->get_var($wpdb->prepare("SELECT unit FROM ".$wpdb->prefix."ts_metadata
-		INNER JOIN ".$wpdb->prefix."ts_replication ON 
+		INNER JOIN ".$wpdb->prefix."ts_replication ON
 		".$wpdb->prefix."ts_metadata.tablename = ".$wpdb->prefix."ts_replication.local_table
 		WHERE local_table = '%s'", $mc));
 	}
