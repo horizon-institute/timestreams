@@ -255,8 +255,8 @@ class Hn_TS_Database {
 		/*$nextdevice=$this->getRecord(
 				'wp_ts_metadata', 'metadata_id',
 				'1=1 ORDER BY metadata_id DESC Limit 1')+1;*/
-		$nextdevice=$wpdb->get_row($wpdb->prepare(
-				"SHOW TABLE STATUS LIKE '".$wpdb->prefix."ts_metadata';" )
+		$nextdevice=$wpdb->get_row(
+				"SHOW TABLE STATUS LIKE '".$wpdb->prefix."ts_metadata';"
 		);
 		$nextdevice=$nextdevice->Auto_increment;
 		$tablename = $this->hn_ts_createMeasurementTable(
@@ -414,9 +414,7 @@ class Hn_TS_Database {
 		if(0==strcmp($where,"WHERE ")){
 			$where="";
 		}
-		return $wpdb->get_var(
-				$wpdb->prepare("SELECT COUNT(*) FROM $table $where;" )
-		);
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $table $where;" );
 	}
 
 	/**
@@ -441,8 +439,8 @@ class Hn_TS_Database {
 		}
 		$table=$args[2];
 
-		return $wpdb->get_row( 	$wpdb->prepare("SELECT * FROM
-				$table WHERE id = ( SELECT MAX( id ) FROM $table ) " )	);
+		return $wpdb->get_row( "SELECT * FROM
+				$table WHERE id = ( SELECT MAX( id ) FROM $table ) "	);
 	}
 
 	/**
@@ -452,7 +450,7 @@ class Hn_TS_Database {
 	function hn_ts_select($table){
 		global $wpdb;
 		$sql="SELECT * FROM $table;";
-		return $wpdb->get_results($wpdb->prepare($sql));
+		return $wpdb->get_results( $sql );
 	}
 
 	/**
@@ -495,7 +493,7 @@ class Hn_TS_Database {
 					`".$wpdb->prefix."ts_container_shared_with_blog`.site_id = $siteId
 				)
 			) ORDER BY metadata_id ASC";
-		return $wpdb->get_results($wpdb->prepare($sql));
+		return $wpdb->get_results( $sql );
 	}
 
 	/**
@@ -520,7 +518,7 @@ class Hn_TS_Database {
 					`".$wpdb->prefix."ts_container_shared_with_blog`.blog_id = $blogId
 				)
 			) ORDER BY metadata_id ASC";
-		return $wpdb->get_results($wpdb->prepare($sql));
+		return $wpdb->get_results( $sql );
 	}
 
 	/**
@@ -556,7 +554,7 @@ class Hn_TS_Database {
 				" producer_blog_id = $blogId AND producer_site_id = $siteId".
 			" ) " .
 		")";
-		$count = $wpdb->get_var($wpdb->prepare($sql) );
+		$count = $wpdb->get_var( $sql );
 		if($count > 0){
 			return true;
 		}else{
@@ -581,7 +579,7 @@ class Hn_TS_Database {
 		" producer_id = $current_user->ID OR ".
 			" producer_blog_id = $blogId )".
 		" AND tablename = '$tableIn'";
-		$count = $wpdb->get_var($wpdb->prepare($sql) );
+		$count = $wpdb->get_var( $sql );
 		if($count > 0){
 			return true;
 		}else{
@@ -601,7 +599,7 @@ class Hn_TS_Database {
 			$sql = "SELECT COUNT(*) FROM `".$wpdb->prefix."ts_container_shared_with_blog` WHERE " .
 					" table_name = '$tableIn' AND site_id = ".
 					"'$site_id' AND blog_id = '$blog_id'";
-			$count = $wpdb->get_var($wpdb->prepare($sql) );
+			$count = $wpdb->get_var( $sql );
 			if($count > 0){
 				return true;
 			}else{
@@ -622,7 +620,7 @@ class Hn_TS_Database {
 		$limit=$this->hn_ts_getLimitStatement($args[0], $args[1]);
 
 		$sql="SELECT * FROM ".$wpdb->prefix."ts_context $limit;";
-		return $wpdb->get_results($wpdb->prepare($sql));
+		return $wpdb->get_results( $sql );
 	}
 
 	/**
@@ -641,7 +639,7 @@ class Hn_TS_Database {
 		$limit=$this->hn_ts_getLimitStatement($args[3], $args[4]);
 
 		$sql="SELECT *  FROM ".$wpdb->prefix."ts_context WHERE context_type='$args[2]' $limit;";
-		return $wpdb->get_results($wpdb->prepare($sql));
+		return $wpdb->get_results( $sql );
 	}
 
 	/**
@@ -659,7 +657,7 @@ class Hn_TS_Database {
 		}
 		$limit=$this->hn_ts_getLimitStatement($args[3], $args[4]);
 		$sql="SELECT *  FROM ".$wpdb->prefix."ts_context WHERE value='$args[2]' $limit;";
-		return $wpdb->get_results($wpdb->prepare($sql));
+		return $wpdb->get_results( $sql );
 	}
 
 	/**
@@ -679,7 +677,7 @@ class Hn_TS_Database {
 		$limit=$this->hn_ts_getLimitStatement($args[4], $args[5]);
 
 		$sql="SELECT *  FROM ".$wpdb->prefix."ts_context WHERE context_type='$args[2]' AND value='$args[3]' $limit;";
-		return $wpdb->get_results($wpdb->prepare($sql));
+		return $wpdb->get_results( $sql );
 	}
 
 	/**
@@ -693,7 +691,7 @@ class Hn_TS_Database {
 	function hn_ts_get_context_within_time_range($args){
 		global $wpdb;
 		//$sql="SELECT *  FROM wp_ts_context WHERE context_type='$args[2]' AND value='$args[3]'";
-		//return $wpdb->get_results($wpdb->prepare($sql));
+		//return $wpdb->get_results( $sql );
 
 		if(count($args) < 4){
 			return $this->missingParameters;
@@ -719,7 +717,7 @@ class Hn_TS_Database {
 		if(0==strcmp($where,"WHERE ")){
 			$where="";
 		}
-		return $wpdb->get_results( 	$wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_context $where $limit;" )	);
+		return $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."ts_context $where $limit;"	);
 	}
 
 	/**
@@ -923,7 +921,7 @@ class Hn_TS_Database {
 				$sql="SELECT COUNT(*) FROM ".$wpdb->prefix."ts_container_shared_with_blog WHERE ".
 						"table_name='$tablename' AND ".
 						"site_id = '$siteId' AND blog_id = '$blogId';";
-				$thecount = $wpdb->get_var($wpdb->prepare($sql));
+				$thecount = $wpdb->get_var( $sql );
 				if($thecount <= 0){
 					$wpdb->insert(
 							$wpdb->prefix.'ts_container_shared_with_blog',
@@ -938,7 +936,7 @@ class Hn_TS_Database {
 				$sql="DELETE FROM ".$wpdb->prefix."ts_container_shared_with_blog WHERE ".
 						"table_name='$tablename' AND ".
 						"site_id = '$siteId' AND blog_id = '$blogId';";
-				$wpdb->query( $wpdb->prepare($sql));
+				$wpdb->query( $sql );
 			}
 		}
 	}
@@ -1081,12 +1079,12 @@ class Hn_TS_Database {
 	{
 		global $wpdb;
 
-		$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId"));
+		$timestream = $wpdb->get_row( "SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId" );
 
 		if($timestream != null)
 		{
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."ts_head WHERE head_id = $timestream->head_id"));
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId"));
+			$wpdb->query( "DELETE FROM ".$wpdb->prefix."ts_head WHERE head_id = $timestream->head_id" );
+			$wpdb->query( "DELETE FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId" );
 		}
 	}
 
@@ -1098,8 +1096,8 @@ class Hn_TS_Database {
 		global $wpdb;
 		global $current_user;
 		$current_user = wp_get_current_user();
-		$results=$wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE ".
-				"user_id = '$current_user->ID' ORDER BY timestream_id DESC"));
+		$results=$wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE ".
+				"user_id = '$current_user->ID' ORDER BY timestream_id DESC" );
 		// echo print_r($results,true);
 		return $results;
 	}
@@ -1108,22 +1106,21 @@ class Hn_TS_Database {
 	{
 		global $wpdb;
 
-		return $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_head WHERE head_id = $headId"));
+		return $wpdb->get_row( "SELECT * FROM ".$wpdb->prefix."ts_head WHERE head_id = $headId" );
 	}
 
 	function hn_ts_getMetadata($metadataId)
 	{
 		global $wpdb;
 
-		return $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_metadata WHERE metadata_id = $metadataId"));
+		return $wpdb->get_row( "SELECT * FROM ".$wpdb->prefix."ts_metadata WHERE metadata_id = $metadataId" );
 	}
 
 	function hn_ts_get_timestreams($args)
 	{
 		global $wpdb;
 
-		return $wpdb->get_results( 	$wpdb->prepare(
-				"SELECT * FROM ".$wpdb->prefix."ts_timestreams" )	);
+		return $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."ts_timestreams" );
 	}
 
 
@@ -1149,7 +1146,7 @@ class Hn_TS_Database {
 
 		global $wpdb;
 
-		$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId"));
+		$timestream = $wpdb->get_row( "SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId" );
 
 		if($timestream==null)
 		{
@@ -1205,7 +1202,7 @@ class Hn_TS_Database {
 
 		//error_log($sql);
 
-		$readings = $wpdb->get_results($wpdb->prepare($sql));
+		$readings = $wpdb->get_results( $sql );
 
 		for($i = 0; $i < count($readings); $i++)
 		{
@@ -1228,7 +1225,7 @@ class Hn_TS_Database {
 	function hn_ts_ext_get_time()
 	{
 		global $wpdb;
-		$_now = $wpdb->get_var($wpdb->prepare("SELECT CURRENT_TIMESTAMP"));
+		$_now = $wpdb->get_var( "SELECT CURRENT_TIMESTAMP" );
 		return strtotime($_now);
 	}
 
@@ -1236,7 +1233,7 @@ class Hn_TS_Database {
 	{
 		global $wpdb;
 
-		return $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams"));
+		return $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."ts_timestreams" );
 	}
 
 
@@ -1247,7 +1244,7 @@ class Hn_TS_Database {
 		// for specific timestream
 		global $wpdb;
 
-		$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId"));
+		$timestream = $wpdb->get_row( "SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId" );
 
 		if($timestream==null)
 		{
@@ -1280,7 +1277,7 @@ class Hn_TS_Database {
 
 		global $wpdb;
 
-		$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId"));
+		$timestream = $wpdb->get_row( "SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId" );
 
 		if($timestream==null)
 		{
@@ -1311,7 +1308,7 @@ class Hn_TS_Database {
 			return new IXR_Error(403, __('Data not found.',HN_TS_NAME));
 		}
 
-		$_now = $wpdb->get_var($wpdb->prepare("SELECT CURRENT_TIMESTAMP"));
+		$_now = $wpdb->get_var( "SELECT CURRENT_TIMESTAMP" );
 		$now = strtotime($_now);
 
 		//echo "now " . $now . "\n";
@@ -1356,7 +1353,7 @@ class Hn_TS_Database {
 	{
 		global $wpdb;
 
-		$timestream = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId"));
+		$timestream = $wpdb->get_row( "SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId" );
 
 		if($timestream==null)
 		{
@@ -1381,7 +1378,7 @@ class Hn_TS_Database {
 		// lasttime = real time head last moved
 		// distance to move = (now - lasttime) * rate
 
-		$_now = $wpdb->get_var($wpdb->prepare("SELECT CURRENT_TIMESTAMP"));
+		$_now = $wpdb->get_var( "SELECT CURRENT_TIMESTAMP" );
 		$now = strtotime($_now);
 
 		//echo "head->lasttime " . $head->lasttime . "\n";
@@ -1465,7 +1462,7 @@ class Hn_TS_Database {
 		$siteId = get_current_site();
 		$siteId = $siteId->id;
 		return $wpdb->get_results(
-				$wpdb->prepare( "SELECT blog_id, site_id, domain, path FROM ".$wpdb->prefix."blogs WHERE (blog_id <> $blogId OR site_id <> $siteId) AND deleted = '0' AND spam = '0' AND archived = '0' ORDER BY site_id, blog_id" )
+				"SELECT blog_id, site_id, domain, path FROM ".$wpdb->prefix."blogs WHERE (blog_id <> $blogId OR site_id <> $siteId) AND deleted = '0' AND spam = '0' AND archived = '0' ORDER BY site_id, blog_id"
 		);
 	}
 
@@ -1498,7 +1495,7 @@ class Hn_TS_Database {
 		$sql = "SELECT publickey, userid, creation_date FROM `".$wpdb->prefix."ts_apikeys`
 		WHERE userid='$current_user->ID' AND revoked=0
 		ORDER BY creation_date DESC;";
-		return $wpdb->get_results($wpdb->prepare($sql));
+		return $wpdb->get_results( $sql );
 	}
 
 	/**
@@ -1512,7 +1509,7 @@ class Hn_TS_Database {
 		$sql = "SELECT privatekey FROM `".$wpdb->prefix."ts_apikeys`
 		WHERE userid='$current_user->ID' AND
 		revoked=0 AND publickey='$pubkey';";
-		return $wpdb->get_var( $wpdb->prepare($sql));
+		return $wpdb->get_var( $sql );
 	}
 
 	function hn_ts_revokeAPIKey($pubkey){
