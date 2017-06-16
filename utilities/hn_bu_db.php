@@ -4,17 +4,17 @@
  * Author: Jesse Blum (JMB)
  * Date: 2012
  * Copyright (C) 2012  Horizon Digital Economy Research Institute, Jesse Blum (JMB) & Martin Flintham (MDF)
-	
+
 	    This program is free software: you can redistribute it and/or modify
 	    it under the terms of the GNU Affero General Public License as
 	    published by the Free Software Foundation, either version 3 of the
 	    License, or (at your option) any later version.
-	
+
 	    This program is distributed in the hope that it will be useful,
 	    but WITHOUT ANY WARRANTY; without even the implied warranty of
 	    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	    GNU Affero General Public License for more details.
-	
+
 	    You should have received a copy of the GNU Affero General Public License
 	    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -77,7 +77,7 @@ class HN_BU_Database {
 	 */
 	function hn_bu_setUserBloglist($userblogarray){
 		global $wpdb;
-		//$wpdb->query( $wpdb->prepare( "TRUNCATE TABLE wp_bu_blogusers;" )	);
+		$wpdb->query( $wpdb->prepare( "TRUNCATE TABLE wp_bu_blogusers;" )	);
 		foreach ($userblogarray AS $user_blog) {
 			$wpdb->insert(
 					'wp_bu_blogusers',
@@ -89,10 +89,10 @@ class HN_BU_Database {
 			);
 		}
 	}
-	
+
 	/**
-	 * Adds all users and blogs to the database. 
-	 * If they already exist, they will be ignored. 
+	 * Adds all users and blogs to the database.
+	 * If they already exist, they will be ignored.
 	 */
 	function hn_bu_addAllUsersBlogs(){
 		$user_list = $this->hn_bu_getUserlist();
@@ -102,16 +102,16 @@ class HN_BU_Database {
 			if(is_multisite()){
 				$user_blogs = get_blogs_of_user( $user->ID );
 				foreach ($user_blogs AS $user_blog) {
-					$userblogarray[$counter]=array($user->ID, 
+					$userblogarray[$counter]=array($user->ID,
 							$user_blog->site_id, $user_blog->userblog_id);
 					$counter+=1;
 					$this->hn_bu_setUserBloglist($userblogarray);
 				}
 			}else{
-					$this->hn_bu_setUserBloglist($userblogarray);	
-					$userblogarray[$counter]=array($user->ID, 
+					$this->hn_bu_setUserBloglist($userblogarray);
+					$userblogarray[$counter]=array($user->ID,
 							1, 1);
-					$counter+=1;			
+					$counter+=1;
 			}
 		}
 	}
