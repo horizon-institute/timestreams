@@ -507,7 +507,10 @@ class Hn_TS_Database {
 		$blogId = get_current_blog_id();
 		$sql = "SELECT ".$wpdb->prefix."ts_metadata . * , ".$wpdb->prefix."ts_metadatafriendlynames.friendlyname
 				FROM ".$wpdb->prefix."ts_metadata
+				".$wpdb->prefix."ts_datalicenses.name AS licname, ".$wpdb->prefix."ts_datalicenses.shortname AS licshortname,
+				".$wpdb->prefix."ts_datalicenses.url AS licurl
 				LEFT JOIN ".$wpdb->prefix."ts_metadatafriendlynames ON ".$wpdb->prefix."ts_metadata.metadata_id = ".$wpdb->prefix."ts_metadatafriendlynames.metadata_id
+				LEFT JOIN ".$wpdb->prefix."ts_datalicenses ON ".$wpdb->prefix."ts_metadata.license = ".$wpdb->prefix."ts_datalicenses.id
 				WHERE (
 					".$wpdb->prefix."ts_metadata.producer_id = $current_user->ID OR
 					".$wpdb->prefix."ts_metadata.producer_blog_id = $blogId
