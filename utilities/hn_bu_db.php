@@ -59,8 +59,8 @@ class HN_BU_Database {
 	 */
 	function hn_bu_getBloglist(){
 		global $wpdb;
-		return $wpdb->get_results( 	$wpdb->prepare(
-				"SELECT site_id, blog_id FROM wp_blogs ORDER BY site_id ASC, blog_id ASC;" )	);
+		return $wpdb->get_results(
+				"SELECT site_id, blog_id FROM wp_blogs ORDER BY site_id ASC, blog_id ASC;"	);
 	}
 
 	/**
@@ -68,8 +68,7 @@ class HN_BU_Database {
 	 */
 	function hn_bu_getUserlist(){
 		global $wpdb;
-		return $wpdb->get_results( 	$wpdb->prepare(
-				"SELECT ID FROM wp_users;" )	);
+		return $wpdb->get_results( "SELECT ID FROM wp_users;" );
 	}
 
 	/**
@@ -77,7 +76,7 @@ class HN_BU_Database {
 	 */
 	function hn_bu_setUserBloglist($userblogarray){
 		global $wpdb;
-		$wpdb->query( $wpdb->prepare( "TRUNCATE TABLE wp_bu_blogusers;" )	);
+		$wpdb->query( "TRUNCATE TABLE wp_bu_blogusers;"	);
 		foreach ($userblogarray AS $user_blog) {
 			$wpdb->insert(
 					'wp_bu_blogusers',
