@@ -110,7 +110,7 @@ class Proxied_IXR_Client extends IXR_Client{
 
 		// Is the message a fault?
 		if ($this->message->messageType == 'fault') {
-			$this->error = new IXR_Error($this->message->faultCode, 
+			$this->error = new IXR_Error($this->message->faultCode,
 					$this->message->faultString);
 			return false;
 		}
@@ -207,8 +207,8 @@ function sendFile($name, $data,$replRow, $timestamp){
 	$hmac = getHmac($args,$replRow->remote_user_pass);
 	$args['hmac']= $hmac;
 	$body=array('body'=>$args);
-	return wp_remote_post( 
-		$replRow->remote_url.'/measurementfile/'.$replRow->remote_table, $body 
+	return wp_remote_post(
+		$replRow->remote_url.'/measurementfile/'.$replRow->remote_table, $body
 	);
 }
 
@@ -281,8 +281,8 @@ function hn_ts_getExternalLatestReading($replRow){
  */
 function hn_ts_continuousReplication(){
 	global $wpdb;
-	$repls = $wpdb->get_results( 	
-			"SELECT replication_id FROM ".$wpdb->prefix."replication
+	$repls = $wpdb->get_results(
+			"SELECT replication_id FROM ".$wpdb->prefix."ts_replication
 			WHERE continuous=1;"	);
 	foreach ( $repls as $repl )
 	{
@@ -313,7 +313,7 @@ function hn_ts_replicate_partial($replRowId){
 			$res = hn_ts_replicate_full($replRow->replication_id);
 			$db->hn_ts_replUnlock($replRowId);
 			return $res;
-		}else{				
+		}else{
 			$date = new DateTime();
 			$mindate = date( "Y-m-d H:i:s", strtotime( $response )+1 );
 			$date = str_replace("T"," ",
@@ -367,7 +367,7 @@ function replicateXmlRpc($replRow){
 
 function handleProxy(){
 	$options = get_option('hn_ts');
-	
+
 	if(is_array($options) && array_key_exists('proxyAddr',$options) &&array_key_exists('proxyPort',$options)){
 		if ( !defined( 'WP_PROXY_HOST' ) ){
 			define('WP_PROXY_HOST', $options['proxyAddr']);
