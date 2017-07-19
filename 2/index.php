@@ -50,7 +50,7 @@ $setUserId=function (){
 	global $hn_tsuserid;
 	$hn_tsuserid=1;
 
-}; 
+};
 
 $setUserId();
 
@@ -703,7 +703,7 @@ function hn_ts_upload_measurement_file($tablename, $data, $filename, $timestamp)
  * Reads the wp-config file
  * @param $path is the path to the wp-config.php file
  */
-function hn_ts_readWpConfig($path="../../../../wp-config.php"){
+function hn_ts_readWpConfig($path=$_SERVER['DOCUMENT_ROOT'] . '/wp-config.php'){
 	if (file_exists($path)) {
 		$subject = file_get_contents($path);
 	}
@@ -1334,7 +1334,7 @@ function hn_ts_int_update_timestream_head($timestreamId, $newHead, $newStart, $n
 	$starttime = date ("Y-m-d H:i:s", $newStart);
 	$endtime = date ("Y-m-d H:i:s", $newEnd);
 	global $hn_tsuserid;
-	
+
 	$sql = "SELECT * FROM ".$wpdb->prefix."ts_timestreams WHERE timestream_id = $timestreamId";
 
 	 if(isset($hn_tsuserid)){
