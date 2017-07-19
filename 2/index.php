@@ -22,7 +22,7 @@ require 'Slim/Slim.php';
 define('HN_TS_DEBUG', false);
 define('HN_TS_VERSION', "v. 2.0.0-Alpha-0.3");
 $app = new Slim();
-hn_ts_readWpConfig();
+hn_ts_readWpConfig($_SERVER['DOCUMENT_ROOT'] . '/wp-config.php');
 hn_ts_setSitepath();
 $wpdb=new stdClass();
 $wpdb->prefix=WP_PREFIX;
@@ -703,7 +703,7 @@ function hn_ts_upload_measurement_file($tablename, $data, $filename, $timestamp)
  * Reads the wp-config file
  * @param $path is the path to the wp-config.php file
  */
-function hn_ts_readWpConfig($path=$_SERVER['DOCUMENT_ROOT'] . '/wp-config.php'){
+function hn_ts_readWpConfig($path="../../../../wp-config.php"){
 	if (file_exists($path)) {
 		$subject = file_get_contents($path);
 	}
